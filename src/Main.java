@@ -7,9 +7,6 @@ import java.util.Objects;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-        List<? extends Number> list = new ArrayList<>();
-        list.add(Integer.valueOf(1));
-        display(list);
     }
 
     public static void display(List<? extends Number> list) {
