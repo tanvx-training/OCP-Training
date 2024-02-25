@@ -172,9 +172,9 @@ where you need to keep track of a list of objects.
 
 *Comparing List Implementations*
 
->A LinkedList is special because it implements both List and Queue. It has all of the
-methods of a List. It also has additional methods to facilitate adding or removing from the
-beginning and/or end of the list.
+> A LinkedList is special because it implements both List and Queue. It has all of the
+> methods of a List. It also has additional methods to facilitate adding or removing from the
+> beginning and/or end of the list.
 
 |                     | ArrayList                                                    | LinkedList                                                  |
 |---------------------|--------------------------------------------------------------|-------------------------------------------------------------|
@@ -236,31 +236,31 @@ beginning and/or end of the list.
 
 *Comparing Queue Implementations*
 
-|                   | LinkedList                                             | ArrayDeque                                             |
-|-------------------|--------------------------------------------------------|--------------------------------------------------------|
-| Storage           | Uses a doubly linked list to store elements.          | Uses a dynamic array to store elements.                |
-| Main Benefit      | Adding and removing elements at both ends have constant time complexity. | Adding and removing elements at both ends have constant time complexity. |
-| Tradeoff          | Accessing elements by index takes linear time complexity. | Accessing elements by index takes linear time complexity. |
+|                   | LinkedList                                                                              | ArrayDeque                                                                               |
+|-------------------|-----------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| Storage           | Uses a doubly linked list to store elements.                                            | Uses a dynamic array to store elements.                                                  |
+| Main Benefit      | Adding and removing elements at both ends have constant time complexity.                | Adding and removing elements at both ends have constant time complexity.                 |
+| Tradeoff          | Accessing elements by index takes linear time complexity.                               | Accessing elements by index takes linear time complexity.                                |
 | Suitable Use Case | Suitable when you frequently need to add or remove elements from both ends of the list. | Suitable when you frequently need to add or remove elements from both ends of the deque. |
-| Implementation    | Implemented as a linked list.                         | Implemented as a dynamic array.                       |
+| Implementation    | Implemented as a linked list.                                                           | Implemented as a dynamic array.                                                          |
 
 *Working with Queue Methods*
 
-| Method                     | Description                                                                       |
-|----------------------------|-----------------------------------------------------------------------------------|
-| **Add Element**            |                                                                                   |
-| `boolean add(E e)`         | Adds an element to the end of the queue, throws an exception if full.            |
-| `boolean offer(E e)`       | Adds an element to the end of the queue, returns true if successful.             |
-| **Remove Element**         |                                                                                   |
-| `E remove()`               | Removes and returns the first element of the queue, throws an exception if empty. |
-| `E poll()`                 | Removes and returns the first element of the queue, returns null if empty.        |
-| **Access First Element**   |                                                                                   |
+| Method                     | Description                                                                               |
+|----------------------------|-------------------------------------------------------------------------------------------|
+| **Add Element**            |                                                                                           |
+| `boolean add(E e)`         | Adds an element to the end of the queue, throws an exception if full.                     |
+| `boolean offer(E e)`       | Adds an element to the end of the queue, returns true if successful.                      |
+| **Remove Element**         |                                                                                           |
+| `E remove()`               | Removes and returns the first element of the queue, throws an exception if empty.         |
+| `E poll()`                 | Removes and returns the first element of the queue, returns null if empty.                |
+| **Access First Element**   |                                                                                           |
 | `E element()`              | Returns the first element of the queue without removing it, throws an exception if empty. |
-| `E peek()`                 | Returns the first element of the queue without removing it, returns null if empty. |
-| **Queue and Stack Methods**|                                                                                   |
-| `void push(E e)`           | Adds an element to the front of the queue.                                       |
-| **Stack Methods**          |                                                                                   |
-| `E pop()`                  | Removes and returns the first element of the stack, throws an exception if empty. |
+| `E peek()`                 | Returns the first element of the queue without removing it, returns null if empty.        |
+| **Queue and Stack Methods**|                                                                                           |
+| `void push(E e)`           | Adds an element to the front of the queue.                                                |
+| **Stack Methods**          |                                                                                           |
+| `E pop()`                  | Removes and returns the first element of the stack, throws an exception if empty.         |
 
 ```java
 import java.util.LinkedList;
@@ -294,3 +294,371 @@ public class QueueExample {
 }
 
 ```
+
+**Map**
+- You use a map when you want to identify values by a key.
+
+*Comparing Map Implementations*
+
+|                   | HashMap                                                                            | TreeMap                                                                                                    |
+|-------------------|------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| Data Structure    | Uses a hash table to store key-value pairs.                                        | Uses a Red-Black tree to store key-value pairs.                                                            |
+| Main Benefit      | Offers constant-time performance for basic operations, such as get() and put().    | Maintains keys in sorted order, allowing efficient operations for range views and nearest neighbor search. |
+| Order of Elements | Does not maintain any order of its keys.                                           | Maintains keys in sorted (ascending) order.                                                                |
+| Performance       | Generally faster for basic operations (get, put, containsKey).                     | Slower for basic operations due to the overhead of maintaining the tree structure.                         |
+| Usage             | Suitable for general-purpose use, especially when order is not important.          | Suitable when keys need to be maintained in sorted order or when range queries are needed.                 |
+
+*Working with Map Methods*
+
+| Method                          | Description                                                                          | Example                                                                                    |
+|---------------------------------|--------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| void clear()                    | Removes all keys and values from the map.                                            | map.clear();                                                                               |
+| boolean isEmpty()               | Returns whether the map is empty.                                                    | boolean empty = map.isEmpty();                                                             |
+| int size()                      | Returns the number of entries (key/value pairs) in the map.                          | int mapSize = map.size();                                                                  |
+| V get(Object key)               | Returns the value mapped by key or null if none is mapped.                           | Integer value = map.get("key");                                                            |
+| V put(K key, V value)           | Adds or replaces key/value pair. Returns previous value or null.                     | Integer oldValue = map.put("key", value);                                                  |
+| V remove(Object key)            | Removes and returns value mapped to key. Returns null if none.                       | Integer removedValue = map.remove("key");                                                  |
+| boolean containsKey(Object key) | Returns whether key is in map.                                                       | boolean containsKey = map.containsKey("key");                                              |
+| boolean containsValue(Object)   | Returns whether value is in map.                                                     | boolean containsValue = map.containsValue(value);                                          |
+| Set<K> keySet()                 | Returns set of all keys.                                                             | Set<K> keys = map.keySet();                                                                |
+| Collection<V> values()          | Returns Collection of all values.                                                    | Collection<V> allValues = map.values();                                                    |
+
+**Comparing Collection Types**
+
+*Java Collections Framework types*
+
+| Type     | Can contain duplicate elements? | Elements ordered?                | Has keys and values? | Must add/remove in specific order?    |
+|----------|---------------------------------|----------------------------------|----------------------|---------------------------------------|
+| List     | Yes                             | Yes (by index)                   | No                   | No                                    |
+| Map      | Yes (for values)                | No                               | Yes                  | No                                    |
+| Queue    | Yes                             | Yes (retrieved in defined order) | No                   | Yes                                   |
+| Set      | No                              | No                               | No                   | No                                    |
+
+
+*Collection attributes*
+
+1. Interface: List
+
+| Type        | Sorted? | Calls hashCode? | Calls compareTo? |
+|-------------|---------|-----------------|------------------|
+| ArrayList   | No      | No              | No               |
+| LinkedList  | No      | No              | No               |
+| Stack       | No      | No              | No               |
+| Vector      | No      | No              | No               |
+
+2. Interface: Queue
+
+| Type        | Sorted? | Calls hashCode? | Calls compareTo? |
+|-------------|---------|-----------------|------------------|
+| ArrayDeque  | No      | No              | No               |
+| LinkedList  | No      | No              | No               |
+
+3. Interface: Map
+
+| Type        | Sorted? | Calls hashCode? | Calls compareTo? |
+|-------------|---------|-----------------|------------------|
+| HashMap     | No      | Yes             | No               |
+| Hashtable   | No      | Yes             | No               |
+| TreeMap     | Yes     | No              | Yes              |
+
+4. Interface: Set
+
+| Type        | Sorted? | Calls hashCode? | Calls compareTo? |
+|-------------|---------|-----------------|------------------|
+| HashSet     | No      | Yes             | No               |
+| TreeSet     | Yes     | No              | Yes              |
+
+- All data structures allow nulls except these:
+  + TreeMap — no null keys
+  + Hashtable — no null keys or values
+  + TreeSet — no null elements
+  + ArrayDeque — no null elements
+
+*Choosing the right collection type*
+
+| Which class do you choose when you want ____________                                                                                                                                 | Answer (single best type) | Reason                                                                                                                                                                                                                                                                        |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| to pick the top zoo map off a stack of maps                                                                                                                                          | ArrayDeque                | The description is of a last-in, first-out data structure, so you need a stack, which is a type of Queue. (Stack would also match this description, but it shouldn’t be used for new code.)                                                                                   |
+| to sell tickets to people in the order in which they appear in line and tell them their position in line                                                                             | LinkedList                | The description is of a first-in, first-out data structure, so you need a queue. You also needed indexes, and LinkedList is the only class to match both requirements.                                                                                                        |
+| to write down the first names of all of the elephants so that you can tell them to your friend’s three-year-old every time she asks. (The elephants do not have unique first names.) | ArrayList                 | Since there are duplicates, you need a list rather than a set. You will be accessing the list more often than updating it, since three-year-olds ask the same question over and over, making an ArrayList better than a LinkedList. Vector and Stack aren’t used in new code. |
+| to list the unique animals that you want to see at the zoo today                                                                                                                     | HashSet                   | The keyword in the description is unique. When you see “unique,” think “set.” Since there were no requirements to have a sorted order or to remember the insertion order, you use the most efficient set.                                                                     |
+| to list the unique animals that you want to see at the zoo today in alphabetical order                                                                                               | TreeSet                   | Since it says “unique,” you need a set. This time, you need to sort, so you cannot use a HashSet.                                                                                                                                                                             |
+| to look up animals based on a unique identifier                                                                                                                                      | HashMap                   | Looking up by key should make you think of a map. Since you have no ordering or sorting requirements, you should use the most basic map.                                                                                                                                      |
+
+### Comparator vs. Comparable
+
+- Java provides an interface called Comparable. If your class implements Comparable , it can be used 
+in these data structures that require comparison. 
+- There is also a class called Comparator , which is used to specify that you want to use a different
+order than the object itself provides
+
+**Comparable**
+
+```java
+public interface Comparable<T> {
+
+  public int compareTo(T o);
+}
+```
+
+*There are three rules to know:*
+- The number zero is returned when the current object is equal to the argument to compareTo().
+- A number less than zero is returned when the current object is smaller than the argument to 
+compareTo().
+- A number greater than zero is returned when the current object is larger than the argument to 
+compareTo().
+
+```java
+public class Animal implements java.util.Comparable<Animal> {
+    private int id;
+
+    public int compareTo(Animal a) {
+        return id - a.id;
+    }
+
+    public static void main(String[] args) {
+        Animal a1 = new Animal();
+        Animal a2 = new Animal();
+        
+        a1.id = 5;
+        a2.id = 7;
+        
+        System.out.println(a1.compareTo(a2)); // -2
+        System.out.println(a1.compareTo(a1)); // 0
+        System.out.println(a2.compareTo(a1)); // 2
+    }
+}
+```
+
+*Remember that id – a.id sorts in ascending order and a.id – id sorts in descending order*
+
+**Comparator**
+
+Sometimes you want to sort an object that did not implement Comparable, or you want to sort objects
+in different ways at different times.
+
+```java
+public interface Comparator<T> {
+
+  int compare(T o1, T o2);
+}
+```
+
+**Comparison of Comparable and Comparator**
+
+| Difference                                   | Comparable          | Comparator          |
+|----------------------------------------------|---------------------|---------------------|
+| Package name                                 | java.lang           | java.util           |
+| Interface must be implemented by class       | Yes                 | No                  |
+| Method name in interface                     | compareTo           | compare             |
+| Number of parameters                         | 1                   | 2                   |
+| Common to declare using a lambda             | No                  | Yes                 |
+
+### Searching and Sorting
+
+Just like searching and sorting, you can tell collections that require sorting that you wish
+to use a specific Comparator, for example:
+
+```java
+Set<Rabbit> rabbit=new TreeSet<>(new Comparator<Rabbit>(){
+  public int compare(Rabbit r1,Rabbit r2){
+        return r1.id=r2.id;
+  }
+});
+rabbit.add(new Rabbit());
+```
+
+### Additions in Java 8
+
+**Using Method References**
+
+There are four formats for method references:
+- Static methods
+- Instance methods on a particular instance
+- Instance methods on an instance to be determined at runtime
+- Constructors
+
+**Removing Conditionally**
+
+```java
+boolean removeIf(Predicate<? super E> filter)
+```
+
+Java 8 introduces a new method called removeIf. Before this, we had the ability to remove
+a specified object from a collection or a specified index from a list. Now we can specify
+what should be deleted using a block of code.
+
+```java
+List<String> list = new ArrayList<>();
+list.add("Magician");
+list.add("Assistant");
+System.out.println(list); // [Magician, Assistant]
+list.removeIf(s -> s.startsWith("A"));
+System.out.println(list);
+```
+
+**Updating All Elements**
+
+```
+void replaceAll(UnaryOperator<E> o)
+```
+
+- Another new method introduced on Lists is replaceAll. Java 8 lets you pass a lambda
+expression and have it applied to each element in the list. The result replaces the current
+value of that element.
+- It uses a UnaryOperator, which takes one parameter and returns a value of the same
+type.
+
+```java
+List<Integer> list = Arrays.asList(1, 2, 3);
+list.replaceAll(x -> x*2);
+System.out.println(list); // [2, 4, 6]
+```
+
+**Looping through a Collection**
+
+This time, we’ve used a Consumer, which takes a single parameter and doesn’t return
+anything
+
+```java
+    default void forEach(Consumer<? super T> action) {
+        Objects.requireNonNull(action);
+        for (T t : this) {
+            action.accept(t);
+        }
+    }
+```
+
+**Using New Java 8 Map APIs**
+
+*merge()*
+
+- The merge() method allows adding logic to the problem of what to choose.
+- The merge() method also has logic for what happens if nulls or missing keys are involved. In this 
+case, it doesn’t call the BiFunction at all, and it simply uses the new value.
+- The final thing to know about merge() is what happens when the mapping function is called and 
+returns null. The key is removed from the map when this happens.
+
+```java
+import java.util.HashMap;
+import java.util.Map;
+
+public class MergeExample {
+    public static void main(String[] args) {
+        Map<String, Integer> scores = new HashMap<>();
+        
+        scores.put("Alice", 10);
+        scores.put("Bob", 20);
+        scores.put("Charlie", 30);
+        
+
+        scores.merge("Alice", 5, (oldValue, newValue) -> oldValue + newValue);
+        // Scores after merging: {Alice=15, Bob=20, Charlie=30}
+        System.out.println("Scores after merging: " + scores);
+        
+        scores.merge("Bob", null, (oldValue, newValue) -> oldValue + newValue);
+        // Scores after merging with null: {Alice=15, Bob=null, Charlie=30}
+        System.out.println("Scores after merging with null: " + scores);
+        
+        scores.merge("David", null, (oldValue, newValue) -> oldValue + newValue);
+        // Scores after merging with missing key: {Alice=15, Bob=null, Charlie=30, David=null}
+        System.out.println("Scores after merging with missing key: " + scores);
+        
+        scores.merge("Charlie", null, (oldValue, newValue) -> null);
+        // Scores after merging with null value returned: {Alice=15, Bob=null, David=null}
+        System.out.println("Scores after merging with null value returned: " + scores);
+    }
+}
+```
+
+*computeIfPresent() and computeIfAbsent()*
+
+- In a nutshell, computeIfPresent() calls the BiFunction if the requested key is found.
+
+```java
+Map<String, Integer> counts = new HashMap<>();
+counts.put("Jenny", 1);
+BiFunction<String, Integer, Integer> mapper = (k, v) -> v + 1;
+Integer jenny = counts.computeIfPresent("Jenny", mapper);
+Integer sam = counts.computeIfPresent("Sam", mapper);
+System.out.println(counts); // {Jenny=2}
+System.out.println(jenny); // 2
+System.out.println(sam); // null
+```
+
+- For computeIfAbsent(), the functional interface runs only when the key isn’t present or is null:
+
+```java
+Map<String, Integer> counts = new HashMap<>();
+counts.put("Jenny", 15);
+counts.put("Tom", null);
+Function<String, Integer> mapper = (k) -> 1;
+Integer jenny = counts.computeIfAbsent("Jenny", mapper); // 15
+Integer sam = counts.computeIfAbsent("Sam", mapper); // 1
+Integer tom = counts.computeIfAbsent("Tom", mapper); // 1
+System.out.println(counts); // {Tom=1, Jenny=15, Sam=1}
+```
+
+*The basics of the merge and compute methods*
+
+| Scenario                     | merge                               | computeIfAbsent                    | computeIfPresent                   |
+|------------------------------|-------------------------------------|------------------------------------|------------------------------------|
+| Key already in map           | Result of function                 | No action                         | Result of function                 |
+| Key not already in map       | Result of function               | Add new value to map                | No action                          |
+| Functional Interface used   | BiFunction (Takes existing value and new value. Returns new value.) | Function (Takes key and returns new value.) | BiFunction (Takes key and existing value. Returns new value.) |
+
+
+*Merge and compute methods when nulls are involved*
+
+| Key has               | Mapping functions returns | merge                               | computeIfAbsent                                       | computeIfPresent                    |
+|-----------------------|---------------------------|-------------------------------------|-------------------------------------------------------|-------------------------------------|
+| null value in map     | null                      | Remove key from map.                | Do not change map.                                    | Do not change map.                  |
+| null value in map     | Not null                  | Set key to mapping function result. | Add key to map with mapping function result as value. | Do not change map.                  |
+| Non-null value in map | null                      | Remove key from map.                | Do not change map.                                    | Remove key from map.                |
+| Non-null value in map | Not null                  | Set key to mapping function result. | Do not change map.                                    | Set key to mapping function result. |
+| Key not in map        | null                      | Add key to map.                     | Do not change map.                                    | Do not change map.                  |
+| Key not in map        | Not null                  | Add key to map.                     | Add key to map with mapping function result as value. | Do not change map.                  |
+
+**Summary**
+
+*Pick the correct type of collection from a description*:
+
+- A List allows duplicates and orders the elements. 
+- A Set does not allow duplicates. 
+- A Queue orders its elements to allow retrievals from one or both ends. 
+- A Map maps keys to value. 
+- Be familiar with the differences of implementations of these interfaces.
+
+*Identify valid and invalid uses of generics*:
+
+- `<T>` represents a type parameter. 
+- Any name can be used, but a single uppercase letter is the convention. 
+- `<?>` is an unbounded wildcard.
+- `<? extends X>` is an upper-bounded wildcard and applies to both classes and interfaces. 
+- `<? super X>` is a lower-bounded wildcard.
+
+*Recognize the difference between compiler warnings and errors when dealing with legacy code*:
+
+- A compiler warning occurs when using non-generic types, and a ClassCastException might occur at 
+runtime. 
+- A compiler error occurs when trying to unbox from a legacy collection.
+
+*Differentiate between Comparable and Comparator:*
+
+- Classes that implement Comparable are said to have a natural ordering and implement the compareTo()
+method. 
+- A class is allowed to have only one natural ordering. 
+- A Comparator takes two objects in the compare() method. 
+- Different Comparators can have different sort orders. 
+- A Comparator is often implemented using a lambda such as (a, b) -> a.num – b.num.
+
+*Understand the behavior and usage of the sort and binary search methods:*
+
+- The Collections and Arrays classes provide overloaded sort() and binarySearch() methods.
+- They take an optional Comparator parameter. 
+- The list or array must be sorted before it is searched using the same definition of order for both.
+
+*Map method references to the “long form” lambda:*
+
+- Be able to convert method references into regular lambda expressions and vice versa. 
+- For example, System.out::print and x -> System.out.print(x) are equivalent.
