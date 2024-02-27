@@ -1,12 +1,11 @@
 package chap04.streams;
 
-import java.util.Random;
-import java.util.stream.Stream;
+import data.TaskManager;
 
 public class MainApp {
 
   public static void main(String[] args) {
-    Stream.generate(() -> new Random(100).nextInt())
+    TaskManager.generateTasks(20)
         .forEach(System.out::println);
   }
 }

@@ -461,4 +461,169 @@ threeElements.reduce(op).ifPresent(System.out::print); // 90
 **collect()**
 
 - The collect() method is a special type of reduction called a mutable reduction.
-- 
+- This is a really useful method, because it lets us get data out of streams and into another form.
+- Method signature:
+
+```java
+<R> R collect(Supplier<R> supplier, BiConsumer<R, ? super T> accumulator,BiConsumer<R, R> combiner)
+
+<R,A> R collect(Collector<? super T, A,R> collector)
+```
+
+- Example:
+
+```java
+Stream<String> stream = Stream.of("w", "o", "l", "f");
+StringBuilder word = stream.collect(StringBuilder::new,
+StringBuilder::append, StringBuilder:append)
+
+Stream<String> stream = Stream.of("w", "o", "l", "f");
+TreeSet<String> set = stream.collect(TreeSet::new, TreeSet::add,
+TreeSet::addAll);
+System.out.println(set); // [f, l, o, w]
+```
+
+5. Using Common Intermediate Operations 
+
+Unlike a terminal operation, intermediate operations deal with infinite streams simply by
+returning an infinite stream
+
+**filter()**
+
+- The filter() method returns a Stream with elements that match a given expression. 
+- Here is the method signature:
+
+```java
+Stream<T> filter(Predicate<? super T> predicate)
+```
+
+- Example:
+
+```java
+Stream<String> s = Stream.of("monkey", "gorilla", "bonobo");
+s.filter(x -> x.startsWith("m")).forEach(System.out::print); // monkey
+```
+
+**distinct()**
+
+- The distinct() method returns a stream with duplicate values removed.
+- Java calls equals() to determine whether the objects are the same.
+- The method signature is as follows: 
+
+```java
+Stream<T> distinct()
+```
+
+- Here’s an example:
+
+```java
+Stream<String> s = Stream.of("duck", "duck", "duck", "goose");
+s.distinct().forEach(System.out::print); // duckgoose
+```
+
+**limit() and skip()**
+
+- The limit() and skip() methods make a Stream smaller.
+- They could make a finite stream smaller, or they could make a finite stream out of an infinite stream. 
+- The method signatures are shown here:
+
+```java
+Stream<T> limit(int maxSize)
+Stream<T> skip(int n) 
+```
+
+- Example:
+
+```java
+Stream<Integer> s = Stream.iterate(1, n -> n + 1);
+s.skip(5).limit(2).forEach(System.out::print); // 67
+```
+
+**map()**
+
+- The map() method creates a one-to-one mapping from the elements in the stream to the elements of the next step in the stream. 
+- The method signature is as follows:
+
+```java
+ <R> Stream<R> map(Function<? super T, ? extends R> mapper) 
+```
+
+- Example:
+
+```java
+Stream<String> s = Stream.of("monkey", "gorilla", "bonobo");
+s.map(String::length).forEach(System.out::print); // 676 
+```
+
+**flatMap()**
+
+- The flatMap() method takes each element in the stream and makes any elements it contains top-level elements in a single stream.
+- This is helpful when you want to remove empty elements from a stream or you want to combine a stream of lists.
+- Method signature is as follows:
+
+```java
+<R> Stream<R> flatMap(Function<? super T, ? extends Stream<? extends R>> mapper)
+```
+
+- Example:
+
+```java
+List<String> zero = Arrays.asList();
+List<String> one = Arrays.asList("Bonobo");
+List<String> two = Arrays.asList("Mama Gorilla", "Baby Gorilla");
+Stream<List<String>> animals = Stream.of(zero, one, two);
+```
+
+**sorted()**
+
+- The sorted() method returns a stream with the elements sorted.
+- Method signature is as follows:
+
+```java
+Stream<T> sorted()
+Stream<T> sorted(Comparator<? super T> comparator)
+```
+
+- Example:
+
+```java
+Stream<String> s = Stream.of("brown-", "bear-");
+s.sorted().forEach(System.out::print); // bear-brown-
+
+Stream<String> s = Stream.of("brown bear-", "grizzly-");
+s.sorted(Comparator.reverseOrder())
+ .forEach(System.out::print); // grizzly-brown bear-
+```
+
+**peek()**
+
+- The peek() method is is useful for debugging because it allows us to perform a stream operation
+without actually changing the stream. 
+- The method signature is as follows: 
+
+```java
+Stream<T> peek(Consumer<? super T> action) 
+```
+
+- The most common use for peek() is to output the contents of the stream as it goes by. 
+- Example:
+
+```java
+Stream<String> stream = Stream.of("black bear", "brown bear", "grizzly");
+long count = stream.filter(s -> s.startsWith("g"))
+                    .peek(System.out::println).count(); // grizzly
+ System.out.println(count); // 1
+```
+
+6. Putting Together the Pipeline
+
+7. Printing a Stream
+
+**How to print a stream**
+
+| Option                                              | Works for Infinite Streams?   | Destructive to Stream?    |
+|-----------------------------------------------------|-------------------------------|---------------------------|
+| s.forEach(System.out::println);                     | No                            | Yes                       |
+| System.out.println(s.collect(Collectors.toList())); | No                            | Yes                       |
+| s.peek(System.out::println).count();                | No                            | No                        |
+| s.limit(5).forEach(System.out::println);            | Yes                           | Yes                       |
