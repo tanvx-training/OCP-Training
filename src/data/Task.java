@@ -1,23 +1,48 @@
 package data;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.Objects;
 
 public class Task {
+  private int taskId;
+  private String title;
   private String description;
-  private boolean completed;
-  private LocalDate dueDate;
-  private int priority;
+  private LocalDate deadline;
+  private String status;
+  private int assignedTo;
 
-  // Constructor
-  public Task(String description, LocalDate dueDate, int priority) {
-    this.description = description;
-    this.completed = false; // Initialize as incomplete
-    this.dueDate = dueDate;
-    this.priority = priority;
+  // Constructors, getters, and setters
+
+
+  public Task() {
   }
 
-  // Getter and setter for description
+  public Task(int taskId, String title, String description, LocalDate deadline, String status, int assignedTo) {
+    this.taskId = taskId;
+    this.title = title;
+    this.description = description;
+    this.deadline = deadline;
+    this.status = status;
+    this.assignedTo = assignedTo;
+  }
+
+  public int getTaskId() {
+    return taskId;
+  }
+
+  public void setTaskId(int taskId) {
+    this.taskId = taskId;
+  }
+
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
   public String getDescription() {
     return description;
   }
@@ -26,69 +51,52 @@ public class Task {
     this.description = description;
   }
 
-  // Getter and setter for completed status
-  public boolean isCompleted() {
-    return completed;
+  public LocalDate getDeadline() {
+    return deadline;
   }
 
-  public void setCompleted(boolean completed) {
-    this.completed = completed;
+  public void setDeadline(LocalDate deadline) {
+    this.deadline = deadline;
   }
 
-  // Getter and setter for due date
-  public LocalDate getDueDate() {
-    return dueDate;
+  public String getStatus() {
+    return status;
   }
 
-  public void setDueDate(LocalDate dueDate) {
-    this.dueDate = dueDate;
+  public void setStatus(String status) {
+    this.status = status;
   }
 
-  // Getter and setter for priority
-  public int getPriority() {
-    return priority;
+  public int getAssignedTo() {
+    return assignedTo;
   }
 
-  public void setPriority(int priority) {
-    this.priority = priority;
+  public void setAssignedTo(int assignedTo) {
+    this.assignedTo = assignedTo;
   }
 
-  // Method to mark task as completed
-  public void completeTask() {
-    this.completed = true;
-  }
-
-  // Method to mark task as incomplete
-  public void markIncomplete() {
-    this.completed = false;
-  }
-
-  // Override equals and hashCode methods for comparing tasks
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Task task = (Task) o;
-    return completed == task.completed &&
-        priority == task.priority &&
-        Objects.equals(description, task.description) &&
-        Objects.equals(dueDate, task.dueDate);
+    return taskId == task.taskId && Objects.equals(title, task.title);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(description, completed, dueDate, priority);
+    return Objects.hash(taskId, title);
   }
 
-  // Override toString method for better printing
   @Override
   public String toString() {
     return "Task{" +
-        "description='" + description + '\'' +
-        ", completed=" + completed +
-        ", dueDate=" + dueDate +
-        ", priority=" + priority +
-        '}';
+            "taskId=" + taskId +
+            ", title='" + title + '\'' +
+            ", description='" + description + '\'' +
+            ", deadline=" + deadline +
+            ", status='" + status + '\'' +
+            ", assignedTo=" + assignedTo +
+            '}';
   }
 }
-

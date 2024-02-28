@@ -1,11 +1,17 @@
 package chap04.streams;
 
-import data.TaskManager;
+import data.DataManager;
+import data.Task;
+import data.User;
+
+import java.util.List;
 
 public class MainApp {
 
   public static void main(String[] args) {
-    TaskManager.generateTasks(20)
-        .forEach(System.out::println);
+    List<User> users = DataManager.generateUsers();
+    users.forEach(System.out::println);
+    List<Task> tasks = DataManager.generateTasks();
+    tasks.forEach(System.out::println);
   }
 }
