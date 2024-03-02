@@ -248,3 +248,44 @@ optional port.
 - If you’re closing all three resources, the ResultSet must be closed first, followed by the Statement, 
 and then followed by the Connection. 
 - Closing an object later in this list automatically closes those earlier in the list.
+
+# Practice
+
+**Question 1**: You are asked to establish a connection to a MySql database in the “localhost”, called “School”. You are given the password as “abcd” and the username as the “admin”. 
+
+Answer:
+
+- "jdbc:mysql://localhost:3306/School?user=admin&password=abcd"
+- "jdbc:mysql://:3306/School?user=admin&password=abcd"
+
+Explanation:
+
+**jdbc:mysql://[host][:port]/[database][?property1][=value1]...**
+
+- **host**:  - The host name where MySQL server is running. Default is 127.0.0.1 - the IP address of localhost.
+- **port**:  - The port number where MySQL is listening for connection. Default is 3306.
+- **database**: - The name of an existing database on MySQL server. If not specified, the connection starts no current database.
+- **property**:  - The name of a supported connection properties. "user" and "password" are 2 most important properties.
+- **value**:  - The value for the specified connection property.
+
+**Question 2**: We can create a JdbcRowSet object by using one of the following methods;
+
+Answer:
+
+- By using the JdbcRowSetImpl class’ constructor that takes a ResultSet object.
+- By using the JdbcRowSetImpl class’ constructor that takes a Connection object.
+- By using the JdbcRowSetImpl class’ default constructor.
+- By using an instance of RowSetFactory, which is created from the class RowSetProvider.
+
+**Question 3**: Which of the following are true about the isolation levels? 
+
+Answer:
+
+| Isolation Level              | Transactions  | Dirty Reads    | Non-Repeatable Reads | Phantom Reads   |
+|------------------------------|---------------|----------------|----------------------|-----------------|
+| TRANSACTION_NONE             | Not supported | Not applicable | Not applicable       | Not applicable  |
+| TRANSACTION_READ_COMMITTED   | Supported     | Prevented      | Allowed              | Allowed         |
+| TRANSACTION_READ_UNCOMMITTED | Supported     | Allowed        | Allowed              | Allowed         |
+| TRANSACTION_REPEATABLE_READ  | Supported     | Prevented      | Prevented            | Allowed         |
+| TRANSACTION_SERIALIZABLE     | Supported     | Prevented      | Prevented            | Prevented       |
+
