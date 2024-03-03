@@ -76,7 +76,7 @@ All Java Streams Use Byte
 
 ### Stream Nomenclature
 
-**Byte Streams vs. Character Streams**
+#### Byte Streams vs. Character Streams
 
 a. The java.io API defines two sets of classes for reading and writing streams:
 - Those with `Stream` in their name.
@@ -89,14 +89,14 @@ data.
 - The reader and writer classes are used for inputting and outputting only character and
 String data.
 
-**Input and Output**
+#### Input and Output
 
 - Most Input stream classes have a corresponding Output class and vice versa.
 - It follows, then, that most Reader classes have a corresponding Writer class.
 - There are exceptions to this rule. For the exam, you should know that PrintWriter has no accompanying 
 PrintReader class. Likewise, the PrintStream class has no corresponding InputStream class.
 
-**Low-Level vs. High-Level Streams**
+#### Low-Level vs. High-Level Streams
 
 - A low-level stream connects directly with the source of the data, such as a file, an array,
 or a String. 
@@ -118,7 +118,7 @@ try (ObjectInputStream objectStream = new ObjectInputStream(
 }
 ```
 
-**Stream Base Classes**
+#### Stream Base Classes
 
 The java.io library defines four abstract classes that are the parents of all stream classes
 defined within the API:
@@ -127,9 +127,9 @@ defined within the API:
 - Reader
 - Writer
 
-**Decoding Java I/O Class Names**
+#### Decoding Java I/O Class Names
 
-1. Review of java.io Class Properties
+**Review of java.io Class Properties**
 
 - A class with the word InputStream or OutputStream in its name is used for reading or
 writing binary data, respectively.
@@ -141,10 +141,32 @@ character or string data, respectively.
 - A class with Buffered in its name reads or writes data in groups of bytes or characters
 and often improves performance in sequential file systems.
 
->When wrapping a stream you can mix and match only types that inherit from the same
-abstract parent stream.
+> When wrapping a stream you can mix and match only types that inherit from the same
+> abstract parent stream.
 
-**Common Stream Operations**
+**The java.io stream classes**
+
+| Class Name          | Low/High Level | Description                                                                                                   |
+|---------------------|----------------|---------------------------------------------------------------------------------------------------------------|
+| InputStream         | N/A            | The abstract class all InputStream classes inherit from.                                                      |
+| OutputStream        | N/A            | The abstract class all OutputStream classes inherit from.                                                     |
+| Reader              | N/A            | The abstract class all Reader classes inherit from.                                                           |
+| Writer              | N/A            | The abstract class all Writer classes inherit from.                                                           |
+| FileInputStream     | Low            | Reads file data as bytes.                                                                                     |
+| FileOutputStream    | Low            | Writes file data as bytes.                                                                                    |
+| FileReader          | Low            | Reads file data as characters.                                                                                |
+| FileWriter          | Low            | Writes file data as characters.                                                                               |
+| BufferedReader      | High           | Reads character data from an existing Reader in a buffered manner, which improves efficiency and performance. |
+| BufferedWriter      | High           | Writes character data to an existing Writer in a buffered manner, which improves efficiency and performance.  |
+| ObjectInputStream   | High           | Deserializes primitive Java data types and graphs of Java objects from an existing InputStream.               |
+| ObjectOutputStream  | High           | Serializes primitive Java data types and graphs of Java objects to an existing OutputStream.                  |
+| InputStreamReader   | High           | Reads character data from an existing InputStream.                                                            |
+| OutputStreamWriter  | High           | Writes character data to an existing OutputStream.                                                            |
+| PrintStream         | High           | Writes formatted representations of Java objects to a binary stream.                                          |
+| PrintWriter         | High           | Writes formatted representations of Java objects to a text-based output stream.                               |
+
+
+#### Common Stream Operations
 
 1. Closing the Stream: `close()`
 
@@ -166,3 +188,292 @@ would be lost, because it was never written to the file system.
 the stream back to an earlier position.
 - Before calling either of these methods, you should call the markSupported() method, which returns 
 true only if mark() is supported.
+
+4. Skipping over Data: `skip(long)`
+
+## Working with Streams
+
+### The FileInputStream and FileOutputStream Classes
+
+- They are used to read bytes from a file or write bytes to a file, respectively. 
+- These classes include constructors that take a File object or String, representing a path to the file.
+- The `FileInputStream` class also contains overloaded versions of the `read()` method,
+which take a pointer to a byte array where the data is written. The method returns an
+integer value indicating how many bytes can be read into the byte array. It is also used by
+Buffered classes to improve performance.
+- A `FileOutputStream` object is accessed by writing successive bytes using the `write(int)`
+method. Like the FileInputStream class, the FileOutputStream also contains overloaded
+versions of the `write()` method that allow a byte array to be passed and can be used by
+Buffered classes. 
+
+```java
+import java.io.*;
+
+public class CopyFileSample {
+
+  public static void copy(File source, File destination) throws IOException {
+    try (InputStream in = new FileInputStream(source);
+            OutputStream out = new FileOutputStream(destination)) {
+      int b;
+      while ((b = in.read()) != -1) {
+        out.write(b);
+      }
+    }
+  }
+
+  public static void main(String[] args) throws IOException {
+    File source = new File("Zoo.class");
+    File destination = new File("ZooCopy.class");
+    copy(source, destination);
+  }
+}
+```
+
+### The BufferedInputStream and BufferedOutputStream Classes
+
+- Instead of reading the data one byte at a time, we use the underlying read(byte[]) method
+of BufferedInputStream, which returns the number of bytes read into the provided byte array.
+- The number of bytes read is important for two reasons:
+  + First, if the value returned is 0, then we know that we have reached the end of the file and can 
+stop reading from the BufferedInputStream.
+  + Second, the last read of the file will likely only partially fill the byte array, since it is 
+unlikely for the file size to be an exact multiple of our buffer array size.
+
+> Why Use the Buffered Classes?
+> 
+> Buffered classes in Java, such as `BufferedReader` and `BufferedWriter`, offer several advantages over their unbuffered counterparts:
+> 
+>1. **Efficiency**: Buffered classes use internal buffers to reduce the number of I/O operations, which can significantly improve performance, especially when dealing with large amounts of data. Instead of reading or writing one character or byte at a time, buffered classes read or write chunks of data at once, reducing the overhead associated with I/O operations.
+>
+>2. **Reduced System Calls**: Buffered classes minimize the number of system calls made to the underlying operating system, which can be expensive in terms of performance. By buffering data in memory and operating on it in larger chunks, buffered classes help reduce the overhead of system calls.
+>
+>3. **Convenience**: Buffered classes provide additional methods and functionalities that make common I/O operations easier to perform. For example, `BufferedReader` provides methods like `readLine()` for reading lines of text, while `BufferedWriter` offers methods like `newLine()` for writing platform-independent newline characters.
+>
+>4. **Support for Mark and Reset**: Buffered classes often support the `mark(int)` and `reset()` methods, allowing you to mark a position in the stream and later reset to that position. This feature is useful when you need to reread data from a certain point in the stream.
+>
+>5. **Integration with Other Streams**: Buffered classes can be easily layered on top of other input and output streams, allowing you to add buffering to any existing stream. This flexibility makes them versatile and widely applicable in various I/O scenarios.
+>
+>In summary, buffered classes provide improved performance, additional functionality, and greater flexibility compared to unbuffered I/O classes, making them a preferred choice for many I/O operations in Java applications.
+
+```java
+import java.io.*;
+
+public class CopyBufferFileSample {
+
+  public static void copy(File source, File destination) throws IOException {
+    try (
+            InputStream in = new BufferedInputStream(new FileInputStream(source));
+            OutputStream out = new BufferedOutputStream(
+                    new FileOutputStream(destination))) {
+      byte[] buffer = new byte[1024];
+      int lengthRead;
+      while ((lengthRead = in.read(buffer)) > 0) {
+        out.write(buffer, 0, lengthRead);
+        out.flush();
+      }
+    }
+  }
+}
+```
+
+### The FileReader and FileWriter classes
+
+- Like the `FileInputStream` and `FileOutputStream` classes, the `FileReader` and
+`FileWriter` classes contain read() and write() methods, respectively.
+- These methods read/write char values instead of byte values.
+
+### The BufferedReader and BufferedWriter Classes
+
+```java
+import java.io.*;
+import java.util.*;
+
+public class CopyTextFileSample {
+
+  public static List<String> readFile(File source) throws IOException {
+    List<String> data = new ArrayList<String>();
+    try (BufferedReader reader = new BufferedReader(new FileReader(source))) {
+      String s;
+      while ((s = reader.readLine()) != null) {
+        data.add(s);
+      }
+    }
+    return data;
+  }
+
+  public static void writeFile(List<String> data, File destination) throws
+          IOException {
+    try (BufferedWriter writer = new BufferedWriter(
+            new FileWriter(destination))) {
+      for (String s : data) {
+        writer.write(s);
+        writer.newLine();
+      }
+    }
+  }
+
+  public static void main(String[] args) throws IOException {
+    File source = new File("Zoo.csv");
+    File destination = new File("ZooCopy.csv");
+    List<String> data = readFile(source);
+    for (String record : data) {
+      System.out.println(record);
+    }
+    writeFile(data, destination);
+  }
+}
+```
+
+**Some important difference:**
+
+- First, in the `readFile()` method, we use a temporary String reference s to hold the value of the data,
+stop reading the file when `readLine()` returns `null`.
+- Next, instead of immediately copying the data we read from the file into the output file,
+we store it in a List of String objects in the readFile() method. This allows us to both
+display and modify the data, prior to writing it to disk later.
+- Unlike the previous examples where we had to write the code one byte at a time or by using a byte
+array, we can write the entire String in a single call. The `write(String)` method is quite convenient 
+in practice. We then use the `writer.newLine()` method to insert a line break into the copied file, as our
+`reader.readLine()` method split on line breaks.
+
+###  The ObjectInputStream and ObjectOutputStream Classes
+
+- The process of converting an in-memory object to a stored data format is referred to as `serialization`, 
+with the reciprocal process of converting stored data into an object, which is known as `deserialization`
+
+**The `Serializable` Interface**
+
+- In order to serialize objects using the java.io API, the class they belong to must implement
+the java.io.Serializable interface.
+- Besides, `transient` instance variables, `static` class members will also be ignored during
+the serialization and deserialization process.
+
+```java
+import java.io.Serializable;
+
+public class Animal implements Serializable {
+
+  private static final long serialVersionUID = 1L;
+  private String name;
+  private int age;
+  private char type;
+
+  public Animal(String name, int age, char type) {
+    this.name = name;
+    this.age = age;
+    this.type = type;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public int getAge() {
+    return age;
+  }
+
+  public char getType() {
+    return type;
+  }
+
+  public String toString() {
+    return "Animal [name=" + name + ", age=" + age + ", type=" + type + "]";
+  }
+}
+```
+
+- The serialization process uses the serialVersionUID to identify uniquely a version of the class. 
+- That way, it knows whether the serialized data for an object will match the instance variable in 
+the current version of the class. 
+- If an older version of the class is encountered during deserialization, an exception may be thrown.
+
+**Serializing and Deserializing Objects**
+
+- The java.io API provides two stream classes for object `serialization` and `deserialization`
+called `ObjectInputStream` and `ObjectOutputStream`.
+
+```java
+import java.io.*;
+import java.util.*;
+
+public class ObjectStreamSample {
+
+  public static List<Animal> getAnimals(File dataFile) throws IOException,
+          ClassNotFoundException {
+    List<Animal> animals = new ArrayList<Animal>();
+    try (ObjectInputStream in = new ObjectInputStream(
+            new BufferedInputStream(new FileInputStream(dataFile)))) {
+      while (in.available() > 0) {
+        Object object = in.readObject();
+        if (object instanceof Animal)
+          animals.add((Animal) object);
+      }
+    } catch (EOFException e) {
+      // File end reached
+    }
+    return animals;
+  }
+
+  public static void createAnimalsFile(List<Animal> animals, File dataFile)
+          throws IOException {
+    try (ObjectOutputStream out = new ObjectOutputStream(
+            new BufferedOutputStream(new FileOutputStream(dataFile)))) {
+      for (Animal animal : animals)
+        out.writeObject(animal);
+    }
+  }
+
+  public static void main(String[] args) throws IOException,
+          ClassNotFoundException {
+    List<Animal> animals = new ArrayList<Animal>();
+    animals.add(new Animal("Tommy Tiger", 5, 'T'));
+    animals.add(new Animal("Peter Penguin", 8, 'P'));
+    File dataFile = new File("animal.data");
+    createAnimalsFile(animals, dataFile);
+    System.out.println(getAnimals(dataFile));
+  }
+}
+```
+
+**Understanding Object Creation**
+
+- When you `deserialize` an object, the constructor of the serialized class is not called.
+- In fact, Java calls the first no-arg constructor for the first non-serializable parent class, 
+skipping the constructors of any serialized class in between. Furthermore, any static variables or
+default initializations are ignored.
+
+```java
+public class Animal implements Serializable {
+
+  private static final long serialVersionUID = 2L;
+  private transient String name;
+  private transient int age = 10;
+  private static char type = 'C';
+
+  {
+    this.age = 14;
+  }
+
+  public Animal() {
+    this.name = "Unknown";
+    this.age = 12;
+    this.type = 'Q';
+  }
+
+  public Animal(String name, int age, char type) {
+    this.name = name;
+    this.age = age;
+    this.type = type;
+  }
+}
+```
+
+### The PrintStream and PrintWriter Classes
+
+- The PrintStream and PrintWriter classes are high-level stream classes that write
+formatted representation of Java objects to a text-based output stream.
+
+#### println()
+
+- Overloaded with all Java primitives as well as String and Object.
+  - In general, these methods perform `String.valueOf()` on the argument and call the underlying stream’s `write()` method.
