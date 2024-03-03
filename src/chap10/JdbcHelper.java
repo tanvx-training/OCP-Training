@@ -9,7 +9,7 @@ public class JdbcHelper {
         String url = "jdbc:postgresql://localhost:5432/ocp";
         String username = "postgres";
         String password = "password";
-//        Class.forName("org.postgresql.Driver");
+        Class.forName("org.postgresql.Driver");
 
         return DriverManager.getConnection(url, username, password);
     }

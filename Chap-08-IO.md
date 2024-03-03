@@ -473,7 +473,61 @@ public class Animal implements Serializable {
 - The PrintStream and PrintWriter classes are high-level stream classes that write
 formatted representation of Java objects to a text-based output stream.
 
-#### println()
+#### print()
 
 - Overloaded with all Java primitives as well as String and Object.
-  - In general, these methods perform `String.valueOf()` on the argument and call the underlying stream’s `write()` method.
+- In general, these methods perform `String.valueOf()` on the argument and call the underlying stream’s `write()` method.
+
+```java
+PrintWriter out = new PrintWriter("zoo.log");
+out.print(5); // PrintWriter method out.write(String.valueOf(5)); // Writer method
+out.print(2.0); // PrintWriter method out.write(String.valueOf(2.0)); // Writer method
+Animal animal = new Animal();
+out.print(animal); // PrintWriter method
+out.write(animal==null ? "null": animal.toString()); // Writer method
+```
+
+#### println()
+
+- Virtually identical to the print() methods, except that they insert a line break after the String value is written. 
+- The classes also include a version of println() that takes no arguments, which terminates the current line by writing a line separator.
+
+#### format() and printf()
+
+- Takes a String, an optional locale, and a set of arguments, and it writes a formatted String to the stream based on the input. 
+- Method signature:
+
+```java
+public PrintWriter format(String format, Object args...) 
+public PrintWriter printf(String format, Object args...)
+```
+
+**Sample PrintWriter Application**
+
+```java
+import java.io.*;
+
+public class PrintWriterSample {
+  public static void main(String[] args) throws IOException {
+    File source = new File("zoo.log");
+    try (PrintWriter out = new PrintWriter(
+      new BufferedWriter(new FileWriter(source)))) {
+        out.print("Today's weather is: "); 
+        out.println("Sunny");
+        out.print("Today's temperature at the zoo is: "); 
+        out.print(1/3.0);
+        out.println('C');
+        out.format("It has rained 10.12 inches this year"); 
+        out.println();
+        out.printf("It may rain 21.2 more inches this year");
+    } 
+  }
+}
+```
+
+### Review of Stream Classes
+
+- The classes on the left side of the diagram are the abstract parent classes. 
+- The classes on the right side with dotted borders are low-level streams, and the ones with solid borders are high-level streams.
+
+![Roadmap](java.io.classess.png)
