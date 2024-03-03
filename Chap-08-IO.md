@@ -25,26 +25,32 @@ of a directory, and create/delete files and directories.
 
 **Creating a File Object**
 
-- A File object often is initialized with String containing either an absolute or relative path
-to the file or directory within the file system.
-- The `absolute` path of a file or directory is the full path from the root directory to the file or 
-directory, including all subdirectories that contain the file or directory.
-> /home/smith/data/zoo.txt
-- The `relative` path of a file or directory is the path from the current working directory to file 
-or directory
-> data/zoo.txt
-
-*Example uses the absolute path:*
-
 ```java
-File file = new File("/home/smith/data/zoo.txt");
-```
+import java.io.File;
+import java.net.URI;
 
-*Example joins an existing File path with a relative child path:*
+public class Main {
+    public static void main(String[] args) {
+        // Using different constructors to create File objects
+        File file1 = new File("/path/to/file.txt");
 
-```java
-File parent = new File("/home/smith");
-File child = new File(parent, "data/zoo.txt");
+        URI uri = URI.create("file:///path/to/anotherfile.txt");
+        File file2 = new File(uri);
+
+        File parentDirectory = new File("/parent/directory");
+        File file3 = new File(parentDirectory, "childfile.txt");
+
+        // Displaying information about the File objects
+        System.out.println("File 1 path: " + file1.getAbsolutePath());
+        System.out.println("File 1 exists: " + file1.exists());
+
+        System.out.println("File 2 path: " + file2.getAbsolutePath());
+        System.out.println("File 2 exists: " + file2.exists());
+
+        System.out.println("File 3 path: " + file3.getAbsolutePath());
+        System.out.println("File 3 exists: " + file3.exists());
+    }
+}
 ```
 
 **Working with a File Object**
@@ -195,245 +201,387 @@ true only if mark() is supported.
 
 ### The FileInputStream and FileOutputStream Classes
 
-- They are used to read bytes from a file or write bytes to a file, respectively. 
-- These classes include constructors that take a File object or String, representing a path to the file.
-- The `FileInputStream` class also contains overloaded versions of the `read()` method,
-which take a pointer to a byte array where the data is written. The method returns an
-integer value indicating how many bytes can be read into the byte array. It is also used by
-Buffered classes to improve performance.
-- A `FileOutputStream` object is accessed by writing successive bytes using the `write(int)`
-method. Like the FileInputStream class, the FileOutputStream also contains overloaded
-versions of the `write()` method that allow a byte array to be passed and can be used by
-Buffered classes. 
+The `FileInputStream` and `FileOutputStream` classes in Java are part of the `java.io` package and are used for reading from and writing to files, respectively. Here's an introduction to these classes:
 
+1. **FileInputStream**:
+  - The `FileInputStream` class is used to read bytes from a file in the file system.
+  - It is a subclass of the `InputStream` class, which is an abstract class representing input streams of bytes.
+  - `FileInputStream` takes the path of the file to be read as its constructor argument.
+  - It provides various methods for reading bytes from the file, such as `read()`, `read(byte[])`, and `skip()`.
+
+Example of using `FileInputStream`:
 ```java
 import java.io.*;
 
-public class CopyFileSample {
-
-  public static void copy(File source, File destination) throws IOException {
-    try (InputStream in = new FileInputStream(source);
-            OutputStream out = new FileOutputStream(destination)) {
-      int b;
-      while ((b = in.read()) != -1) {
-        out.write(b);
-      }
+public class ReadFileExample {
+    public static void main(String[] args) {
+        try {
+            FileInputStream inputStream = new FileInputStream("example.txt");
+            int data;
+            while ((data = inputStream.read()) != -1) {
+                System.out.print((char) data);
+            }
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-  }
-
-  public static void main(String[] args) throws IOException {
-    File source = new File("Zoo.class");
-    File destination = new File("ZooCopy.class");
-    copy(source, destination);
-  }
 }
 ```
+
+2. **FileOutputStream**:
+  - The `FileOutputStream` class is used to write bytes to a file in the file system.
+  - It is a subclass of the `OutputStream` class, which is an abstract class representing output streams of bytes.
+  - `FileOutputStream` takes the path of the file to be written as its constructor argument.
+  - It provides various methods for writing bytes to the file, such as `write(int)`, `write(byte[])`, and `flush()`.
+
+Example of using `FileOutputStream`:
+```java
+import java.io.*;
+
+public class WriteFileExample {
+    public static void main(String[] args) {
+        try {
+            FileOutputStream outputStream = new FileOutputStream("example.txt");
+            String data = "Hello, World!";
+            outputStream.write(data.getBytes());
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Both `FileInputStream` and `FileOutputStream` are low-level I/O classes and are often used together with higher-level classes such as `BufferedInputStream` and `BufferedOutputStream` for improved performance and functionality. Additionally, they should be properly closed using the `close()` method or in a try-with-resources block to release system resources after use.
 
 ### The BufferedInputStream and BufferedOutputStream Classes
 
-- Instead of reading the data one byte at a time, we use the underlying read(byte[]) method
-of BufferedInputStream, which returns the number of bytes read into the provided byte array.
-- The number of bytes read is important for two reasons:
-  + First, if the value returned is 0, then we know that we have reached the end of the file and can 
-stop reading from the BufferedInputStream.
-  + Second, the last read of the file will likely only partially fill the byte array, since it is 
-unlikely for the file size to be an exact multiple of our buffer array size.
+The `BufferedInputStream` and `BufferedOutputStream` classes in Java are used to improve the performance of input and output operations by buffering the data read from or written to a file or other input/output streams. Here's an introduction to these classes:
 
-> Why Use the Buffered Classes?
-> 
-> Buffered classes in Java, such as `BufferedReader` and `BufferedWriter`, offer several advantages over their unbuffered counterparts:
-> 
->1. **Efficiency**: Buffered classes use internal buffers to reduce the number of I/O operations, which can significantly improve performance, especially when dealing with large amounts of data. Instead of reading or writing one character or byte at a time, buffered classes read or write chunks of data at once, reducing the overhead associated with I/O operations.
->
->2. **Reduced System Calls**: Buffered classes minimize the number of system calls made to the underlying operating system, which can be expensive in terms of performance. By buffering data in memory and operating on it in larger chunks, buffered classes help reduce the overhead of system calls.
->
->3. **Convenience**: Buffered classes provide additional methods and functionalities that make common I/O operations easier to perform. For example, `BufferedReader` provides methods like `readLine()` for reading lines of text, while `BufferedWriter` offers methods like `newLine()` for writing platform-independent newline characters.
->
->4. **Support for Mark and Reset**: Buffered classes often support the `mark(int)` and `reset()` methods, allowing you to mark a position in the stream and later reset to that position. This feature is useful when you need to reread data from a certain point in the stream.
->
->5. **Integration with Other Streams**: Buffered classes can be easily layered on top of other input and output streams, allowing you to add buffering to any existing stream. This flexibility makes them versatile and widely applicable in various I/O scenarios.
->
->In summary, buffered classes provide improved performance, additional functionality, and greater flexibility compared to unbuffered I/O classes, making them a preferred choice for many I/O operations in Java applications.
+1. **BufferedInputStream**:
+  - The `BufferedInputStream` class is a subclass of the `FilterInputStream` class.
+  - It adds buffering functionality to an input stream, which reduces the number of system calls made for reading data from the underlying input stream.
+  - `BufferedInputStream` takes another input stream (e.g., `FileInputStream`) as its constructor argument.
+  - It provides methods for reading bytes from the buffered input stream, such as `read()`, `read(byte[])`, and `skip()`.
 
+Example of using `BufferedInputStream`:
 ```java
 import java.io.*;
 
-public class CopyBufferFileSample {
+public class BufferedInputStreamExample {
+    public static void main(String[] args) {
+        try {
+            FileInputStream fileInputStream = new FileInputStream("example.txt");
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
 
-  public static void copy(File source, File destination) throws IOException {
-    try (
-            InputStream in = new BufferedInputStream(new FileInputStream(source));
-            OutputStream out = new BufferedOutputStream(
-                    new FileOutputStream(destination))) {
-      byte[] buffer = new byte[1024];
-      int lengthRead;
-      while ((lengthRead = in.read(buffer)) > 0) {
-        out.write(buffer, 0, lengthRead);
-        out.flush();
-      }
+            int data;
+            while ((data = bufferedInputStream.read()) != -1) {
+                System.out.print((char) data);
+            }
+
+            bufferedInputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-  }
 }
 ```
+
+2. **BufferedOutputStream**:
+  - The `BufferedOutputStream` class is a subclass of the `FilterOutputStream` class.
+  - It adds buffering functionality to an output stream, which reduces the number of system calls made for writing data to the underlying output stream.
+  - `BufferedOutputStream` takes another output stream (e.g., `FileOutputStream`) as its constructor argument.
+  - It provides methods for writing bytes to the buffered output stream, such as `write(int)`, `write(byte[])`, and `flush()`.
+
+Example of using `BufferedOutputStream`:
+```java
+import java.io.*;
+
+public class BufferedOutputStreamExample {
+    public static void main(String[] args) {
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream("example.txt");
+            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
+
+            String data = "Hello, World!";
+            bufferedOutputStream.write(data.getBytes());
+            bufferedOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Both `BufferedInputStream` and `BufferedOutputStream` are often used to wrap other input and output streams, such as `FileInputStream` and `FileOutputStream`, to improve their performance by reducing the number of system calls. They should be properly closed after use to release system resources.
 
 ### The FileReader and FileWriter classes
 
-- Like the `FileInputStream` and `FileOutputStream` classes, the `FileReader` and
-`FileWriter` classes contain read() and write() methods, respectively.
-- These methods read/write char values instead of byte values.
+The `FileReader` and `FileWriter` classes in Java are used to read characters from and write characters to files, respectively. Here's an introduction to these classes:
+
+1. **FileReader**:
+  - The `FileReader` class is used to read character data from a file in the file system.
+  - It is a subclass of the `InputStreamReader` class and is specifically designed for reading character-based data.
+  - `FileReader` takes the path of the file to be read as its constructor argument.
+  - It provides methods for reading characters from the file, such as `read()`, `read(char[])`, and `skip()`.
+
+Example of using `FileReader`:
+```java
+import java.io.*;
+
+public class FileReaderExample {
+    public static void main(String[] args) {
+        try {
+            FileReader fileReader = new FileReader("example.txt");
+
+            int data;
+            while ((data = fileReader.read()) != -1) {
+                System.out.print((char) data);
+            }
+
+            fileReader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+2. **FileWriter**:
+  - The `FileWriter` class is used to write character data to a file in the file system.
+  - It is a subclass of the `OutputStreamWriter` class and is specifically designed for writing character-based data.
+  - `FileWriter` takes the path of the file to be written as its constructor argument.
+  - It provides methods for writing characters to the file, such as `write(int)`, `write(char[])`, and `flush()`.
+
+Example of using `FileWriter`:
+```java
+import java.io.*;
+
+public class FileWriterExample {
+    public static void main(String[] args) {
+        try {
+            FileWriter fileWriter = new FileWriter("example.txt");
+
+            String data = "Hello, World!";
+            fileWriter.write(data);
+
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Both `FileReader` and `FileWriter` are commonly used for reading and writing text files. They should be properly closed after use to release system resources. Additionally, you can use them together with other higher-level classes, such as `BufferedReader` and `BufferedWriter`, for improved performance and functionality.
 
 ### The BufferedReader and BufferedWriter Classes
 
+The `BufferedReader` and `BufferedWriter` classes in Java are used to improve the performance of reading characters from and writing characters to files, respectively. They provide buffering functionality, which reduces the number of system calls made for reading from or writing to the underlying file or input/output streams. Here's an introduction to these classes:
+
+1. **BufferedReader**:
+  - The `BufferedReader` class is used to read characters from a character-input stream with efficiency by using a buffer to reduce the number of I/O operations.
+  - It is a subclass of the `Reader` class and is typically used to wrap other character input streams, such as `FileReader` or `InputStreamReader`.
+  - `BufferedReader` provides methods for reading characters from the input stream, such as `readLine()`, `read()`, and `skip()`.
+
+Example of using `BufferedReader`:
 ```java
 import java.io.*;
-import java.util.*;
 
-public class CopyTextFileSample {
+public class BufferedReaderExample {
+    public static void main(String[] args) {
+        try {
+            FileReader fileReader = new FileReader("example.txt");
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
 
-  public static List<String> readFile(File source) throws IOException {
-    List<String> data = new ArrayList<String>();
-    try (BufferedReader reader = new BufferedReader(new FileReader(source))) {
-      String s;
-      while ((s = reader.readLine()) != null) {
-        data.add(s);
-      }
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                System.out.println(line);
+            }
+
+            bufferedReader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-    return data;
-  }
-
-  public static void writeFile(List<String> data, File destination) throws
-          IOException {
-    try (BufferedWriter writer = new BufferedWriter(
-            new FileWriter(destination))) {
-      for (String s : data) {
-        writer.write(s);
-        writer.newLine();
-      }
-    }
-  }
-
-  public static void main(String[] args) throws IOException {
-    File source = new File("Zoo.csv");
-    File destination = new File("ZooCopy.csv");
-    List<String> data = readFile(source);
-    for (String record : data) {
-      System.out.println(record);
-    }
-    writeFile(data, destination);
-  }
 }
 ```
 
-**Some important difference:**
+2. **BufferedWriter**:
+  - The `BufferedWriter` class is used to write characters to a character-output stream with efficiency by using a buffer to reduce the number of I/O operations.
+  - It is a subclass of the `Writer` class and is typically used to wrap other character output streams, such as `FileWriter` or `OutputStreamWriter`.
+  - `BufferedWriter` provides methods for writing characters to the output stream, such as `write(String)`, `newLine()`, and `flush()`.
 
-- First, in the `readFile()` method, we use a temporary String reference s to hold the value of the data,
-stop reading the file when `readLine()` returns `null`.
-- Next, instead of immediately copying the data we read from the file into the output file,
-we store it in a List of String objects in the readFile() method. This allows us to both
-display and modify the data, prior to writing it to disk later.
-- Unlike the previous examples where we had to write the code one byte at a time or by using a byte
-array, we can write the entire String in a single call. The `write(String)` method is quite convenient 
-in practice. We then use the `writer.newLine()` method to insert a line break into the copied file, as our
-`reader.readLine()` method split on line breaks.
+Example of using `BufferedWriter`:
+```java
+import java.io.*;
+
+public class BufferedWriterExample {
+    public static void main(String[] args) {
+        try {
+            FileWriter fileWriter = new FileWriter("example.txt");
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+
+            String data = "Hello, World!";
+            bufferedWriter.write(data);
+
+            bufferedWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Both `BufferedReader` and `BufferedWriter` are commonly used for reading and writing text files. They should be properly closed after use to release system resources. Additionally, they can be used together with other higher-level classes, such as `FileReader` and `FileWriter`, for improved performance and functionality.
 
 ###  The ObjectInputStream and ObjectOutputStream Classes
 
-- The process of converting an in-memory object to a stored data format is referred to as `serialization`, 
-with the reciprocal process of converting stored data into an object, which is known as `deserialization`
+The `ObjectInputStream` and `ObjectOutputStream` classes in Java are used to read and write objects from and to streams, respectively. They are part of the `java.io` package and are used for serialization and deserialization of objects. Here's an introduction to these classes:
 
-**The `Serializable` Interface**
+1. **ObjectInputStream**:
+  - The `ObjectInputStream` class is used to deserialize objects from an input stream.
+  - It is a subclass of the `InputStream` class and is specifically designed for reading serialized objects.
+  - `ObjectInputStream` takes an input stream (e.g., `FileInputStream`) as its constructor argument.
+  - It provides methods for reading objects from the input stream, such as `readObject()`.
 
-- In order to serialize objects using the java.io API, the class they belong to must implement
-the java.io.Serializable interface.
-- Besides, `transient` instance variables, `static` class members will also be ignored during
-the serialization and deserialization process.
-
+Example of using `ObjectInputStream`:
 ```java
-import java.io.Serializable;
+import java.io.*;
 
-public class Animal implements Serializable {
+public class ObjectInputStreamExample {
+    public static void main(String[] args) {
+        try {
+            FileInputStream fileInputStream = new FileInputStream("objects.dat");
+            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
 
-  private static final long serialVersionUID = 1L;
-  private String name;
-  private int age;
-  private char type;
+            Object obj = objectInputStream.readObject();
+            System.out.println(obj);
 
-  public Animal(String name, int age, char type) {
-    this.name = name;
-    this.age = age;
-    this.type = type;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public int getAge() {
-    return age;
-  }
-
-  public char getType() {
-    return type;
-  }
-
-  public String toString() {
-    return "Animal [name=" + name + ", age=" + age + ", type=" + type + "]";
-  }
+            objectInputStream.close();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 }
 ```
 
-- The serialization process uses the serialVersionUID to identify uniquely a version of the class. 
-- That way, it knows whether the serialized data for an object will match the instance variable in 
-the current version of the class. 
-- If an older version of the class is encountered during deserialization, an exception may be thrown.
+2. **ObjectOutputStream**:
+  - The `ObjectOutputStream` class is used to serialize objects and write them to an output stream.
+  - It is a subclass of the `OutputStream` class and is specifically designed for writing serialized objects.
+  - `ObjectOutputStream` takes an output stream (e.g., `FileOutputStream`) as its constructor argument.
+  - It provides methods for writing objects to the output stream, such as `writeObject()`.
+
+Example of using `ObjectOutputStream`:
+```java
+import java.io.*;
+
+public class ObjectOutputStreamExample {
+    public static void main(String[] args) {
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream("objects.dat");
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+
+            Object obj = "Hello, World!";
+            objectOutputStream.writeObject(obj);
+
+            objectOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Both `ObjectInputStream` and `ObjectOutputStream` are commonly used for reading and writing serialized objects. They can serialize and deserialize objects of classes that implement the `Serializable` interface. It's important to properly handle exceptions and close the streams after use to release system resources.
 
 **Serializing and Deserializing Objects**
 
-- The java.io API provides two stream classes for object `serialization` and `deserialization`
-called `ObjectInputStream` and `ObjectOutputStream`.
+Serialization is the process of converting an object into a stream of bytes, allowing the object to be saved to a file, sent over a network, or stored in a database. Deserialization is the reverse process of converting a stream of bytes back into an object. In Java, you can serialize and deserialize objects using the `ObjectOutputStream` and `ObjectInputStream` classes, respectively. Here's an example of serializing and deserializing objects:
 
+1. **Serializing Objects**:
 ```java
 import java.io.*;
-import java.util.*;
 
-public class ObjectStreamSample {
+public class SerializationExample {
+    public static void main(String[] args) {
+        try {
+            // Create an object to serialize
+            Student student = new Student("John", 20);
 
-  public static List<Animal> getAnimals(File dataFile) throws IOException,
-          ClassNotFoundException {
-    List<Animal> animals = new ArrayList<Animal>();
-    try (ObjectInputStream in = new ObjectInputStream(
-            new BufferedInputStream(new FileInputStream(dataFile)))) {
-      while (in.available() > 0) {
-        Object object = in.readObject();
-        if (object instanceof Animal)
-          animals.add((Animal) object);
-      }
-    } catch (EOFException e) {
-      // File end reached
+            // Create an ObjectOutputStream to write the object to a file
+            FileOutputStream fileOutputStream = new FileOutputStream("student.ser");
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+
+            // Write the object to the file
+            objectOutputStream.writeObject(student);
+
+            // Close the streams
+            objectOutputStream.close();
+            fileOutputStream.close();
+
+            System.out.println("Object serialized successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-    return animals;
-  }
-
-  public static void createAnimalsFile(List<Animal> animals, File dataFile)
-          throws IOException {
-    try (ObjectOutputStream out = new ObjectOutputStream(
-            new BufferedOutputStream(new FileOutputStream(dataFile)))) {
-      for (Animal animal : animals)
-        out.writeObject(animal);
-    }
-  }
-
-  public static void main(String[] args) throws IOException,
-          ClassNotFoundException {
-    List<Animal> animals = new ArrayList<Animal>();
-    animals.add(new Animal("Tommy Tiger", 5, 'T'));
-    animals.add(new Animal("Peter Penguin", 8, 'P'));
-    File dataFile = new File("animal.data");
-    createAnimalsFile(animals, dataFile);
-    System.out.println(getAnimals(dataFile));
-  }
 }
 ```
+
+2. **Deserializing Objects**:
+```java
+import java.io.*;
+
+public class DeserializationExample {
+    public static void main(String[] args) {
+        try {
+            // Create an ObjectInputStream to read the object from the file
+            FileInputStream fileInputStream = new FileInputStream("student.ser");
+            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+
+            // Read the object from the file
+            Student student = (Student) objectInputStream.readObject();
+
+            // Close the streams
+            objectInputStream.close();
+            fileInputStream.close();
+
+            // Print the deserialized object
+            System.out.println("Deserialized Student:");
+            System.out.println("Name: " + student.getName());
+            System.out.println("Age: " + student.getAge());
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+3. **Student Class**:
+```java
+import java.io.Serializable;
+
+public class Student implements Serializable {
+    private String name;
+    private int age;
+
+    public Student(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+}
+```
+
+In this example, we have a `Student` class that implements the `Serializable` interface. We serialize an instance of the `Student` class to a file using `ObjectOutputStream` in the `SerializationExample` class. Then, we deserialize the object back into an instance of the `Student` class using `ObjectInputStream` in the `DeserializationExample` class. Finally, we print the deserialized student's information.
 
 **Understanding Object Creation**
 
@@ -470,60 +618,63 @@ public class Animal implements Serializable {
 
 ### The PrintStream and PrintWriter Classes
 
-- The PrintStream and PrintWriter classes are high-level stream classes that write
-formatted representation of Java objects to a text-based output stream.
+The `PrintStream` and `PrintWriter` classes in Java are used for writing formatted data to various output streams. They provide convenient methods for writing different types of data, such as primitive types, strings, and objects, to output streams like files, standard output (console), or network sockets. Here's an introduction to these classes:
 
-#### print()
+1. **PrintStream**:
+  - The `PrintStream` class provides methods to print formatted representations of objects to an output stream.
+  - It is a subclass of the `OutputStream` class and is typically used to write to standard output (`System.out`) or files.
+  - `PrintStream` provides methods like `print()` and `println()` to write various types of data, including primitive types, strings, and objects, to the output stream.
 
-- Overloaded with all Java primitives as well as String and Object.
-- In general, these methods perform `String.valueOf()` on the argument and call the underlying stream’s `write()` method.
-
-```java
-PrintWriter out = new PrintWriter("zoo.log");
-out.print(5); // PrintWriter method out.write(String.valueOf(5)); // Writer method
-out.print(2.0); // PrintWriter method out.write(String.valueOf(2.0)); // Writer method
-Animal animal = new Animal();
-out.print(animal); // PrintWriter method
-out.write(animal==null ? "null": animal.toString()); // Writer method
-```
-
-#### println()
-
-- Virtually identical to the print() methods, except that they insert a line break after the String value is written. 
-- The classes also include a version of println() that takes no arguments, which terminates the current line by writing a line separator.
-
-#### format() and printf()
-
-- Takes a String, an optional locale, and a set of arguments, and it writes a formatted String to the stream based on the input. 
-- Method signature:
-
-```java
-public PrintWriter format(String format, Object args...) 
-public PrintWriter printf(String format, Object args...)
-```
-
-**Sample PrintWriter Application**
-
+Example of using `PrintStream`:
 ```java
 import java.io.*;
 
-public class PrintWriterSample {
-  public static void main(String[] args) throws IOException {
-    File source = new File("zoo.log");
-    try (PrintWriter out = new PrintWriter(
-      new BufferedWriter(new FileWriter(source)))) {
-        out.print("Today's weather is: "); 
-        out.println("Sunny");
-        out.print("Today's temperature at the zoo is: "); 
-        out.print(1/3.0);
-        out.println('C');
-        out.format("It has rained 10.12 inches this year"); 
-        out.println();
-        out.printf("It may rain 21.2 more inches this year");
-    } 
-  }
+public class PrintStreamExample {
+    public static void main(String[] args) {
+        try {
+            PrintStream printStream = new PrintStream("output.txt");
+
+            // Writing to the output stream
+            printStream.println("Hello, World!");
+            printStream.printf("PI: %.2f\n", Math.PI);
+
+            // Closing the stream
+            printStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
 ```
+
+2. **PrintWriter**:
+  - The `PrintWriter` class provides methods to print formatted representations of objects to a text-output stream.
+  - It is a subclass of the `Writer` class and is typically used to write to files, network sockets, or other character-based output streams.
+  - `PrintWriter` provides methods like `print()` and `println()` similar to `PrintStream` for writing various types of data to the output stream.
+
+Example of using `PrintWriter`:
+```java
+import java.io.*;
+
+public class PrintWriterExample {
+    public static void main(String[] args) {
+        try {
+            PrintWriter printWriter = new PrintWriter("output.txt");
+
+            // Writing to the output stream
+            printWriter.println("Hello, World!");
+            printWriter.printf("PI: %.2f\n", Math.PI);
+
+            // Closing the stream
+            printWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Both `PrintStream` and `PrintWriter` provide methods to write formatted data to output streams. They handle various types of data and automatically convert them into their string representations. Additionally, they manage the output stream's buffering and character encoding.
 
 ### Review of Stream Classes
 
@@ -538,37 +689,90 @@ public class PrintWriterSample {
 
 ### The Old Way
 
-```java
-import java.io.*;
+If you prefer to use `BufferedReader` instead of `Console` for reading input from the console, you can do so as well. Here's how you can achieve that:
 
-public class SystemInSample {
-  public static void main(String[] args) throws IOException {
-    BufferedReader reader = new BufferedReader(
-        new InputStreamReader(System.in));
-    String userInput = reader.readLine();
-    System.out.println("You entered the following: "+userInput); 
-  }
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class ConsoleInputExample {
+    public static void main(String[] args) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+        try {
+            System.out.print("Enter your name: ");
+            String name = reader.readLine();
+
+            System.out.print("Enter your password: ");
+            String password = reader.readLine();
+
+            System.out.println("Name: " + name);
+            System.out.println("Password: " + password);
+
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
 ```
+
+In this example, we use `BufferedReader` to read input from the console. We create a `BufferedReader` object by wrapping the standard input stream (`System.in`) with an `InputStreamReader`. Then, we read lines of text from the console using the `readLine()` method of `BufferedReader`. Finally, we print out the input received from the user. Remember to handle any potential `IOException` that might occur during input reading.
 
 ### The New Way
 
-- The Console class is a singleton.
-- It is created automatically for you by the JVM and accessed by calling the System.console() method.
+The `Console` class in Java provides methods for interacting with the console, including reading input from the console and writing output to the console. It's primarily used when the Java application is run in a console environment, such as a command-line interface. Here's an overview of the `Console` class:
 
+1. **Reading Input from Console**:
+  - The `Console` class provides methods like `readLine()` and `readPassword()` for reading input from the console.
+  - `readLine()` reads a line of text entered by the user.
+  - `readPassword()` reads a password entered by the user without echoing characters to the console.
+
+Example of reading input using `Console`:
 ```java
 import java.io.Console;
 
-public class ConsoleSample {
-  public static void main(String[] args) {
-    Console console = System.console(); 
-    if(console != null) {
-        String userInput = console.readLine();
-        console.writer().println ("You entered the following: "+userInput); 
+public class ConsoleInputExample {
+    public static void main(String[] args) {
+        Console console = System.console();
+
+        if (console != null) {
+            String input = console.readLine("Enter your name: ");
+            char[] password = console.readPassword("Enter your password: ");
+
+            System.out.println("Name: " + input);
+            System.out.println("Password: " + new String(password));
+        } else {
+            System.out.println("Console not available.");
+        }
     }
-  } 
 }
 ```
+
+2. **Writing Output to Console**:
+  - The `Console` class also provides methods like `printf()` and `format()` for writing formatted output to the console.
+  - `printf()` and `format()` are similar to `System.out.printf()` for formatted printing.
+
+Example of writing output using `Console`:
+```java
+import java.io.Console;
+
+public class ConsoleOutputExample {
+    public static void main(String[] args) {
+        Console console = System.console();
+
+        if (console != null) {
+            console.printf("Hello, %s!%n", "World");
+            console.format("PI: %.2f%n", Math.PI);
+        } else {
+            System.out.println("Console not available.");
+        }
+    }
+}
+```
+
+The `Console` class provides a convenient way to interact with the console when running Java applications in a console environment. However, it's important to note that the availability of the `Console` object depends on the underlying platform and how the Java application is executed.
 
 **Console methods**
 
