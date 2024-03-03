@@ -1,12 +1,12 @@
 package chap09;
 
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Objects;
 
 public class Main {
     public static void main(String[] args) {
-        Path path = Paths.get("task.sql");
     }
 }
+
