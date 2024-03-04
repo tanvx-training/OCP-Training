@@ -671,3 +671,389 @@ A thread pool is a group of pre-instantiated reusable threads that are available
 | `newCachedThreadPool()`                | `ExecutorService`          | Creates a thread pool that creates new threads as needed, but will reuse previously constructed threads when they are available.                                                   |
 | `newFixedThreadPool(int nThreads)`     | `ExecutorService`          | Creates a thread pool that reuses a fixed number of threads operating off a shared unbounded queue.                                                                                |
 | `newScheduledThreadPool(int nThreads)` | `ScheduledExecutorService` | Creates a thread pool that can schedule commands to run after a given delay or to execute periodically.                                                                            |
+
+Here's a Java code example demonstrating the use of each thread pool creation method:
+
+```java
+import java.util.concurrent.*;
+
+public class ThreadPoolExample {
+    public static void main(String[] args) {
+        // Method: newSingleThreadExecutor()
+        // Creates a single-threaded executor that uses a single worker thread operating off an unbounded queue
+        ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
+        singleThreadExecutor.execute(() -> {
+            System.out.println("Task executed by singleThreadExecutor.");
+        });
+
+        // Method: newSingleThreadScheduledExecutor()
+        // Creates a single-threaded executor that can schedule commands to run after a given delay or to execute periodically
+        ScheduledExecutorService singleThreadScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+        singleThreadScheduledExecutor.schedule(() -> {
+            System.out.println("Task scheduled by singleThreadScheduledExecutor to run after 2 seconds.");
+        }, 2, TimeUnit.SECONDS);
+
+        // Method: newCachedThreadPool()
+        // Creates a thread pool that creates new threads as needed, but will reuse previously constructed threads when they are available
+        ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
+        cachedThreadPool.execute(() -> {
+            System.out.println("Task executed by cachedThreadPool.");
+        });
+
+        // Method: newFixedThreadPool(int nThreads)
+        // Creates a thread pool that reuses a fixed number of threads operating off a shared unbounded queue
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(3);
+        fixedThreadPool.execute(() -> {
+            System.out.println("Task executed by fixedThreadPool.");
+        });
+
+        // Method: newScheduledThreadPool(int nThreads)
+        // Creates a thread pool that can schedule commands to run after a given delay or to execute periodically
+        ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(2);
+        scheduledThreadPool.schedule(() -> {
+            System.out.println("Task scheduled by scheduledThreadPool to run after 3 seconds.");
+        }, 3, TimeUnit.SECONDS);
+
+        // Shutdown all the thread pools
+        singleThreadExecutor.shutdown();
+        singleThreadScheduledExecutor.shutdown();
+        cachedThreadPool.shutdown();
+        fixedThreadPool.shutdown();
+        scheduledThreadPool.shutdown();
+    }
+}
+```
+
+In this example:
+
+1. We use each thread pool creation method to create different types of thread pools.
+2. We execute tasks or schedule tasks using each thread pool accordingly.
+3. Finally, we shut down all the thread pools to release their resources properly.
+
+Using `Runtime.getRuntime().availableProcessors()` is a common approach to determine an appropriate pool size for a thread pool based on the number of available processors on the system. This method returns the number of processors available to the Java virtual machine.
+
+Here's how you can use it to choose a pool size:
+
+```java
+import java.util.concurrent.*;
+
+public class ThreadPoolWithAvailableProcessors {
+    public static void main(String[] args) {
+        int availableProcessors = Runtime.getRuntime().availableProcessors();
+
+        // Create a thread pool with a size based on available processors
+        ExecutorService executor = Executors.newFixedThreadPool(availableProcessors);
+
+        // Submit tasks for execution
+        for (int i = 0; i < 10; i++) {
+            executor.execute(() -> {
+                System.out.println("Task executed by thread: " + Thread.currentThread().getName());
+            });
+        }
+
+        // Shutdown the executor
+        executor.shutdown();
+    }
+}
+```
+
+In this example:
+
+1. We use `Runtime.getRuntime().availableProcessors()` to get the number of available processors.
+2. We create a fixed-size thread pool using `Executors.newFixedThreadPool()` with the number of available processors as the pool size.
+3. We submit tasks for execution to the thread pool.
+4. Finally, we shut down the executor to release its resources properly.
+
+By using the number of available processors as the pool size, you can maximize the utilization of system resources while avoiding excessive thread creation, which can lead to resource contention and performance degradation.
+
+## Synchronizing Data Access
+
+### Protecting Data with Atomic Classes
+
+- Atomic is the property of an operation to be carried out as a single unit of execution without any interference by another thread. 
+- A thread-safe atomic version of the increment operator would be one that performed the read and write of the variable as a single operation, not allowing any other threads to access the variable during the operation.
+
+**Atomic classes**
+
+| Class Name             | Description                                                                       |
+|------------------------|-----------------------------------------------------------------------------------|
+| `AtomicBoolean`        | A boolean value that may be updated atomically                                    |
+| `AtomicInteger`        | An int value that may be updated atomically                                       |
+| `AtomicIntegerArray`   | An int array in which elements may be updated atomically                          |
+| `AtomicLong`           | A long value that may be updated atomically                                       |
+| `AtomicLongArray`      | A long array in which elements may be updated atomically                          |
+| `AtomicReference`      | A generic object reference that may be updated atomically                         |
+| `AtomicReferenceArray` | An array of generic object references in which elements may be updated atomically |
+
+Here's a Java code example demonstrating the usage of some atomic classes:
+
+```java
+import java.util.concurrent.atomic.*;
+
+public class AtomicClassesExample {
+    public static void main(String[] args) {
+        // AtomicBoolean example
+        AtomicBoolean atomicBoolean = new AtomicBoolean(true);
+        System.out.println("AtomicBoolean value: " + atomicBoolean.get());
+
+        // AtomicInteger example
+        AtomicInteger atomicInteger = new AtomicInteger(10);
+        System.out.println("AtomicInteger value: " + atomicInteger.get());
+
+        // AtomicIntegerArray example
+        AtomicIntegerArray atomicIntegerArray = new AtomicIntegerArray(3);
+        atomicIntegerArray.set(0, 100);
+        atomicIntegerArray.set(1, 200);
+        atomicIntegerArray.set(2, 300);
+        System.out.println("AtomicIntegerArray values: " +
+                atomicIntegerArray.get(0) + ", " +
+                atomicIntegerArray.get(1) + ", " +
+                atomicIntegerArray.get(2));
+
+        // AtomicLong example
+        AtomicLong atomicLong = new AtomicLong(1000L);
+        System.out.println("AtomicLong value: " + atomicLong.get());
+
+        // AtomicLongArray example
+        AtomicLongArray atomicLongArray = new AtomicLongArray(2);
+        atomicLongArray.set(0, 500L);
+        atomicLongArray.set(1, 1000L);
+        System.out.println("AtomicLongArray values: " +
+                atomicLongArray.get(0) + ", " +
+                atomicLongArray.get(1));
+
+        // AtomicReference example
+        AtomicReference<String> atomicReference = new AtomicReference<>("Hello");
+        System.out.println("AtomicReference value: " + atomicReference.get());
+
+        // AtomicReferenceArray example
+        AtomicReferenceArray<String> atomicReferenceArray = new AtomicReferenceArray<>(2);
+        atomicReferenceArray.set(0, "One");
+        atomicReferenceArray.set(1, "Two");
+        System.out.println("AtomicReferenceArray values: " +
+                atomicReferenceArray.get(0) + ", " +
+                atomicReferenceArray.get(1));
+    }
+}
+```
+
+This example demonstrates the creation and usage of various atomic classes:
+
+- `AtomicBoolean`: Demonstrates the creation of an `AtomicBoolean` object and retrieval of its value.
+- `AtomicInteger`: Demonstrates the creation of an `AtomicInteger` object and retrieval of its value.
+- `AtomicIntegerArray`: Demonstrates the creation of an `AtomicIntegerArray` object and setting/retrieval of its values.
+- `AtomicLong`: Demonstrates the creation of an `AtomicLong` object and retrieval of its value.
+- `AtomicLongArray`: Demonstrates the creation of an `AtomicLongArray` object and setting/retrieval of its values.
+- `AtomicReference`: Demonstrates the creation of an `AtomicReference` object and retrieval of its value.
+- `AtomicReferenceArray`: Demonstrates the creation of an `AtomicReferenceArray` object and setting/retrieval of its values.
+
+These atomic classes provide atomic operations for various data types and are useful for synchronizing data access in multithreading environments.
+
+**Common atomic methods**
+
+| Class Name          | Description                                                                |
+|---------------------|----------------------------------------------------------------------------|
+| get()               | Retrieve the current value                                                 |
+| set()               | Set the given value, equivalent to the assignment = operator               |
+| getAndSet()         | Atomically sets the new value and returns the old value                    |
+| incrementAndGet()   | For numeric classes, atomic pre-increment operation equivalent to ++value  |
+| getAndIncrement()   | For numeric classes, atomic post-increment operation equivalent to value++ |
+| decrementAndGet()   | For numeric classes, atomic pre-decrement operation equivalent to --value  |
+| getAndDecrement()   | For numeric classes, atomic post-decrement operation equivalent to value-- |
+
+Here's a Java code example demonstrating the usage of atomic methods:
+
+```java
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class AtomicMethodsExample {
+    public static void main(String[] args) {
+        // Create an AtomicInteger
+        AtomicInteger atomicInt = new AtomicInteger(0);
+
+        // get(): Retrieve the current value
+        int currentValue = atomicInt.get();
+        System.out.println("Current value: " + currentValue);
+
+        // set(int newValue): Set the given value
+        atomicInt.set(10);
+        System.out.println("New value after set(): " + atomicInt.get());
+
+        // getAndSet(int newValue): Atomically sets the new value and returns the old value
+        int oldAndSet = atomicInt.getAndSet(20);
+        System.out.println("Old value returned by getAndSet(): " + oldAndSet);
+        System.out.println("Current value after getAndSet(): " + atomicInt.get());
+
+        // incrementAndGet(): Atomic pre-increment operation
+        int incrementedValue = atomicInt.incrementAndGet();
+        System.out.println("Value after incrementAndGet(): " + incrementedValue);
+
+        // getAndIncrement(): Atomic post-increment operation
+        int oldIncrementedValue = atomicInt.getAndIncrement();
+        System.out.println("Old value returned by getAndIncrement(): " + oldIncrementedValue);
+        System.out.println("Current value after getAndIncrement(): " + atomicInt.get());
+
+        // decrementAndGet(): Atomic pre-decrement operation
+        int decrementedValue = atomicInt.decrementAndGet();
+        System.out.println("Value after decrementAndGet(): " + decrementedValue);
+
+        // getAndDecrement(): Atomic post-decrement operation
+        int oldDecrementedValue = atomicInt.getAndDecrement();
+        System.out.println("Old value returned by getAndDecrement(): " + oldDecrementedValue);
+        System.out.println("Current value after getAndDecrement(): " + atomicInt.get());
+    }
+}
+```
+
+In this example:
+
+- We create an `AtomicInteger` and perform various atomic operations on it.
+- Each atomic method is demonstrated with its corresponding description:
+   - `get()`: Retrieve the current value.
+   - `set(int newValue)`: Set the given value.
+   - `getAndSet(int newValue)`: Atomically sets the new value and returns the old value.
+   - `incrementAndGet()`: Atomic pre-increment operation.
+   - `getAndIncrement()`: Atomic post-increment operation.
+   - `decrementAndGet()`: Atomic pre-decrement operation.
+   - `getAndDecrement()`: Atomic post-decrement operation.
+
+This example illustrates how atomic methods can be used to perform thread-safe operations on shared variables without the need for explicit synchronization.
+
+### Improving Access with Synchronized Blocks
+
+Synchronized blocks in Java provide a way to control access to critical sections of code, ensuring that only one thread can execute the synchronized block at a time. This helps prevent race conditions and maintains data consistency in multithreaded environments.
+
+Here's how synchronized blocks work and how you can use them to improve access:
+
+1. **Syntax**:
+   ```java
+   synchronized (object) {
+       // Critical section of code
+   }
+   ```
+
+2. **Working Principle**:
+   - When a thread enters a synchronized block, it acquires the intrinsic lock (also known as the monitor lock) associated with the specified object.
+   - Other threads attempting to enter synchronized blocks synchronized on the same object must wait until the lock is released by the current thread.
+   - Once the critical section of code within the synchronized block is executed or an exception is thrown, the lock is released, allowing other waiting threads to acquire it.
+
+3. **Improving Access**:
+   - You can use synchronized blocks to ensure that only one thread at a time can access critical sections of your code where shared data is being modified.
+   - This prevents concurrent access to shared resources, avoiding potential data corruption or inconsistent states.
+
+4. **Example**:
+   ```java
+   public class SynchronizedExample {
+       private int count = 0;
+
+       public void increment() {
+           synchronized (this) {
+               count++;
+           }
+       }
+
+       public int getCount() {
+           synchronized (this) {
+               return count;
+           }
+       }
+   }
+   ```
+   - In this example, both the `increment()` and `getCount()` methods are synchronized on the same object (`this`), ensuring that only one thread can execute them at a time.
+   - This guarantees that the `count` variable is accessed and modified atomically, preventing race conditions.
+
+5. **Performance Considerations**:
+   - While synchronized blocks ensure thread safety, they can introduce performance overhead due to thread contention.
+   - It's essential to synchronize only the critical sections of code that modify shared data, keeping the synchronized blocks as short as possible to minimize the impact on performance.
+
+By using synchronized blocks effectively, you can improve access to shared resources and maintain data integrity in multithreaded Java applications.
+
+### Synchronizing Methods
+
+Synchronizing methods in Java is another way to control access to critical sections of code, similar to synchronized blocks. When a method is declared as synchronized, only one thread can execute that method on a particular instance of the class at a time. This ensures that multiple threads cannot concurrently execute synchronized methods on the same instance, thereby preventing data corruption or inconsistent states.
+
+Here's how you can synchronize methods and improve access:
+
+1. **Syntax**:
+   ```java
+   public synchronized void methodName() {
+       // Critical section of code
+   }
+   ```
+
+2. **Working Principle**:
+   - When a synchronized method is called, the intrinsic lock (monitor lock) associated with the object instance on which the method is invoked is acquired.
+   - Other threads attempting to execute synchronized methods on the same object instance must wait until the lock is released.
+   - Once the method execution completes or an exception is thrown, the lock is released, allowing other waiting threads to acquire it.
+
+3. **Improving Access**:
+   - By synchronizing methods, you can ensure that only one thread at a time can execute critical sections of code within those methods.
+   - This prevents concurrent access to shared resources and helps maintain data consistency in multithreaded environments.
+
+4. **Example**:
+   ```java
+   public class SynchronizedMethodExample {
+       private int count = 0;
+
+       public synchronized void increment() {
+           count++;
+       }
+
+       public synchronized int getCount() {
+           return count;
+       }
+   }
+   ```
+   - In this example, both the `increment()` and `getCount()` methods are declared as synchronized, ensuring that only one thread can execute them at a time on a particular instance of the class.
+   - This guarantees atomic access to the `count` variable, preventing race conditions and ensuring data integrity.
+
+5. **Performance Considerations**:
+   - While synchronized methods provide thread safety, they may introduce performance overhead due to contention for the intrinsic lock.
+   - It's important to synchronize only the critical methods that modify shared data, avoiding unnecessary synchronization on methods that don't require it.
+
+By synchronizing methods effectively, you can improve access to shared resources and mitigate potential concurrency issues in your Java applications.
+
+### Understanding the Cost of Synchronization
+
+Understanding the cost of synchronization is crucial for designing efficient multithreaded Java applications. While synchronization ensures thread safety and prevents race conditions, it can introduce overhead that impacts performance. Here are some key considerations regarding the cost of synchronization:
+
+1. **Locking Overhead**:
+   - Synchronization typically involves acquiring and releasing locks, which incurs overhead.
+   - Acquiring a lock requires the thread to enter a monitor state and possibly wait until the lock becomes available.
+   - Releasing a lock involves notifying waiting threads and transitioning the thread out of the monitor state.
+
+2. **Contention**:
+   - Contention occurs when multiple threads compete for access to synchronized resources.
+   - High contention can lead to threads spending significant time waiting for locks, reducing overall throughput and responsiveness.
+   - Designing concurrency control mechanisms to minimize contention is essential for improving performance.
+
+3. **Granularity**:
+   - The granularity of synchronization impacts performance.
+   - Fine-grained locking, where locks are acquired for small sections of code, can reduce contention but may increase overhead due to frequent lock acquisition and release.
+   - Coarse-grained locking, where locks are acquired for larger sections of code, may reduce overhead but can increase contention if multiple threads need access to the same lock.
+
+4. **Locking Mechanisms**:
+   - Java provides various locking mechanisms, such as intrinsic locks (synchronized methods and blocks), explicit locks (ReentrantLock), and atomic variables.
+   - Different locking mechanisms have different performance characteristics.
+   - Choosing the appropriate locking mechanism based on the application's concurrency requirements and performance goals is essential.
+
+5. **Locking Hierarchy**:
+   - Nested locking or acquiring multiple locks in different order can lead to deadlock.
+   - Deadlock occurs when two or more threads are blocked indefinitely, waiting for each other to release locks.
+   - Careful design and analysis of locking hierarchies are necessary to avoid deadlock scenarios.
+
+6. **Alternative Approaches**:
+   - In some cases, avoiding synchronization altogether may be possible by using thread-local variables, immutable objects, or non-blocking algorithms.
+   - Non-blocking algorithms, such as atomic variables and concurrent collections, provide thread safety without the need for locks and can improve scalability in highly concurrent scenarios.
+
+7. **Performance Profiling**:
+   - Performance profiling tools, such as profilers and thread profilers, can help identify synchronization bottlenecks and areas for optimization.
+   - Profiling should be performed under realistic workload conditions to accurately assess the impact of synchronization on performance.
+
+In summary, while synchronization is essential for ensuring thread safety in multithreaded Java applications, it's important to carefully consider its cost and optimize synchronization strategies to achieve the desired balance between concurrency and performance.
+
+## Using Concurrent Collections
+
+### Introducing Concurrent Collections
+
+
