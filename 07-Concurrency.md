@@ -1056,4 +1056,623 @@ In summary, while synchronization is essential for ensuring thread safety in mul
 
 ### Introducing Concurrent Collections
 
+Concurrent collections are data structures designed to be safely accessed and modified concurrently by multiple threads or processes. They provide mechanisms for synchronization and coordination to ensure that operations on the collection are atomic and thread-safe, meaning that they can be performed reliably in a concurrent environment without causing race conditions or other synchronization issues.
+
+### Understanding Memory Consistency Errors
+
+- A memory consistency error occurs when two threads have inconsistent views of what should be the same data. 
+- When two threads try to modify the same non-concurrent collection, the JVM may throw a ConcurrentModificationException at runtime.
+
+```java
+Map<String, Object> foodData = new HashMap<String, Object>(); 
+foodData.put("penguin", 1);
+foodData.put("flamingo", 2);
+for(String key: foodData.keySet())
+    foodData.remove(key);   
+```
+
+This snippet will throw a ConcurrentModificationException at runtime, since the iterator keyset() is not properly updated after the first element is removed. Changing the first line to use a ConcurrentHashMap will prevent the code from throwing an exception at runtime.
+
+### Working with Concurrent Classes
+
+**Concurrent collection classes**
+
+| Class Name            | Interface     | Ordered? | Sorted? | Blocking? |
+|-----------------------|---------------|----------|---------|-----------|
+| ConcurrentHashMap     | ConcurrentMap | No       | No      | No        |
+| ConcurrentLinkedDeque | Deque         | No       | No      | No        |
+| ConcurrentLinkedQueue | Queue         | No       | No      | No        |
+| ConcurrentSkipListMap | ConcurrentMap | Yes      | Yes     | Yes       |
+| ConcurrentSkipListSet | SortedSet     | No       | No      | No        |
+| CopyOnWriteArrayList  | List          | No       | No      | No        |
+| CopyOnWriteArraySet   | Set           | Yes      | No      | No        |
+| LinkedBlockingDeque   | BlockingDeque | No       | No      | Yes       |
+| LinkedBlockingQueue   | BlockingQueue | No       | No      | Yes       |
+
+Here are code examples for `ConcurrentHashMap`, `ConcurrentLinkedQueue`, and `ConcurrentLinkedDeque`:
+
+1. `ConcurrentHashMap`:
+
+```java
+import java.util.concurrent.ConcurrentHashMap;
+
+public class ConcurrentHashMapExample {
+    public static void main(String[] args) {
+        ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>();
+        map.put("one", 1);
+        map.put("two", 2);
+        map.put("three", 3);
+
+        // Accessing elements
+        System.out.println("Value of 'two': " + map.get("two"));
+
+        // Iterating over elements
+        for (String key : map.keySet()) {
+            System.out.println("Key: " + key + ", Value: " + map.get(key));
+        }
+    }
+}
+```
+
+2. `ConcurrentLinkedQueue`:
+
+```java
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+public class ConcurrentLinkedQueueExample {
+    public static void main(String[] args) {
+        ConcurrentLinkedQueue<Integer> queue = new ConcurrentLinkedQueue<>();
+        queue.add(1);
+        queue.add(2);
+        queue.add(3);
+
+        // Removing elements
+        System.out.println("Removed element: " + queue.poll());
+
+        // Iterating over elements
+        for (Integer value : queue) {
+            System.out.println("Value: " + value);
+        }
+    }
+}
+```
+
+3. `ConcurrentLinkedDeque`:
+
+```java
+import java.util.concurrent.ConcurrentLinkedDeque;
+
+public class ConcurrentLinkedDequeExample {
+    public static void main(String[] args) {
+        ConcurrentLinkedDeque<Integer> deque = new ConcurrentLinkedDeque<>();
+        deque.addFirst(1);
+        deque.addLast(2);
+        deque.addLast(3);
+
+        // Removing elements
+        System.out.println("Removed first element: " + deque.pollFirst());
+        System.out.println("Removed last element: " + deque.pollLast());
+
+        // Iterating over elements
+        for (Integer value : deque) {
+            System.out.println("Value: " + value);
+        }
+    }
+}
+```
+
+These examples demonstrate basic usage of each concurrent collection class, including adding elements, accessing elements, removing elements, and iterating over the collection.
+
+#### Understanding Blocking Queues
+
+- Two queue classes that implement blocking interfaces: LinkedBlockingQueue and LinkedBlockingDeque. 
+- The BlockingQueue is just like a regular Queue, except that it includes methods that will wait a specific amount of time to complete an operation.
+
+**BlockingQueue waiting methods**
+
+| Method Name                                 | Description                                                                                                                                             |
+|---------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `offer(E e, long timeout, TimeUnit unit)`   | Adds an item to the queue, waiting for the specified time duration. Returns `false` if the time elapses before space is available.                      |
+| `poll(long timeout, TimeUnit unit)`         | Retrieves and removes an item from the queue, waiting for the specified time duration. Returns `null` if the time elapses before the item is available. |
+
+```java
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
+public class LinkedBlockingQueueExample {
+    public static void main(String[] args) {
+        LinkedBlockingQueue<Integer> queue = new LinkedBlockingQueue<>(3);
+
+        // Adding items to the queue with a timeout
+        try {
+            boolean offerResult = queue.offer(1, 1, TimeUnit.SECONDS);
+            System.out.println("Offer result: " + offerResult); // true
+
+            offerResult = queue.offer(2, 1, TimeUnit.SECONDS);
+            System.out.println("Offer result: " + offerResult); // true
+
+            offerResult = queue.offer(3, 1, TimeUnit.SECONDS);
+            System.out.println("Offer result: " + offerResult); // true
+
+            // The queue is full, this will time out
+            offerResult = queue.offer(4, 1, TimeUnit.SECONDS);
+            System.out.println("Offer result: " + offerResult); // false
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Retrieving items from the queue with a timeout
+        try {
+            Integer pollResult = queue.poll(1, TimeUnit.SECONDS);
+            System.out.println("Polled value: " + pollResult); // 1
+
+            pollResult = queue.poll(1, TimeUnit.SECONDS);
+            System.out.println("Polled value: " + pollResult); // 2
+
+            pollResult = queue.poll(1, TimeUnit.SECONDS);
+            System.out.println("Polled value: " + pollResult); // 3
+
+            // The queue is empty, this will time out
+            pollResult = queue.poll(1, TimeUnit.SECONDS);
+            System.out.println("Polled value: " + pollResult); // null
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+**BlockingDeque waiting methods**
+
+| Method Name                                    | Description                                                                                                                                                            |
+|------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `offerFirst(E e, long timeout, TimeUnit unit)` | Adds an item to the front of the queue, waiting for the specified time duration. Returns `false` if the time elapses before space is available.                        |
+| `offerLast(E e, long timeout, TimeUnit unit)`  | Adds an item to the tail of the queue, waiting for the specified time duration. Returns `false` if the time elapses before space is available.                         |
+| `pollFirst(long timeout, TimeUnit unit)`       | Retrieves and removes an item from the front of the queue, waiting for the specified time duration. Returns `null` if the time elapses before the item is available.   |
+| `pollLast(long timeout, TimeUnit unit)`        | Retrieves and removes an item from the tail of the queue, waiting for the specified time duration. Returns `null` if the time elapses before the item is available.    |
+
+Certainly! Here's a code example demonstrating the use of the `offerFirst`, `offerLast`, `pollFirst`, and `pollLast` methods with a `LinkedBlockingDeque`:
+
+```java
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
+
+public class LinkedBlockingDequeExample {
+    public static void main(String[] args) {
+        LinkedBlockingDeque<Integer> deque = new LinkedBlockingDeque<>(3);
+
+        // Adding items to the front and back of the deque with a timeout
+        try {
+            boolean offerFirstResult = deque.offerFirst(1, 1, TimeUnit.SECONDS);
+            System.out.println("Offer first result: " + offerFirstResult); // true
+
+            boolean offerLastResult = deque.offerLast(2, 1, TimeUnit.SECONDS);
+            System.out.println("Offer last result: " + offerLastResult); // true
+
+            // The deque is full, these will time out
+            offerFirstResult = deque.offerFirst(3, 1, TimeUnit.SECONDS);
+            System.out.println("Offer first result: " + offerFirstResult); // false
+
+            offerLastResult = deque.offerLast(4, 1, TimeUnit.SECONDS);
+            System.out.println("Offer last result: " + offerLastResult); // false
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Retrieving items from the front and back of the deque with a timeout
+        try {
+            Integer pollFirstResult = deque.pollFirst(1, TimeUnit.SECONDS);
+            System.out.println("Polled first value: " + pollFirstResult); // 1
+
+            Integer pollLastResult = deque.pollLast(1, TimeUnit.SECONDS);
+            System.out.println("Polled last value: " + pollLastResult); // 2
+
+            // The deque is empty, these will time out
+            pollFirstResult = deque.pollFirst(1, TimeUnit.SECONDS);
+            System.out.println("Polled first value: " + pollFirstResult); // null
+
+            pollLastResult = deque.pollLast(1, TimeUnit.SECONDS);
+            System.out.println("Polled last value: " + pollLastResult); // null
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This code example creates a `LinkedBlockingDeque` with a capacity of 3. It then adds two elements to the deque using the `offerFirst` and `offerLast` methods with a timeout of 1 second for each offer operation. Afterward, it tries to add more elements, which fail due to the deque being full.
+
+Next, it retrieves the elements from the front and back of the deque using the `pollFirst` and `pollLast` methods with a timeout of 1 second for each poll operation. It prints the retrieved values. Finally, it tries to retrieve more elements, which fail due to the deque being empty.
+
+#### Understanding SkipList Collections
+
+The SkipList classes, ConcurrentSkipListSet and ConcurrentSkipListMap, are concurrent versions of their sorted counterparts, TreeSet and TreeMap, respectively.
+Here are code examples demonstrating the use of `ConcurrentSkipListSet` and `ConcurrentSkipListMap`:
+
+```java
+import java.util.concurrent.ConcurrentSkipListSet;
+
+public class ConcurrentSkipListSetExample {
+    public static void main(String[] args) {
+        ConcurrentSkipListSet<Integer> set = new ConcurrentSkipListSet<>();
+
+        // Adding elements to the set
+        set.add(3);
+        set.add(1);
+        set.add(2);
+
+        // Printing the set
+        System.out.println("Set: " + set);
+
+        // Removing an element from the set
+        set.remove(2);
+
+        // Printing the set after removal
+        System.out.println("Set after removal: " + set);
+    }
+}
+```
+
+```java
+import java.util.concurrent.ConcurrentSkipListMap;
+
+public class ConcurrentSkipListMapExample {
+    public static void main(String[] args) {
+        ConcurrentSkipListMap<String, Integer> map = new ConcurrentSkipListMap<>();
+
+        // Adding key-value pairs to the map
+        map.put("one", 1);
+        map.put("two", 2);
+        map.put("three", 3);
+
+        // Printing the map
+        System.out.println("Map: " + map);
+
+        // Removing a key-value pair from the map
+        map.remove("two");
+
+        // Printing the map after removal
+        System.out.println("Map after removal: " + map);
+    }
+}
+```
+
+In these examples:
+
+- `ConcurrentSkipListSet` is a concurrent, navigable set backed by a skip list. It maintains its elements in sorted order, and allows for concurrent access from multiple threads without the need for external synchronization.
+
+- `ConcurrentSkipListMap` is a concurrent, navigable map backed by a skip list. It maintains its key-value mappings in sorted order of the keys, and allows for concurrent access from multiple threads without the need for external synchronization.
+
+Both classes provide efficient and scalable alternatives to `TreeSet` and `TreeMap` for concurrent applications. They support operations such as adding, removing, and accessing elements or key-value pairs, while maintaining thread safety and concurrent access.
+
+#### Understanding CopyOnWrite Collections
+
+- Included two classes, CopyOnWriteArrayList and CopyOnWriteArraySet.
+- These classes copy all of their elements to a new underlying structure anytime an element is added, modified, or removed from the collection.
+- By a modified element, we mean that the reference in the collection is changed.
+
+Here's a code example demonstrating the use of `CopyOnWriteArrayList`:
+
+```java
+import java.util.concurrent.CopyOnWriteArrayList;
+
+public class CopyOnWriteArrayListExample {
+    public static void main(String[] args) {
+        // Creating a CopyOnWriteArrayList
+        CopyOnWriteArrayList<String> list = new CopyOnWriteArrayList<>();
+
+        // Adding elements to the list
+        list.add("apple");
+        list.add("banana");
+        list.add("orange");
+
+        // Creating and starting a thread to modify the list
+        Thread thread = new Thread(() -> {
+            for (String fruit : list) {
+                System.out.println("Thread 1: " + fruit);
+                try {
+                    Thread.sleep(1000); // Simulate some work
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
+
+        // Modifying the list from the main thread
+        list.add("grape");
+        list.remove("banana");
+
+        // Waiting for the thread to finish
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Printing the final contents of the list
+        System.out.println("Final list: " + list);
+    }
+}
+```
+
+In this example:
+
+- We create a `CopyOnWriteArrayList` named `list` and add some fruits to it.
+- We create a thread that iterates over the elements of the list and prints them with a delay of 1 second between each fruit.
+- Meanwhile, in the main thread, we modify the list by adding a new fruit ("grape") and removing an existing one ("banana").
+- Finally, we wait for the thread to finish and print the final contents of the list.
+
+Since `CopyOnWriteArrayList` creates a copy of the underlying array whenever it is modified, the iterator in the thread will iterate over the original snapshot of the list, ensuring that it does not encounter any `ConcurrentModificationException` even though the list is being modified concurrently.
+
+### Obtaining Synchronized Collections
+
+**Synchronized collections methods**
+
+| Method Name                                   | Description                                                                                                         |
+|-----------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| synchronizedCollection(Collection<T> c)       | Returns a synchronized (thread-safe) view of the specified collection.                                              |
+| synchronizedList(List<T> list)                | Returns a synchronized (thread-safe) list backed by the specified list.                                             |
+| synchronizedMap(Map<K,V> m)                   | Returns a synchronized (thread-safe) map backed by the specified map.                                               |
+| synchronizedNavigableMap(NavigableMap<K,V> m) | Returns a synchronized (thread-safe) navigable map backed by the specified navigable map.                           |
+| synchronizedNavigableSet(NavigableSet<T> s)   | Returns a synchronized (thread-safe) navigable set backed by the specified navigable set.                           |
+| synchronizedSet(Set<T> s)                     | Returns a synchronized (thread-safe) set backed by the specified set.                                               |
+| synchronizedSortedMap(SortedMap<K,V> m)       | Returns a synchronized (thread-safe) sorted map backed by the specified sorted map.                                 |
+| synchronizedSortedSet(SortedSet<T> s)         | Returns a synchronized (thread-safe) sorted set backed by the specified sorted set.                                 |
+
+Unlike the concurrent collections, the synchronized collections also throw an exception if they are modified within an iterator by a single thread.
+
+Here's a code example demonstrating the use of a synchronized collection and the `ConcurrentModificationException` that can occur if it's modified during iteration by a single thread:
+
+```java
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+public class SynchronizedCollectionExample {
+    public static void main(String[] args) {
+        // Creating a synchronized list
+        List<Integer> synchronizedList = Collections.synchronizedList(new ArrayList<>());
+
+        // Adding elements to the list
+        synchronizedList.add(1);
+        synchronizedList.add(2);
+        synchronizedList.add(3);
+
+        // Creating an iterator and modifying the list during iteration
+        Iterator<Integer> iterator = synchronizedList.iterator();
+        while (iterator.hasNext()) {
+            Integer element = iterator.next();
+            System.out.println("Element: " + element);
+            
+            // Modifying the list while iterating
+            synchronizedList.add(4); // This will throw ConcurrentModificationException
+        }
+    }
+}
+```
+
+In this example:
+
+- We create a synchronized list using `Collections.synchronizedList()` method.
+- We add elements (1, 2, 3) to the list.
+- We create an iterator to iterate over the list.
+- Within the loop, we attempt to add an element (4) to the list while iterating over it.
+- This modification during iteration by a single thread will result in a `ConcurrentModificationException` being thrown.
+
+## Working with Parallel Streams
+
+- A serial stream is a stream in which the results are ordered, with only one entry being processed at a time.
+- A parallel stream is a stream that is capable of processing results concurrently, using multiple threads. 
+
+### Creating Parallel Streams
+
+#### parallel()
+
+The first way to create a parallel stream is from an existing stream. You just call parallel() on an existing stream to convert it to one that supports multi-threaded processing
+
+```java
+import java.util.Arrays;
+import java.util.stream.Stream;
+
+public class ParallelStreamExample {
+    public static void main(String[] args) {
+        // Create a sequential stream
+        Stream<Integer> sequentialStream = Arrays.stream(new Integer[]{1, 2, 3, 4, 5});
+
+        // Convert the sequential stream into a parallel stream
+        Stream<Integer> parallelStream = sequentialStream.parallel();
+
+        // Perform some operations on the parallel stream
+        parallelStream.forEach(System.out::println);
+    }
+}
+```
+
+#### parallelStream()
+
+The second way to create a parallel stream is from a Java collection class. The Collection interface includes a method parallelStream() that can be called on any collection and returns a parallel stream. 
+
+```java
+import java.util.Arrays;
+import java.util.List;
+
+public class ParallelStreamExample {
+    public static void main(String[] args) {
+        // Create a list of integers
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
+
+        // Create a parallel stream from the list
+        numbers.parallelStream()
+               .forEach(System.out::println);
+    }
+}
+```
+
+### Processing Tasks in Parallel
+
+```java
+import java.util.Arrays;
+
+public class ParallelStreamExample {
+    public static void main(String[] args) {
+        // Create a parallel stream from an array
+        Arrays.stream(new Integer[]{1, 2, 3, 4, 5})
+              .parallel()
+              .forEach(System.out::println);
+    }
+}
+```
+
+The forEach() operation on a parallel stream is equivalent to submitting multiple Runnable lambda expressions to a pooled thread executor.
+
+#### Understanding Performance Improvements
+
+here's an example comparing the performance of a computation using `parallelStream()` and without using it:
+
+```java
+import java.util.stream.IntStream;
+
+public class ParallelStreamComparison {
+    public static void main(String[] args) {
+        int[] array = IntStream.rangeClosed(1, 1000000).toArray();
+
+        long startTime = System.currentTimeMillis();
+
+        // Perform computation without parallelStream()
+        int sum = 0;
+        for (int num : array) {
+            sum += num * num;
+        }
+
+        long endTime = System.currentTimeMillis();
+        System.out.println("Computation without parallelStream() took " + (endTime - startTime) + " milliseconds");
+        System.out.println("Result: " + sum);
+
+        startTime = System.currentTimeMillis();
+
+        // Perform computation using parallelStream()
+        sum = IntStream.of(array)
+                       .parallel()
+                       .map(num -> num * num)
+                       .sum();
+
+        endTime = System.currentTimeMillis();
+        System.out.println("Computation using parallelStream() took " + (endTime - startTime) + " milliseconds");
+        System.out.println("Result: " + sum);
+    }
+}
+```
+
+In this example:
+
+- We generate an array of integers from 1 to 1,000,000 using `IntStream.rangeClosed()` and convert it to an array.
+- We perform the same computation twice: once without using `parallelStream()` (using a sequential stream and a loop) and once using `parallelStream()` (using a parallel stream and the `map()` and `sum()` operations).
+- We measure the time taken for each computation using `System.currentTimeMillis()` before and after the computation.
+
+By comparing the execution times of the two computations, we can observe the performance difference between using and not using `parallelStream()` for parallel processing. Keep in mind that the effectiveness of parallel processing depends on factors such as the nature of the computation, the size of the data set, and the hardware capabilities.
+
+#### Understanding Independent Operations
+
+- Parallel streams can improve performance because they rely on the property that many stream operations can be executed independently. 
+- By independent operations, we mean that the results of an operation on one element of a stream do not require or impact the results of another element of the stream. 
+- When using streams, you should avoid any lambda expressions that can produce side effects.
+
+Independent operations in parallel processing refer to tasks or computations that can be executed concurrently without relying on the results of each other. This allows for efficient parallelization and can lead to performance improvements. Here's an example demonstrating independent operations using parallel streams:
+
+```java
+import java.util.Arrays;
+
+public class IndependentOperationsExample {
+    public static void main(String[] args) {
+        // Example array of integers
+        int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+        // Example of a computation: square each number and then sum the squares
+        long sumOfSquares = Arrays.stream(numbers)
+                                  .parallel()
+                                  .mapToLong(num -> num * num) // Square each number
+                                  .sum(); // Sum the squares
+
+        // Example of another computation: double each number and then sum the doubled values
+        long sumOfDoubles = Arrays.stream(numbers)
+                                  .parallel()
+                                  .mapToLong(num -> num * 2) // Double each number
+                                  .sum(); // Sum the doubled values
+
+        // Print the results
+        System.out.println("Sum of squares: " + sumOfSquares);
+        System.out.println("Sum of doubles: " + sumOfDoubles);
+    }
+}
+```
+
+In this example:
+
+- We have an array of integers `numbers`.
+- We perform two independent computations in parallel streams:
+   1. We square each number in the array using `mapToLong()` and then sum the squares using `sum()`.
+   2. We double each number in the array using `mapToLong()` and then sum the doubled values using `sum()`.
+- Both computations can be executed concurrently because they don't depend on each other's results.
+- Parallel processing allows these independent operations to be performed simultaneously, potentially improving performance compared to sequential execution.
+
+This example illustrates how independent operations can be parallelized to take advantage of multi-core processors and improve overall throughput.
+
+#### Avoiding Stateful Operations
+
+- A stateful lambda expression is one whose result depends on any state that might change dur- ing the execution of a pipeline. 
+- On the other hand, a stateless lambda expression is one whose.
+
+Sure, here's an example demonstrating how to avoid stateful operations in parallel streams:
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class AvoidingStatefulOperationsExample {
+    public static void main(String[] args) {
+        // Create a list of integers
+        List<Integer> numbers = new ArrayList<>();
+        for (int i = 1; i <= 10; i++) {
+            numbers.add(i);
+        }
+
+        // Example of using stateful operation (incorrect approach)
+        AtomicInteger sum = new AtomicInteger();
+        numbers.parallelStream()
+               .forEach(num -> sum.addAndGet(num)); // Avoid stateful operation like summing in parallel
+
+        System.out.println("Sum using stateful operation: " + sum);
+
+        // Example of using stateless operation (correct approach)
+        int sumWithoutStatefulOp = numbers.parallelStream()
+                                          .mapToInt(Integer::intValue)
+                                          .sum(); // Stateless operation like summing in parallel
+
+        System.out.println("Sum using stateless operation: " + sumWithoutStatefulOp);
+    }
+}
+```
+
+In this example:
+
+- We have a list of integers named `numbers`.
+- We demonstrate two approaches for summing the elements of the list in parallel streams.
+- The first approach (using `forEach`) uses a stateful operation (`AtomicInteger`) to accumulate the sum. This approach is incorrect for parallel streams because it relies on mutable shared state, which can lead to data races and incorrect results.
+- The second approach (using `mapToInt` and `sum`) uses a stateless operation to calculate the sum. This approach is correct for parallel streams because it avoids mutable shared state and relies only on the elements of the stream being processed independently.
+- By using stateless operations in parallel streams, we ensure that the computations can be safely performed in parallel without the risk of data corruption or incorrect results due to concurrent access to shared mutable state.
+
+### Processing Parallel Reductions
+
+#### Performing Order-Based Tasks
+
+With a parallel stream, the JVM can create any number of threads to process the stream. When you call findAny() on a parallel stream, the JVM selects the first thread to finish the task and retrieves its data:
+
+```java
+System.out.print(Arrays.asList(1,2,3,4,5,6).parallelStream().findAny().get());
+```
+
+#### Combining Results with reduce()
 
