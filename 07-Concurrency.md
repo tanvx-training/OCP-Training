@@ -1676,3 +1676,271 @@ System.out.print(Arrays.asList(1,2,3,4,5,6).parallelStream().findAny().get());
 
 #### Combining Results with reduce()
 
+- The stream operation reduce() combines a stream into a single object. 
+- Recall that first parameter to `the reduce()` method is called the identity, the second parameter
+is called the accumulator, and the third parameter is called the combiner.
+
+**Requirements for reduce() arguments**
+- The identity must be defined such that for all elements in the stream u ,
+combiner.apply(identity, u) is equal to u .
+- The accumulator operator op must be associative and stateless such that (a op b) op c
+is equal to a op (b op c) .
+- The combiner operator must also be associative and stateless and compatible with the
+identity, such that for all u and t combiner.apply(u,accumulator.apply(identity,t))
+is equal to accumulator.apply(u,t) . 
+
+```java
+import java.util.Arrays;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
+        
+        // Using reduce to find the sum of all elements in the list
+        int sum = numbers.stream()
+                        .reduce(0, (a, b) -> a + b);
+        
+        System.out.println("Sum of all elements: " + sum);
+    }
+}
+```
+
+#### Combing Results with collect()
+
+- Like reduce(), the Streams API includes a three-argument version of collect() that takes
+accumulator and combiner operators, along with a supplier operator instead of an identity. 
+- Also like reduce(), the accumulator and combiner operations must be associative and
+stateless, with the combiner operation compatible with the accumulator operator, as previously discussed.
+
+```java
+import java.util.SortedSet;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.stream.Stream;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a parallel stream of strings
+        Stream<String> stream = Stream.of("w", "o", "l", "f").parallel();
+        
+        // Use collect() to collect the elements into a ConcurrentSkipListSet
+        SortedSet<String> set = stream.collect(
+            ConcurrentSkipListSet::new,  // Supplier: Create a new ConcurrentSkipListSet
+            SortedSet::add,              // Accumulator: Add each element to the set
+            SortedSet::addAll           // Combiner: Merge partial results (for parallel streams)
+        );
+        
+        // Print the sorted set
+        System.out.println(set); // [f, l, o, w]
+    }
+}
+```
+
+##### Using the One-Argument collect() Method
+
+```java
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a parallel stream of strings
+        Stream<String> stream = Stream.of("w", "o", "l", "f").parallel();
+        
+        // Use collect() to collect the elements into a Set
+        Set<String> set = stream.collect(Collectors.toSet());
+        
+        // Print the set
+        System.out.println(set); // [f, w, l, o]
+    }
+}
+```
+
+##### Requirements for Parallel Reduction with collect()
+
+- The stream is parallel.
+- The parameter of the collect operation has the Collector.Characteristics.CONCURRENT
+characteristic.
+- Either the stream is unordered, or the collector has the characteristic
+Collector.Characteristics.UNORDERED.
+
+**Example 1**
+
+```java
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a parallel stream of strings
+        Stream<String> ohMy = Stream.of("lions", "tigers", "bears").parallel();
+
+        // Use collect() to collect the elements into a ConcurrentMap
+        ConcurrentMap<Integer, String> map = ohMy
+                .collect(Collectors.toConcurrentMap(
+                        String::length,    // Key mapper function: length of the string
+                        k -> k,            // Value mapper function: identity
+                        (s1, s2) -> s1 + "," + s2)); // Merge function: concatenate strings
+
+        // Print the map
+        System.out.println(map); // {5=lions,bears, 6=tigers}
+
+        // Print the class of the map
+        System.out.println(map.getClass()); // java.util.concurrent.ConcurrentHashMap
+    }
+}
+```
+
+**Example 2**
+
+```java
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a parallel stream of strings
+        Stream<String> ohMy = Stream.of("lions", "tigers", "bears").parallel();
+
+        // Use collect() to group elements by length into a ConcurrentMap
+        ConcurrentMap<Integer, List<String>> map = ohMy.collect(
+                Collectors.groupingByConcurrent(String::length));
+
+        // Print the map
+        System.out.println(map); // {5=[lions, bears], 6=[tigers]}
+    }
+}
+```
+
+## Managing Concurrent Processes
+
+### Creating a CyclicBarrier
+
+1. The `CyclicBarrier` class has constructors that take a limit value as an argument. This limit value specifies the number of threads that the barrier will wait for before allowing them to proceed.
+
+2. Each thread participating in the barrier will call the `await()` method when it reaches the barrier point in its execution. The `await()` method signals that the thread has reached the barrier and waits for other threads to also reach the barrier.
+
+3. Once the specified number of threads (determined by the limit value) have all called `await()`, the barrier is released. At this point, all threads waiting at the barrier are allowed to continue their execution.
+
+In summary, a `CyclicBarrier` is a synchronization mechanism that allows a group of threads to wait for each other at a predefined point in their execution. Once the specified number of threads have reached this point, the barrier is released, enabling all threads to continue their tasks concurrently. This mechanism is particularly useful in scenarios where multiple threads need to perform certain tasks independently but synchronize at specific points in their execution flow.
+
+Here's the rewritten example with improved formatting and comments:
+
+```java
+import java.util.concurrent.*;
+
+public class LionPenManager {
+    private void removeAnimals() { System.out.println("Removing animals"); }
+    private void cleanPen() { System.out.println("Cleaning the pen"); }
+    private void addAnimals() { System.out.println("Adding animals"); }
+
+    public void performTask(CyclicBarrier c1, CyclicBarrier c2) {
+        try {
+            removeAnimals();
+            c1.await(); // Wait for all animals to be removed
+            cleanPen();
+            c2.await(); // Wait for pen to be cleaned by all threads
+            addAnimals();
+        } catch (InterruptedException | BrokenBarrierException e) {
+            // Handle checked exceptions here
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        ExecutorService service = null;
+        try {
+            service = Executors.newFixedThreadPool(4);
+            LionPenManager manager = new LionPenManager();
+            CyclicBarrier c1 = new CyclicBarrier(4);
+            // The second CyclicBarrier has a Runnable to execute when all threads reach the barrier
+            CyclicBarrier c2 = new CyclicBarrier(4, () -> System.out.println("*** Pen Cleaned!"));
+
+            // Submit tasks to the ExecutorService
+            for (int i = 0; i < 4; i++) {
+                service.submit(() -> manager.performTask(c1, c2));
+            }
+        } finally {
+            if (service != null) {
+                service.shutdown();
+            }
+        }
+    }
+}
+```
+
+Explanation:
+
+- The `LionPenManager` class encapsulates the logic for managing a lion pen.
+- It defines methods `removeAnimals()`, `cleanPen()`, and `addAnimals()` to simulate tasks involved in managing the pen.
+- The `performTask()` method represents the main task performed by the manager. It waits for all animals to be removed (`c1.await()`), then cleans the pen, and finally waits for the pen to be cleaned by all threads (`c2.await()`).
+- In the `main()` method, an `ExecutorService` is created to manage a pool of threads.
+- The manager's `performTask()` method is submitted to the executor service four times, each with its own set of `CyclicBarrier` instances (`c1` and `c2`).
+- Finally, the executor service is shut down after all tasks are submitted.
+
+### Applying the Fork/Join Framework
+
+
+```java
+import java.util.Arrays;
+import java.util.Random;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveAction;
+import java.util.concurrent.RecursiveTask;
+
+public class WeighAnimalAction extends RecursiveAction {
+    private final int start;
+    private final int end;
+    private final Double[] weights;
+
+    public WeighAnimalAction(Double[] weights, int start, int end) {
+        this.start = start;
+        this.end = end;
+        this.weights = weights;
+    }
+
+    @Override
+    protected void compute() {
+        // If the task is small enough, weigh the animals sequentially
+        if (end - start <= 3) {
+            for (int i = start; i < end; i++) {
+                weights[i] = (double) new Random().nextInt(100);
+                System.out.println("Animal Weighed: " + i);
+            }
+        } else {
+            // Otherwise, divide the task into smaller subtasks and fork them for parallel execution
+            int middle = start + ((end - start) / 2);
+            System.out.println("[start=" + start + ", middle=" + middle + ", end=" + end + "]");
+            invokeAll(new WeighAnimalAction(weights, start, middle),
+                    new WeighAnimalAction(weights, middle, end));
+        }
+    }
+
+    public static void main(String[] args) {
+        Double[] weights = new Double[10];
+        ForkJoinTask<?> task = new WeighAnimalAction(weights, 0, weights.length);
+        ForkJoinPool pool = new ForkJoinPool();
+        pool.invoke(task);
+
+        // Print results
+        System.out.println();
+        System.out.print("Weights: ");
+        Arrays.asList(weights).forEach(d -> System.out.print(d.intValue() + " "));
+    }
+}
+```
+
+Explanation:
+
+- The `WeighAnimalAction` class extends `RecursiveAction` because it performs an action (weighing animals) without returning a result.
+- The `compute()` method is overridden to define the logic for weighing animals. If the number of animals to be weighed is small enough, they are weighed sequentially. Otherwise, the task is divided into smaller subtasks and forked for parallel execution.
+- In the `main()` method, a `ForkJoinPool` is created to manage the parallel execution of tasks. The `invoke()` method is used to start the computation and block until it completes.
+- Finally, the weighed weights are printed.
+
+#### Working with a RecursiveTask 
