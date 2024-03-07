@@ -1886,6 +1886,24 @@ Explanation:
 
 ### Applying the Fork/Join Framework
 
+#### Introducing Recursion
+
+- The fork/join framework relies on the concept of recursion to solve complex tasks. Recursion is the 
+process by which a task calls itself to solve a problem. A recursive solution is constructed with a base 
+case and a recursive case:
+   + *Base case*: A non-recursive method that is used to terminate the recursive path
+   + *Recursive case*: A recursive method that may call itself one or multiple times to solve a problem
+
+- Applying the fork/join framework requires us to perform three steps:
+   + Create a ForkJoinTask.
+   + Create the ForkJoinPool.
+   + Start the ForkJoinTask
+
+- RecursiveAction and RecursiveTask, both of which implement the ForkJoinTask interface.
+- The first class, RecursiveAction, is an abstract class that requires us to implement `the compute()` 
+method, which returns void, to perform the bulk of the work.
+- The second class, RecursiveTask, is an abstract generic class that requires us to implement `the compute()`
+method, which returns the generic type, to perform the bulk of the work.
 
 ```java
 import java.util.Arrays;
@@ -1944,3 +1962,462 @@ Explanation:
 - Finally, the weighed weights are printed.
 
 #### Working with a RecursiveTask 
+
+Example code, which calculates the sum of weights for animals in a zoo using the fork/join framework:
+
+```java
+import java.util.concurrent.RecursiveTask;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.Random;
+
+public class WeighAnimalTask extends RecursiveTask<Double> {
+    private int start;
+    private int end;
+    private Double[] weights;
+
+    public WeighAnimalTask(Double[] weights, int start, int end) {
+        this.start = start;
+        this.end = end;
+        this.weights = weights;
+    }
+
+    protected Double compute() {
+        if (end - start <= 3) { // Base case: if there are 3 or fewer animals to weigh
+            double sum = 0;
+            for (int i = start; i < end; i++) {
+                weights[i] = (double) new Random().nextInt(100); // Simulating animal weights
+                System.out.println("Animal Weighed: " + i);
+                sum += weights[i];
+            }
+            return sum;
+        } else { // Recursive case: split the task into smaller subtasks
+            int middle = start + ((end - start) / 2);
+            System.out.println("[start=" + start + ", middle=" + middle + ", end=" + end + "]");
+
+            // Create a new task to handle the first half of the animals concurrently
+            RecursiveTask<Double> otherTask = new WeighAnimalTask(weights, start, middle);
+            otherTask.fork(); // Start the task in a separate thread
+            
+            // Compute the sum for the second half of the animals using the current thread
+            Double secondHalfSum = new WeighAnimalTask(weights, middle, end).compute();
+            
+            // Wait for the first half task to finish and retrieve its result
+            return secondHalfSum + otherTask.join(); // Combine both results
+        }
+    }
+
+    public static void main(String[] args) {
+        Double[] weights = new Double[10]; // Array to store weights of animals
+        ForkJoinTask<Double> task = new WeighAnimalTask(weights, 0, weights.length); // Task to weigh animals
+        ForkJoinPool pool = new ForkJoinPool(); // Create a pool of threads
+        Double sum = pool.invoke(task); // Invoke the task to calculate the total sum
+        System.out.println("Sum: " + sum); // Display the total sum of weights
+    }
+}
+```
+
+In this code:
+
+- The `WeighAnimalTask` class extends `RecursiveTask<Double>`, which means it will return a `Double` result.
+- The `compute()` method checks if there are 3 or fewer animals to weigh. If so, it calculates the sum directly. Otherwise, it splits the task into two subtasks, each handling half of the animals.
+- The `main()` method creates a task to weigh all animals and invokes it using a `ForkJoinPool`.
+- The `fork()` method starts the first subtask in a separate thread, and `join()` waits for it to finish before combining the results.
+
+> - One thing to be careful about when using the fork() and join() methods is the order in
+which they are applied.
+> -  For the exam, make sure that fork() is
+     called before the current thread begins a subtask and that join() is called after it finishes
+     retrieving the results, in order for them to be done in parallel.
+
+#### Identifying Fork/Join Issues
+
+Tips for reviewing a Fork/Join class:
+
+- Ensure that the class extends either `RecursiveAction` or `RecursiveTask`.
+- If the class extends `RecursiveAction`, it should override a protected `compute()` method that returns `void` and takes no arguments.
+- If the class extends `RecursiveTask`, it should override a protected `compute()` method that returns a generic type specified in the class definition and takes no arguments.
+- When using `invokeAll()`, ensure it takes two instances of the fork/join class and doesn't return any result.
+- The `fork()` method submits a new task to the pool, akin to the `submit()` method in a thread executor.
+- `join()` is called after `fork()` and makes the current thread wait for the results of a subtask.
+- Unlike `fork()`, calling `compute()` within a `compute()` method causes the task to wait for the results of the subtask.
+- Ensure `fork()` is called before the current thread performs a `compute()` operation, with `join()` called to retrieve the results afterward.
+- As `compute()` takes no arguments, use the constructor of the class to pass instructions to the task.
+
+## Identifying Threading Problems
+
+### Understanding Liveness
+
+Liveness is the ability of an application to be able to execute in a timely manner. 
+
+#### Deadlock
+
+- Deadlock occurs when two or more threads are blocked forever, each waiting on the other. 
+
+Here's a simple example of a deadlock scenario in Java:
+
+```java
+public class DeadlockExample {
+    private static final Object lock1 = new Object();
+    private static final Object lock2 = new Object();
+
+    public static void main(String[] args) {
+        Thread thread1 = new Thread(() -> {
+            synchronized (lock1) {
+                System.out.println("Thread 1: Holding lock 1...");
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Thread 1: Waiting for lock 2...");
+                synchronized (lock2) {
+                    System.out.println("Thread 1: Acquired lock 2");
+                }
+            }
+        });
+
+        Thread thread2 = new Thread(() -> {
+            synchronized (lock2) {
+                System.out.println("Thread 2: Holding lock 2...");
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Thread 2: Waiting for lock 1...");
+                synchronized (lock1) {
+                    System.out.println("Thread 2: Acquired lock 1");
+                }
+            }
+        });
+
+        thread1.start();
+        thread2.start();
+    }
+}
+```
+
+In this example, two threads (`thread1` and `thread2`) are trying to acquire locks on `lock1` and `lock2` in different orders.
+
+- `thread1` acquires `lock1` and then tries to acquire `lock2`.
+- `thread2` acquires `lock2` and then tries to acquire `lock1`.
+
+If these threads start simultaneously, there's a chance that `thread1` acquires `lock1` and `thread2` acquires `lock2`, and then they both get blocked forever waiting for the lock the other thread is holding. This results in a deadlock.
+
+To prevent deadlocks, it's essential to acquire locks consistently in the same order across all threads. If multiple locks are needed, acquire them atomically or use higher-level constructs like `java.util.concurrent.locks.ReentrantLock` with try-lock mechanisms and timeouts to avoid deadlocks.
+
+#### Starvation
+
+Starvation is a concurrency issue where a thread is unable to gain access to resources or CPU time due to unfair scheduling or resource management. Unlike deadlock, where threads are blocked indefinitely, a thread suffering from starvation might eventually get access to resources but is continually delayed compared to other threads.
+
+In Java, starvation can occur due to various reasons, such as:
+
+1. **Priority-based Scheduling**: Threads with lower priority may starve if higher priority threads continuously consume CPU time, preventing lower priority threads from executing.
+
+2. **Resource Contention**: If a resource is heavily contended, some threads might starve waiting for access to that resource, especially if other threads repeatedly acquire and hold the resource.
+
+3. **Fairness Issues**: Some synchronization mechanisms or resource management strategies might not ensure fair access to resources, leading to certain threads being starved of resources.
+
+Here's a simple example demonstrating starvation in Java:
+
+```java
+public class StarvationExample {
+    private static final Object lock = new Object();
+
+    public static void main(String[] args) {
+        Thread starvedThread = new Thread(() -> {
+            synchronized (lock) {
+                while (true) {
+                    // Performing some task
+                    System.out.println(Thread.currentThread().getName() + " is executing...");
+
+                    // Intentionally not releasing the lock immediately
+                    try {
+                        Thread.sleep(1000); // Simulating long processing
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        Thread highPriorityThread = new Thread(() -> {
+            synchronized (lock) {
+                while (true) {
+                    // Performing some task
+                    System.out.println(Thread.currentThread().getName() + " is executing...");
+
+                    // Intentionally not releasing the lock immediately
+                    try {
+                        Thread.sleep(1000); // Simulating long processing
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        // Setting high priority to the high priority thread
+        highPriorityThread.setPriority(Thread.MAX_PRIORITY);
+
+        starvedThread.start();
+        highPriorityThread.start();
+    }
+}
+```
+
+In this example, we have two threads: `starvedThread` and `highPriorityThread`. Both threads acquire a lock on the same object. `highPriorityThread` has a higher priority than `starvedThread`. However, both threads perform a long-running task while holding the lock. Since `highPriorityThread` has higher priority, it will more frequently acquire and hold the lock, potentially starving `starvedThread` from accessing the shared resource indefinitely.
+
+To mitigate starvation, it's essential to ensure fair resource allocation and scheduling. This might involve using mechanisms like priority adjustment, fair locks, or alternative scheduling policies to prevent any thread from being unfairly starved of resources.
+
+#### Livelock
+
+Livelock is another concurrency issue similar to deadlock, but with a key difference: in a livelock, threads are not blocked, but they are unable to make progress because they keep reacting to each other's actions in a way that prevents any of them from completing their task.
+
+In essence, livelock occurs when threads are continuously responding to each other's actions in such a way that they cannot progress towards completing their task or releasing resources.
+
+Here's a simple example demonstrating a livelock scenario in Java:
+
+```java
+public class LivelockExample {
+    static class Spoon {
+        private Diner owner;
+
+        public Spoon(Diner d) {
+            owner = d;
+        }
+
+        public synchronized void use() {
+            System.out.printf("%s has eaten!", owner.getName());
+        }
+    }
+
+    static class Diner {
+        private boolean isHungry;
+
+        private String name;
+
+        public Diner(String name) {
+            this.name = name;
+            isHungry = true;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public synchronized void eatWith(Spoon spoon, Diner otherDiner) {
+            while (isHungry) {
+                // Check if the other diner is also hungry
+                if (spoon.owner != this) {
+                    try {
+                        Thread.sleep(1); // Simulate thinking
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    continue;
+                }
+
+                // Check if both diners are hungry
+                if (otherDiner.isHungry) {
+                    System.out.printf("%s: You eat first, %s!\n", name, otherDiner.getName());
+                    spoon.owner = otherDiner;
+                    continue;
+                }
+
+                // Eat if both diners are not hungry
+                spoon.use();
+                isHungry = false;
+                System.out.printf("%s: I'm not hungry anymore!\n", name);
+                spoon.owner = otherDiner;
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        final Diner husband = new Diner("Bob");
+        final Diner wife = new Diner("Alice");
+
+        final Spoon sharedSpoon = new Spoon(husband);
+
+        Thread husbandThread = new Thread(() -> {
+            husband.eatWith(sharedSpoon, wife);
+        });
+
+        Thread wifeThread = new Thread(() -> {
+            wife.eatWith(sharedSpoon, husband);
+        });
+
+        husbandThread.start();
+        wifeThread.start();
+    }
+}
+```
+
+In this example, two diners (represented by threads `husbandThread` and `wifeThread`) are sharing a spoon (`sharedSpoon`). Each diner tries to eat with the spoon but allows the other diner to eat first if they are both hungry. However, due to a misunderstanding in communication (represented by the simulation of thinking with `Thread.sleep(1)`), they end up continuously yielding the spoon to each other without ever eating themselves. This results in a livelock where both threads are active but unable to make progress towards completing their task.
+
+To resolve livelock issues, it's crucial to introduce mechanisms or protocols that break the cycle of action and reaction between threads, allowing them to eventually make progress towards completing their tasks. This might involve introducing timeouts, randomization, or coordination mechanisms to ensure that threads can continue their execution even in situations where they are continually responding to each other's actions.
+
+#### Managing Race Conditions
+
+Managing race conditions is essential in concurrent programming to ensure the correctness and reliability of your software. A race condition occurs when the behavior of a program depends on the relative timing of events executed by multiple threads or processes. Here are some strategies for managing race conditions in Java:
+
+1. **Synchronization**:
+   - Use synchronized blocks or methods to control access to shared resources. This ensures that only one thread can execute the synchronized code block or method at a time, preventing race conditions.
+   - Example:
+     ```java
+     public class Counter {
+         private int count;
+
+         public synchronized void increment() {
+             count++;
+         }
+
+         public synchronized int getCount() {
+             return count;
+         }
+     }
+     ```
+
+2. **Locks**:
+   - Use explicit lock objects from the `java.util.concurrent.locks` package for more fine-grained control over synchronization. This allows for more flexible locking strategies such as try-locking and locking with timeouts.
+   - Example using ReentrantLock:
+     ```java
+     import java.util.concurrent.locks.ReentrantLock;
+
+     public class Counter {
+         private int count;
+         private final ReentrantLock lock = new ReentrantLock();
+
+         public void increment() {
+             lock.lock();
+             try {
+                 count++;
+             } finally {
+                 lock.unlock();
+             }
+         }
+
+         public int getCount() {
+             lock.lock();
+             try {
+                 return count;
+             } finally {
+                 lock.unlock();
+             }
+         }
+     }
+     ```
+
+3. **Thread-Safe Data Structures**:
+   - Use thread-safe data structures provided by the `java.util.concurrent` package, such as `ConcurrentHashMap` or `CopyOnWriteArrayList`, which are designed to handle concurrent access safely without the need for external synchronization.
+   - Example using ConcurrentHashMap:
+     ```java
+     import java.util.concurrent.ConcurrentHashMap;
+
+     public class ConcurrentCounter {
+         private final ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>();
+
+         public void increment(String key) {
+             map.compute(key, (k, v) -> (v == null) ? 1 : v + 1);
+         }
+
+         public int getCount(String key) {
+             return map.getOrDefault(key, 0);
+         }
+     }
+     ```
+
+4. **Immutable Objects**:
+   - Design classes to be immutable whenever possible. Immutable objects cannot be modified after creation, so they are inherently thread-safe and immune to race conditions.
+   - Example:
+     ```java
+     public final class ImmutableCounter {
+         private final int count;
+
+         public ImmutableCounter(int count) {
+             this.count = count;
+         }
+
+         public int getCount() {
+             return count;
+         }
+
+         public ImmutableCounter increment() {
+             return new ImmutableCounter(count + 1);
+         }
+     }
+     ```
+
+5. **Atomic Operations**:
+   - Use atomic operations provided by classes in the `java.util.concurrent.atomic` package, such as `AtomicInteger` or `AtomicLong`, for simple atomic updates without the need for explicit synchronization.
+   - Example using AtomicInteger:
+     ```java
+     import java.util.concurrent.atomic.AtomicInteger;
+
+     public class AtomicCounter {
+         private final AtomicInteger count = new AtomicInteger();
+
+         public void increment() {
+             count.incrementAndGet();
+         }
+
+         public int getCount() {
+             return count.get();
+         }
+     }
+     ```
+
+By applying these strategies appropriately, you can effectively manage race conditions and ensure the correctness and reliability of your concurrent Java programs.
+
+# Summary
+
+1. Create concurrent tasks with a thread executor service using Runnable and Callable:
+
+- An ExecutorService creates and manages a single thread or a pool of threads.
+- Instances of Runnable and Callable can both be submitted to a thread executor and will be completed
+using the available threads in the service. 
+- Callable differs from Runnable in that Callable returns a generic data type and can throw a checked exception. 
+- A ScheduledExecutorService can be used to schedule tasks at a fixed rate or a fixed interval between executions.
+
+2. Be able to synchronize blocks and methods:
+
+- A monitor can be used to ensure that only one thread processes a particular section of code at a time. 
+- In Java, monitors are commonly implemented as synchronized blocks or using synchronized methods.
+- In order to achieve synchronization, two threads must synchronize on the same shared object.
+
+3. Be able to apply the atomic classes:
+
+- An atomic operation is one that occurs without interference by another thread. 
+- The Concurrency API includes a set of atomic classes that are similar to the primitive classes, 
+except that they ensure that operations on them are performed atomically.
+
+4. Be able to use the concurrent collection classes:
+
+- The Concurrency API includes numerous collections classes that include built-in support for multi-threaded 
+processing, such as ConcurrentHashMap and ConcurrentDeque.
+- It also includes a class CopyOnWriteArrayList that creates a copy of its underlying list structure every
+time it is modified and is useful in highly concurrent environments.
+
+5. Understand the impact of using parallel streams:
+
+- The Streams API allows for easy creation of parallel streams. 
+- Using a parallel stream can cause unexpected results, since the order of operations may no longer be predictable. 
+- Some operations, such as reduce() and collect(), require special consideration to achieve optimal performance when applied to a
+parallel stream.
+
+6. Manage process with the CyclicBarrier class and the fork/join framework.:
+
+- The CyclicBarrier class can be used to force a set of threads to wait until they are at a certain
+stage of execution before continuing. 
+- The fork/join framework can be used to create a task that spawns additional tasks to solve problems recursively.
+
+7. Identify potential threading problems:
+
+- Deadlock, starvation, and livelock are three threading problems that can occur and result in threads never completing their task.
+- Deadlock occurs when two or more threads are blocked forever. 
+- Starvation occurs when a single thread is perpetually denied access to a shared resource. 
+- Livelock is a form of starvation where two or more threads are active but conceptually blocked forever. 
+- Finally, race conditions occur when two threads execute at the same time, resulting in an unexpected
+outcome.
