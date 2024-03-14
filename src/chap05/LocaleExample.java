@@ -1,11 +1,10 @@
 package chap05;
 
 import java.util.Locale;
+import java.util.stream.IntStream;
 
 public class LocaleExample {
 
   public static void main(String[] args) {
-    Locale locale = Locale.getDefault();
-    System.out.println(locale);
   }
 }

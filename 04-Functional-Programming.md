@@ -961,3 +961,736 @@ public class PrintStreamExample {
 These are a few common ways to print the elements of a stream in Java. Choose the approach that best fits your requirements and coding style.
 
 ## Working with Primitives
+
+Primitive streams in Java, such as `IntStream`, `LongStream`, and `DoubleStream`, are needed primarily for performance reasons and to avoid the overhead of boxing and unboxing primitive values.
+
+Here are some key reasons why primitive streams are beneficial:
+
+1. **Efficiency**: Primitive streams operate directly on primitive data types (`int`, `long`, `double`), which are more memory-efficient and faster to process compared to their boxed counterparts (`Integer`, `Long`, `Double`). Operating directly on primitive values avoids the overhead of object creation and garbage collection associated with boxing and unboxing.
+
+2. **Performance**: Primitive streams leverage specialized implementations and optimizations for primitive types, resulting in better performance for numerical computations and processing large datasets. These optimizations include loop unrolling, vectorization, and other low-level optimizations provided by the JVM.
+
+3. **Reduced Memory Consumption**: Primitive streams consume less memory compared to streams of boxed objects. This is especially beneficial when dealing with large datasets or when memory consumption needs to be minimized.
+
+4. **Functional Programming with Primitives**: Primitive streams allow for functional programming paradigms to be applied to primitive data types, enabling concise and expressive code for numerical operations, filtering, mapping, and reduction.
+
+5. **Integration with Existing APIs**: Primitive streams seamlessly integrate with existing APIs and libraries that deal with primitive types, such as mathematical libraries, numerical computation frameworks, and low-level data processing tasks.
+
+Overall, primitive streams are essential for efficient and performant processing of primitive data types in Java, especially in scenarios where performance, memory consumption, and numerical computations are critical considerations. They provide a streamlined and optimized approach to working with primitive values in streams, enhancing the capabilities of Java's stream API.
+
+### Creating Primitive Streams
+
+#### 1. Using `IntStream`, `LongStream`, and `DoubleStream` Static Methods:
+You can use the static methods provided by `IntStream`, `LongStream`, and `DoubleStream` to create primitive streams.
+
+##### Example:
+```java
+import java.util.stream.IntStream;
+
+public class PrimitiveStreamExample {
+    public static void main(String[] args) {
+        // Create an IntStream from 1 to 5 (inclusive)
+        IntStream intStream = IntStream.rangeClosed(1, 5);
+        intStream.forEach(System.out::println); // Output: 1, 2, 3, 4, 5
+    }
+}
+```
+
+#### 2. Converting Arrays to Primitive Streams:
+You can use the `Arrays.stream()` method to convert arrays of primitive types (`int[]`, `long[]`, `double[]`) to corresponding primitive streams.
+
+##### Example:
+```java
+import java.util.Arrays;
+import java.util.stream.IntStream;
+
+public class PrimitiveStreamExample {
+    public static void main(String[] args) {
+        int[] array = {1, 2, 3, 4, 5};
+        
+        // Convert int array to IntStream
+        IntStream intStream = Arrays.stream(array);
+        intStream.forEach(System.out::println); // Output: 1, 2, 3, 4, 5
+    }
+}
+```
+
+#### 3. Using `Stream.mapToInt()`, `Stream.mapToLong()`, and `Stream.mapToDouble()`:
+You can use the `mapToInt()`, `mapToLong()`, and `mapToDouble()` methods on a stream of objects to map them to primitive streams.
+
+##### Example:
+```java
+import java.util.stream.Stream;
+
+public class PrimitiveStreamExample {
+    public static void main(String[] args) {
+        Stream<String> stringStream = Stream.of("1", "2", "3", "4", "5");
+        
+        // Map strings to ints and create IntStream
+        IntStream intStream = stringStream.mapToInt(Integer::parseInt);
+        intStream.forEach(System.out::println); // Output: 1, 2, 3, 4, 5
+    }
+}
+```
+
+### 4. Using `Random.ints()`, `Random.longs()`, and `Random.doubles()`:
+You can use the `ints()`, `longs()`, and `doubles()` methods provided by the `Random` class to generate streams of random primitive values.
+
+#### Example:
+```java
+import java.util.Random;
+import java.util.stream.IntStream;
+
+public class PrimitiveStreamExample {
+    public static void main(String[] args) {
+        // Generate an IntStream of 5 random integers between 1 and 100
+        IntStream intStream = new Random().ints(5, 1, 100);
+        intStream.forEach(System.out::println); // Output: Random integers between 1 and 100
+    }
+}
+```
+
+**Mapping methods between types of streams**
+
+| Source Stream Class | To Create Stream | To Create DoubleStream | To Create IntStream   | To Create LongStream     |
+|---------------------|------------------|------------------------|-----------------------|--------------------------|
+| Stream              | map              | mapToDouble            | mapToInt              | mapToLong                |
+| DoubleStream        | mapToObj         | map                    | mapToInt              | mapToLong                |
+| IntStream           | mapToObj         | mapToDouble            | map                   | mapToLong                |
+| LongStream          | mapToObj         | mapToDouble            | mapToInt              | map                      |
+
+**Function parameters when mapping between types of streams**
+
+| Source Stream Class | To Create Stream | To Create DoubleStream | To Create IntStream   | To Create LongStream  |
+|---------------------|------------------|------------------------|-----------------------|-----------------------|
+| Stream              | Function         | ToDoubleFunction       | ToIntFunction         | ToLongFunction        |
+| DoubleStream        | DoubleFunction   | DoubleUnaryOperator    | DoubleToIntFunction   | DoubleToLongFunction  |
+| IntStream           | IntFunction      | IntToDoubleFunction    | IntUnaryOperator      | IntToLongFunction     |
+| LongStream          | LongFunction     | LongToDoubleFunction   | LongToIntFunction     | LongUnaryOperator     |
+
+Certainly! Here are code examples for each mapping method between types of streams:
+
+### Mapping methods between types of streams:
+
+#### `map()`:
+```java
+import java.util.stream.Stream;
+
+public class MappingExample {
+    public static void main(String[] args) {
+        // Create a Stream of integers
+        Stream<Integer> stream = Stream.of(1, 2, 3, 4, 5);
+        
+        // Map each integer to its string representation and create a Stream
+        Stream<String> mappedStream = stream.map(Object::toString);
+        
+        // Print each element of the mapped Stream
+        mappedStream.forEach(System.out::println); // Output: "1", "2", "3", "4", "5"
+    }
+}
+```
+
+#### `mapToDouble()`:
+```java
+import java.util.stream.IntStream;
+
+public class MappingExample {
+    public static void main(String[] args) {
+        // Create an IntStream of integers
+        IntStream intStream = IntStream.rangeClosed(1, 5);
+        
+        // Map each integer to its double value and create a DoubleStream
+        DoubleStream doubleStream = intStream.mapToDouble(i -> i * 1.5);
+        
+        // Print each element of the mapped DoubleStream
+        doubleStream.forEach(System.out::println); // Output: 1.5, 3.0, 4.5, 6.0, 7.5
+    }
+}
+```
+
+#### `mapToInt()`:
+```java
+import java.util.stream.Stream;
+
+public class MappingExample {
+    public static void main(String[] args) {
+        // Create a Stream of strings
+        Stream<String> stream = Stream.of("1", "2", "3", "4", "5");
+        
+        // Map each string to its integer value and create an IntStream
+        IntStream intStream = stream.mapToInt(Integer::parseInt);
+        
+        // Print each element of the mapped IntStream
+        intStream.forEach(System.out::println); // Output: 1, 2, 3, 4, 5
+    }
+}
+```
+
+#### `mapToLong()`:
+```java
+import java.util.stream.DoubleStream;
+
+public class MappingExample {
+    public static void main(String[] args) {
+        // Create a DoubleStream of floating-point numbers
+        DoubleStream doubleStream = DoubleStream.of(1.1, 2.2, 3.3, 4.4, 5.5);
+        
+        // Map each double to its long value and create a LongStream
+        LongStream longStream = doubleStream.mapToLong(d -> (long) d);
+        
+        // Print each element of the mapped LongStream
+        longStream.forEach(System.out::println); // Output: 1, 2, 3, 4, 5
+    }
+}
+```
+
+These examples demonstrate how to use each mapping method to transform elements between different types of streams in Java.
+
+### Using Optional with Primitive Streams 
+
+**Optional types for primitives** 
+
+|                                | OptionalDouble            | OptionalInt              | OptionalLong            |
+|--------------------------------|---------------------------|--------------------------|-------------------------|
+| **Getting as a primitive**     | `getAsDouble()`           | `getAsInt()`             | `getAsLong()`           |
+| **orElseGet() parameter type** | `DoubleSupplier`          | `IntSupplier`            | `LongSupplier`          |
+| **Return type of max()**       | `OptionalDouble`          | `OptionalInt`            | `OptionalLong`          |
+| **Return type of sum()**       | `double`                  | `int`                    | `long`                  |
+| **Return type of avg()**       | `OptionalDouble`          | `OptionalDouble`         | `OptionalDouble`        |
+
+Certainly! Here are code examples demonstrating the usage of methods associated with `OptionalDouble`, `OptionalInt`, and `OptionalLong`:
+
+### Getting as a primitive:
+
+```java
+import java.util.OptionalDouble;
+
+public class OptionalExample {
+    public static void main(String[] args) {
+        OptionalDouble optionalDouble = OptionalDouble.of(3.14);
+        
+        // Getting the value as a primitive double
+        double value = optionalDouble.getAsDouble();
+        System.out.println("Value as double: " + value); // Output: Value as double: 3.14
+    }
+}
+```
+
+```java
+import java.util.OptionalInt;
+
+public class OptionalExample {
+    public static void main(String[] args) {
+        OptionalInt optionalInt = OptionalInt.of(42);
+        
+        // Getting the value as a primitive int
+        int value = optionalInt.getAsInt();
+        System.out.println("Value as int: " + value); // Output: Value as int: 42
+    }
+}
+```
+
+```java
+import java.util.OptionalLong;
+
+public class OptionalExample {
+    public static void main(String[] args) {
+        OptionalLong optionalLong = OptionalLong.of(1234567890L);
+        
+        // Getting the value as a primitive long
+        long value = optionalLong.getAsLong();
+        System.out.println("Value as long: " + value); // Output: Value as long: 1234567890
+    }
+}
+```
+
+### orElseGet() with parameter type:
+
+```java
+import java.util.OptionalDouble;
+import java.util.Random;
+import java.util.function.DoubleSupplier;
+
+public class OptionalExample {
+    public static void main(String[] args) {
+        OptionalDouble optionalDouble = OptionalDouble.empty();
+        
+        // Using orElseGet() with a DoubleSupplier
+        double value = optionalDouble.orElseGet(() -> new Random().nextDouble());
+        System.out.println("Value with orElseGet(): " + value);
+    }
+}
+```
+
+### Return type of max():
+
+```java
+import java.util.OptionalDouble;
+import java.util.stream.DoubleStream;
+
+public class OptionalExample {
+    public static void main(String[] args) {
+        DoubleStream doubleStream = DoubleStream.of(3.14, 2.71, 1.618);
+        
+        // Getting the maximum value as an OptionalDouble
+        OptionalDouble max = doubleStream.max();
+        System.out.println("Max value: " + max.getAsDouble());
+    }
+}
+```
+
+```java
+import java.util.OptionalInt;
+import java.util.stream.IntStream;
+
+public class OptionalExample {
+    public static void main(String[] args) {
+        IntStream intStream = IntStream.of(42, 7, 99);
+        
+        // Getting the maximum value as an OptionalInt
+        OptionalInt max = intStream.max();
+        System.out.println("Max value: " + max.getAsInt());
+    }
+}
+```
+
+```java
+import java.util.OptionalLong;
+import java.util.stream.LongStream;
+
+public class OptionalExample {
+    public static void main(String[] args) {
+        LongStream longStream = LongStream.of(1234567890L, 9876543210L, 5432109876L);
+        
+        // Getting the maximum value as an OptionalLong
+        OptionalLong max = longStream.max();
+        System.out.println("Max value: " + max.getAsLong());
+    }
+}
+```
+
+### Return type of sum():
+
+```java
+import java.util.OptionalDouble;
+import java.util.stream.DoubleStream;
+
+public class OptionalExample {
+    public static void main(String[] args) {
+        DoubleStream doubleStream = DoubleStream.of(3.14, 2.71, 1.618);
+        
+        // Getting the sum as a double
+        double sum = doubleStream.sum();
+        System.out.println("Sum: " + sum);
+    }
+}
+```
+
+```java
+import java.util.OptionalInt;
+import java.util.stream.IntStream;
+
+public class OptionalExample {
+    public static void main(String[] args) {
+        IntStream intStream = IntStream.of(42, 7, 99);
+        
+        // Getting the sum as an int
+        int sum = intStream.sum();
+        System.out.println("Sum: " + sum);
+    }
+}
+```
+
+```java
+import java.util.OptionalLong;
+import java.util.stream.LongStream;
+
+public class OptionalExample {
+    public static void main(String[] args) {
+        LongStream longStream = LongStream.of(1234567890L, 9876543210L, 5432109876L);
+        
+        // Getting the sum as a long
+        long sum = longStream.sum();
+        System.out.println("Sum: " + sum);
+    }
+}
+```
+
+### Return type of avg():
+
+```java
+import java.util.OptionalDouble;
+import java.util.stream.DoubleStream;
+
+public class OptionalExample {
+    public static void main(String[] args) {
+        DoubleStream doubleStream = DoubleStream.of(3.14, 2.71, 1.618);
+        
+        // Getting the average as an OptionalDouble
+        OptionalDouble average = doubleStream.average();
+        System.out.println("Average: " + average
+
+.getAsDouble());
+    }
+}
+```
+
+```java
+import java.util.OptionalDouble;
+import java.util.stream.IntStream;
+
+public class OptionalExample {
+    public static void main(String[] args) {
+        IntStream intStream = IntStream.of(42, 7, 99);
+        
+        // Getting the average as an OptionalDouble
+        OptionalDouble average = intStream.average();
+        System.out.println("Average: " + average.getAsDouble());
+    }
+}
+```
+
+```java
+import java.util.OptionalDouble;
+import java.util.stream.LongStream;
+
+public class OptionalExample {
+    public static void main(String[] args) {
+        LongStream longStream = LongStream.of(1234567890L, 9876543210L, 5432109876L);
+        
+        // Getting the average as an OptionalDouble
+        OptionalDouble average = longStream.average();
+        System.out.println("Average: " + average.getAsDouble());
+    }
+}
+```
+
+### Summarizing Statistics
+
+Summarizing Statistics is a feature in Java that allows you to calculate various statistical values for a collection of elements, such as count, sum, min, max, and average. It's commonly used in conjunction with streams to efficiently compute these statistics on large datasets.
+
+Java provides the `IntSummaryStatistics`, `LongSummaryStatistics`, and `DoubleSummaryStatistics` classes in the `java.util` package to facilitate this functionality. These classes provide methods to collect statistical data about a stream of primitive values.
+
+Here's a brief overview of each class:
+
+- `IntSummaryStatistics`: Collects statistics such as count, sum, min, max, and average for a stream of integer values.
+- `LongSummaryStatistics`: Collects statistics such as count, sum, min, max, and average for a stream of long values.
+- `DoubleSummaryStatistics`: Collects statistics such as count, sum, min, max, and average for a stream of double values.
+
+You can use these classes along with streams to efficiently compute statistics without having to manually iterate over the elements of the stream.
+
+Here's a basic example demonstrating the usage of `IntSummaryStatistics` to compute statistics for a stream of integers:
+
+```java
+import java.util.IntSummaryStatistics;
+import java.util.stream.IntStream;
+
+public class StatisticsExample {
+    public static void main(String[] args) {
+        IntStream stream = IntStream.of(1, 2, 3, 4, 5);
+        
+        // Collect statistics for the stream
+        IntSummaryStatistics stats = stream.summaryStatistics();
+        
+        // Print statistics
+        System.out.println("Count: " + stats.getCount());
+        System.out.println("Sum: " + stats.getSum());
+        System.out.println("Min: " + stats.getMin());
+        System.out.println("Max: " + stats.getMax());
+        System.out.println("Average: " + stats.getAverage());
+    }
+}
+```
+
+In this example, we create an `IntStream` of integers and then use the `summaryStatistics()` method to obtain an `IntSummaryStatistics` object. We can then access various statistical values such as count, sum, min, max, and average using the methods provided by the `IntSummaryStatistics` class.
+
+Overall, Summarizing Statistics provides a convenient way to compute statistical data for streams of primitive values in Java. It's particularly useful when dealing with large datasets where manual computation of statistics would be inefficient.
+
+### Learning the Functional Interfaces for Primitives
+
+#### Functional Interfaces for boolean
+
+Functional interfaces for boolean in Java provide a way to define lambda expressions or method references that accept and return boolean values. These functional interfaces are part of the `java.util.function` package and are useful when working with boolean operations in functional-style programming or with streams.
+
+Here are some commonly used functional interfaces for boolean:
+
+1. **Predicate\<T>**: Represents a predicate (boolean-valued function) of one argument. It is typically used to filter elements based on a condition.
+
+2. **BooleanSupplier**: Represents a supplier of boolean-valued results. It does not accept any arguments but provides a boolean result.
+
+3. **BooleanUnaryOperator**: Represents an operation on a single boolean operand that produces a boolean result. It's similar to UnaryOperator\<Boolean>, but specialized for boolean values.
+
+4. **BooleanBinaryOperator**: Represents an operation upon two boolean operands and produces a boolean result. It's similar to BinaryOperator\<Boolean>, but specialized for boolean values.
+
+5. **Predicate\<T>**, **BooleanSupplier**, **BooleanUnaryOperator**, and **BooleanBinaryOperator** are the main functional interfaces for boolean in Java.
+
+Here's a brief overview of each functional interface:
+
+- **Predicate\<T>**:
+  ```java
+  @FunctionalInterface
+  public interface Predicate<T> {
+      boolean test(T t);
+  }
+  ```
+  Example usage:
+  ```java
+  Predicate<Integer> isPositive = num -> num > 0;
+  System.out.println(isPositive.test(5)); // Output: true
+  ```
+
+- **BooleanSupplier**:
+  ```java
+  @FunctionalInterface
+  public interface BooleanSupplier {
+      boolean getAsBoolean();
+  }
+  ```
+  Example usage:
+  ```java
+  BooleanSupplier alwaysTrue = () -> true;
+  System.out.println(alwaysTrue.getAsBoolean()); // Output: true
+  ```
+
+- **BooleanUnaryOperator**:
+  ```java
+  @FunctionalInterface
+  public interface BooleanUnaryOperator {
+      boolean applyAsBoolean(boolean operand);
+  }
+  ```
+  Example usage:
+  ```java
+  BooleanUnaryOperator negate = bool -> !bool;
+  System.out.println(negate.applyAsBoolean(true)); // Output: false
+  ```
+
+- **BooleanBinaryOperator**:
+  ```java
+  @FunctionalInterface
+  public interface BooleanBinaryOperator {
+      boolean applyAsBoolean(boolean left, boolean right);
+  }
+  ```
+  Example usage:
+  ```java
+  BooleanBinaryOperator and = (left, right) -> left && right;
+  System.out.println(and.applyAsBoolean(true, false)); // Output: false
+  ```
+
+These functional interfaces provide a way to work with boolean values in a functional programming style, making your code more concise and expressive. They are especially useful when combined with streams or when defining complex boolean operations.
+
+#### Functional Interfaces for double, int, and long
+
+Functional interfaces for double, int, and long in Java are similar to functional interfaces for boolean values but are specialized for primitive numeric types. These interfaces provide a way to define lambda expressions or method references that accept and return primitive double, int, or long values. They are part of the `java.util.function` package and are commonly used when working with primitive numeric types in functional-style programming or with streams.
+
+Here are some commonly used functional interfaces for primitive numeric types:
+
+1. **DoublePredicate**: Represents a predicate (boolean-valued function) of one double argument.
+
+2. **IntPredicate**: Represents a predicate (boolean-valued function) of one int argument.
+
+3. **LongPredicate**: Represents a predicate (boolean-valued function) of one long argument.
+
+4. **DoubleSupplier**: Represents a supplier of double-valued results.
+
+5. **IntSupplier**: Represents a supplier of int-valued results.
+
+6. **LongSupplier**: Represents a supplier of long-valued results.
+
+7. **DoubleUnaryOperator**: Represents an operation on a single double operand that produces a double result.
+
+8. **IntUnaryOperator**: Represents an operation on a single int operand that produces an int result.
+
+9. **LongUnaryOperator**: Represents an operation on a single long operand that produces a long result.
+
+10. **DoubleBinaryOperator**: Represents an operation upon two double operands and produces a double result.
+
+11. **IntBinaryOperator**: Represents an operation upon two int operands and produces an int result.
+
+12. **LongBinaryOperator**: Represents an operation upon two long operands and produces a long result.
+
+These functional interfaces provide a way to work with primitive numeric types in a functional programming style, making your code more concise and expressive. They are especially useful when combined with streams or when defining complex numeric operations.
+
+Here's a brief overview of each functional interface:
+
+- **DoublePredicate**:
+  ```java
+  @FunctionalInterface
+  public interface DoublePredicate {
+      boolean test(double value);
+  }
+  ```
+
+- **IntPredicate**:
+  ```java
+  @FunctionalInterface
+  public interface IntPredicate {
+      boolean test(int value);
+  }
+  ```
+
+- **LongPredicate**:
+  ```java
+  @FunctionalInterface
+  public interface LongPredicate {
+      boolean test(long value);
+  }
+  ```
+
+- **DoubleSupplier**:
+  ```java
+  @FunctionalInterface
+  public interface DoubleSupplier {
+      double getAsDouble();
+  }
+  ```
+
+- **IntSupplier**:
+  ```java
+  @FunctionalInterface
+  public interface IntSupplier {
+      int getAsInt();
+  }
+  ```
+
+- **LongSupplier**:
+  ```java
+  @FunctionalInterface
+  public interface LongSupplier {
+      long getAsLong();
+  }
+  ```
+
+- **DoubleUnaryOperator**:
+  ```java
+  @FunctionalInterface
+  public interface DoubleUnaryOperator {
+      double applyAsDouble(double operand);
+  }
+  ```
+
+- **IntUnaryOperator**:
+  ```java
+  @FunctionalInterface
+  public interface IntUnaryOperator {
+      int applyAsInt(int operand);
+  }
+  ```
+
+- **LongUnaryOperator**:
+  ```java
+  @FunctionalInterface
+  public interface LongUnaryOperator {
+      long applyAsLong(long operand);
+  }
+  ```
+
+- **DoubleBinaryOperator**:
+  ```java
+  @FunctionalInterface
+  public interface DoubleBinaryOperator {
+      double applyAsDouble(double left, double right);
+  }
+  ```
+
+- **IntBinaryOperator**:
+  ```java
+  @FunctionalInterface
+  public interface IntBinaryOperator {
+      int applyAsInt(int left, int right);
+  }
+  ```
+
+- **LongBinaryOperator**:
+  ```java
+  @FunctionalInterface
+  public interface LongBinaryOperator {
+      long applyAsLong(long left, long right);
+  }
+  ```
+
+These functional interfaces provide a wide range of operations for working with primitive numeric types in Java, making your code more flexible and efficient when dealing with numeric data.
+
+## Working with Advanced Stream Pipeline Concepts
+
+### Linking Streams to the Underlying Data
+
+In this example, we have a list of strings named `cats` initially containing two elements, "Annie" and "Ripley". We create a stream from this list using the `stream()` method provided by the `Collection` interface. Then, we add another element "KC" to the `cats` list.
+
+Here's the code:
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
+
+public class Main {
+    public static void main(String[] args) {
+        List<String> cats = new ArrayList<>();
+        cats.add("Annie");
+        cats.add("Ripley");
+
+        // Create a stream from the list
+        Stream<String> stream = cats.stream();
+
+        // Add another element to the list
+        cats.add("KC");
+
+        // Print the count of elements in the stream
+        System.out.println(stream.count()); // Output: 3
+    }
+}
+```
+
+When we call `stream.count()`, it triggers the processing of the stream and calculates the number of elements in the stream. Despite adding "KC" to the `cats` list after creating the stream, the stream still includes all elements, including "KC", because the stream maintains a connection to the underlying list. Therefore, the output is `3`, indicating that there are three elements in the stream ("Annie", "Ripley", and "KC").
+
+### Chaining Optionals
+
+Chaining Optionals with streams involves using Optional-returning methods in stream operations. This allows you to handle situations where stream operations might result in empty streams or null values gracefully. The idea is to combine the flexibility of streams with the safety features provided by Optional.
+
+Here's how you can chain Optionals with streams:
+
+1. **Mapping Stream Elements to Optionals**: Use `map` or `flatMap` to transform stream elements into Optionals. With `map`, you'll end up with a stream of Optionals, while `flatMap` allows you to flatten the stream of Optionals into a single stream.
+
+2. **Filtering and Processing Optionals**: After mapping elements to Optionals, you can filter out empty Optionals using `filter` and then perform further processing using methods like `ifPresent`, `orElse`, or `orElseThrow`.
+
+3. **Handling Absent Values**: If the stream produces no elements or the mapped operation returns empty Optionals, you can use `orElse`, `orElseGet`, or `orElseThrow` to provide default values or handle exceptions.
+
+Here's a basic example demonstrating chaining Optionals with streams:
+
+```java
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+public class Main {
+    public static void main(String[] args) {
+        List<String> names = Arrays.asList("Alice", "Bob", "Charlie", "Dave", "Eva", "Frank", "Grace");
+
+        // Transform names to Optionals and filter out names starting with 'C'
+        names.stream()
+             .map(name -> name.startsWith("C") ? Optional.of(name) : Optional.empty())
+             .filter(Optional::isPresent)
+             .map(Optional::get)
+             .forEach(System.out::println); // Output: Charlie
+
+        // Transform names to uppercase Optionals and provide default value if empty
+        List<String> emptyList = Arrays.asList();
+        String result = emptyList.stream()
+                                 .map(name -> Optional.ofNullable(name).map(String::toUpperCase))
+                                 .flatMap(Optional::stream)
+                                 .findFirst()
+                                 .orElse("No names available");
+        System.out.println("Result: " + result); // Output: Result: No names available
+    }
+}
+```
+
+In this example:
+
+- We transform names from a list to Optionals based on a condition (starting with 'C') and filter out empty Optionals.
+- We then extract the values from the Optionals using `get` and print them.
+- Next, we transform names to uppercase Optionals, flatten the stream of Optionals using `flatMap`, and provide a default value if the stream is empty using `orElse`.
+
+### Collecting Results
