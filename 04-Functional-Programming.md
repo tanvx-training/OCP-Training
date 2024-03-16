@@ -2051,3 +2051,511 @@ Remembering that streams are lazily evaluated is crucial. This means that interm
 While memorizing the tables is important, understanding their contents and implications is equally essential. Additionally, grasping the concept of laziness in stream evaluation helps in writing efficient and concise code.
 
 By focusing on understanding and applying the concepts from these tables, you'll be well-equipped to work effectively with Java streams.
+
+# Exam Essentials
+
+**Identify the correct functional interface given the number of parameters, return type, and method name—and vice versa**
+
+1.**Supplier**:
+  - Number of parameters: 0
+  - Return type: T
+  - Typical method name: `get()`
+
+2. **Consumer**:
+  - Number of parameters: 1
+  - Return type: void
+  - Typical method name: `accept(T)`
+
+3. **BiConsumer**:
+  - Number of parameters: 2
+  - Return type: void
+  - Typical method name: `accept(T, U)`
+
+4. **Function**:
+  - Number of parameters: 1
+  - Return type: R
+  - Typical method name: `apply(T)`
+
+5. **BiFunction**:
+  - Number of parameters: 2
+  - Return type: R
+  - Typical method name: `apply(T, U)`
+
+6. **Predicate**:
+  - Number of parameters: 1
+  - Return type: boolean
+  - Typical method name: `test(T)`
+
+7. **BiPredicate**:
+  - Number of parameters: 2
+  - Return type: boolean
+  - Typical method name: `test(T, U)`
+
+These are the most common functional interfaces used in Java, and they have corresponding binary versions (e.g., `BiConsumer`, `BiFunction`, `BiPredicate`) for operations involving two parameters.
+
+Additionally, there are primitive versions for operations involving primitive types, such as `IntSupplier`, `DoubleConsumer`, `LongFunction`, etc.
+
+Understanding these interfaces and their method signatures is crucial for effectively working with Java streams and functional programming constructs.
+
+**Write code that uses Optional**
+
+Certainly! Here's an example demonstrating the usage of `Optional` in Java:
+
+```java
+import java.util.Optional;
+
+public class OptionalExample {
+    public static void main(String[] args) {
+        // Creating an Optional with a non-null value
+        Optional<String> optionalValue = Optional.of("Hello, world!");
+
+        // Retrieval using ifPresent() method
+        optionalValue.ifPresent(value -> System.out.println("Value present: " + value));
+
+        // Retrieval using get() method (caution: throws NoSuchElementException if value is not present)
+        String retrievedValue = optionalValue.get();
+        System.out.println("Retrieved value: " + retrievedValue);
+
+        // Creating an Optional with an empty value
+        Optional<String> emptyOptional = Optional.empty();
+
+        // Retrieval using orElseGet() method (provides a default value if the Optional is empty)
+        String orElseValue = emptyOptional.orElseGet(() -> "Default Value");
+        System.out.println("Value retrieved using orElseGet(): " + orElseValue);
+    }
+}
+```
+
+In this example:
+- We create an `Optional` with a non-null value using `Optional.of("Hello, world!")`.
+- We then demonstrate retrieval of the value using `ifPresent()` and `get()` methods.
+- We also create an empty `Optional` using `Optional.empty()`.
+- Finally, we demonstrate retrieval using the `orElseGet()` method, which provides a default value if the `Optional` is empty.
+
+Make sure to handle `NoSuchElementException` appropriately when using `get()` method, or prefer using `ifPresent()` or `orElse*()` methods to avoid such exceptions.
+
+**Recognize which operations cause a stream pipeline to execute**
+
+Absolutely, recognizing the operations that cause a stream pipeline to execute is crucial for understanding how Java streams work efficiently. Here's a breakdown:
+
+### Stream Execution in Java:
+
+1. **Intermediate Operations**:
+  - Intermediate operations, such as `filter()`, `map()`, `flatMap()`, and `sorted()`, do not execute immediately.
+  - They are lazy, meaning they are queued up but not performed until a terminal operation is encountered.
+
+2. **Terminal Operations**:
+  - Terminal operations are the ones that trigger the execution of the entire stream pipeline.
+  - Examples include:
+    - `collect()`: Collects the elements of the stream into a collection or other data structure.
+    - `forEach()`: Performs an action for each element of the stream.
+    - `min()`, `max()`: Finds the minimum or maximum element in the stream according to a comparator.
+    - `reduce()`: Performs a reduction on the elements of the stream.
+
+3. **No Terminal Operation**:
+  - If there's no terminal operation in the stream pipeline, no processing will occur.
+  - The intermediate operations will not be executed, and the stream will remain untouched until a terminal operation is encountered.
+
+### Example:
+
+```java
+List<String> words = Arrays.asList("apple", "banana", "cherry");
+
+// Intermediate operation (filter)
+Stream<String> filteredStream = words.stream().filter(word -> word.startsWith("a"));
+
+// No processing yet, as there's no terminal operation
+
+// Terminal operation (forEach)
+filteredStream.forEach(System.out::println); // Execution happens here
+```
+
+In this example, the intermediate operation `filter()` is performed lazily, and the stream remains untouched until the terminal operation `forEach()` is encountered, triggering the execution of the pipeline.
+
+Understanding the distinction between intermediate and terminal operations helps in writing efficient and concise stream pipelines in Java.
+
+**Determine which terminal operations are reductions**
+
+Absolutely! Terminal operations that are reductions are those that combine all elements of the stream to produce a result. Here's a breakdown of the reductions you mentioned:
+
+### Reductions in Java Streams:
+
+1. **collect()**:
+  - The `collect()` method is a terminal operation that accumulates the elements of the stream into a mutable result container, such as a Collection or a StringBuilder.
+
+2. **count()**:
+  - The `count()` method counts the number of elements in the stream. It's also a reduction operation because it combines all elements to determine the count.
+
+3. **max()**:
+  - The `max()` method finds the maximum element in the stream according to the natural order defined by the elements' compareTo method or a comparator. It's a reduction operation as it combines all elements to find the maximum.
+
+4. **min()**:
+  - The `min()` method finds the minimum element in the stream according to the natural order defined by the elements' compareTo method or a comparator. Like `max()`, it's also a reduction operation.
+
+5. **reduce()**:
+  - The `reduce()` method performs a reduction on the elements of the stream using an associative accumulation function and returns an `Optional` describing the reduced value, if any.
+
+### Mutable Reductions:
+
+- A mutable reduction collects elements into a mutable result container as it goes. The `collect()` method is an example of a mutable reduction, where you accumulate elements into a Collection or other mutable data structure.
+
+### Conclusion:
+
+Understanding which terminal operations are reductions helps in recognizing when stream processing involves combining elements to produce a result. Whether it's counting elements, finding maximum or minimum values, or performing custom reductions, knowing these operations is crucial for effective stream processing in Java.
+
+**Write code for common intermediate operations.**
+
+Sure, here's how you can use the `filter()`, `map()`, and `flatMap()` methods in Java streams:
+
+```java
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class IntermediateOperationsExample {
+    public static void main(String[] args) {
+        // Example data
+        List<String> words = Arrays.asList("apple", "banana", "cherry", "kiwi", "orange");
+        List<List<String>> nestedLists = Arrays.asList(
+                Arrays.asList("apple", "banana"),
+                Arrays.asList("cherry", "kiwi"),
+                Arrays.asList("orange"),
+                Arrays.asList(),
+                Arrays.asList("grape")
+        );
+
+        // filter(): Filter words starting with 'a'
+        List<String> filteredWords = words.stream()
+                .filter(word -> word.startsWith("a"))
+                .collect(Collectors.toList());
+        System.out.println("Filtered words: " + filteredWords);
+
+        // map(): Convert words to uppercase
+        List<String> uppercaseWords = words.stream()
+                .map(String::toUpperCase)
+                .collect(Collectors.toList());
+        System.out.println("Uppercase words: " + uppercaseWords);
+
+        // flatMap(): Flatten nested lists and remove empty lists
+        List<String> flattenedList = nestedLists.stream()
+                .flatMap(List::stream)
+                .filter(word -> !word.isEmpty()) // Remove empty strings
+                .collect(Collectors.toList());
+        System.out.println("Flattened list: " + flattenedList);
+    }
+}
+```
+
+In this example:
+- The `filter()` method is used to filter words starting with 'a'.
+- The `map()` method is used to convert each word to uppercase.
+- The `flatMap()` method is used to flatten nested lists into a single level and remove empty lists.
+
+You can run this code to see the results of applying these intermediate operations to the example data.
+
+**Compare primitive streams to Stream.**
+
+Certainly! Here's a comparison between primitive streams (DoubleStream, IntStream, LongStream) and the general-purpose Stream class, along with their corresponding primitive Optional classes and functional interfaces:
+
+### Primitive Streams vs. Stream:
+
+1. **Primitive Streams (DoubleStream, IntStream, LongStream)**:
+  - Specialized streams for handling primitive data types: double, int, and long.
+  - Provide specialized methods for working with primitive data efficiently.
+  - Offer methods like `sum()`, `average()`, `max()`, `min()`, etc., tailored for primitive types.
+
+2. **Stream**:
+  - General-purpose stream for handling objects of any reference type.
+  - Can be used with any Java object, including user-defined classes.
+  - Offers a wide range of intermediate and terminal operations for processing data in a flexible manner.
+
+### Primitive Optional Classes:
+
+1. **OptionalDouble**:
+  - Represents an optional double value.
+  - Provides methods like `getAsDouble()` to retrieve the value safely.
+
+2. **OptionalInt**:
+  - Represents an optional int value.
+  - Provides methods like `getAsInt()` to retrieve the value safely.
+
+3. **OptionalLong**:
+  - Represents an optional long value.
+  - Provides methods like `getAsLong()` to retrieve the value safely.
+
+### Functional Interfaces for Primitives:
+
+1. **DoubleSupplier, IntSupplier, LongSupplier**:
+  - Functional interfaces for supplying double, int, and long values, respectively.
+  - They are used for operations that produce primitive values.
+
+2. **DoubleConsumer, IntConsumer, LongConsumer**:
+  - Functional interfaces for consuming double, int, and long values, respectively.
+  - They are used for operations that consume primitive values.
+
+3. **DoubleFunction<R>, IntFunction<R>, LongFunction<R>**:
+  - Functional interfaces for functions that accept a primitive value and return a result of type R.
+
+4. **DoubleUnaryOperator, IntUnaryOperator, LongUnaryOperator**:
+  - Functional interfaces for unary operations on double, int, and long values, respectively.
+
+5. **DoubleBinaryOperator, IntBinaryOperator, LongBinaryOperator**:
+  - Functional interfaces for binary operations on double, int, and long values, respectively.
+
+### Conclusion:
+
+Primitive streams and Optional classes provide specialized support for primitive data types, offering performance benefits and convenience when working with primitive values. Functional interfaces tailored for primitive types allow for efficient and concise functional programming with primitive streams in Java.
+
+**Convert primitive stream types to other primitive stream types.**
+
+Exactly! Here's a breakdown of how you can convert between primitive stream types in Java:
+
+### Converting Primitive Stream Types:
+
+1. **To Stream**:
+  - To convert a primitive stream (DoubleStream, IntStream, LongStream) to a Stream of boxed elements, you can use the `mapToObj()` method.
+
+2. **To DoubleStream**:
+  - To convert a stream of primitive type (e.g., Stream<Integer>, IntStream, LongStream) to a DoubleStream, you can use the `mapToDouble()` method.
+
+3. **To IntStream**:
+  - To convert a stream of primitive type (e.g., Stream<Double>, DoubleStream, LongStream) to an IntStream, you can use the `mapToInt()` method.
+
+4. **To LongStream**:
+  - To convert a stream of primitive type (e.g., Stream<Integer>, IntStream, DoubleStream) to a LongStream, you can use the `mapToLong()` method.
+
+### Example:
+
+Here's a code example demonstrating the conversion between different primitive stream types:
+
+```java
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
+
+public class PrimitiveStreamConversionExample {
+    public static void main(String[] args) {
+        // Example 1: Converting to Stream
+        DoubleStream doubleStream = DoubleStream.of(1.2, 2.3, 3.4);
+        Stream<Double> boxedStream = doubleStream.mapToObj(Double::valueOf);
+
+        // Example 2: Converting to DoubleStream
+        Stream<Integer> integerStream = Stream.of(1, 2, 3);
+        DoubleStream doubleStreamFromInt = integerStream.mapToDouble(Integer::doubleValue);
+
+        // Example 3: Converting to IntStream
+        LongStream longStream = LongStream.of(10L, 20L, 30L);
+        IntStream intStreamFromLong = longStream.mapToInt(Math::toIntExact);
+
+        // Example 4: Converting to LongStream
+        Stream<String> stringStream = Stream.of("100", "200", "300");
+        LongStream longStreamFromString = stringStream.mapToLong(Long::parseLong);
+    }
+}
+```
+
+In this example:
+- We demonstrate how to convert between different primitive stream types using `mapToObj()`, `mapToDouble()`, `mapToInt()`, and `mapToLong()` methods.
+- Each conversion method is used to transform elements of one primitive stream type into another primitive stream type.
+
+These conversion methods provide flexibility and convenience when working with different primitive data types in Java streams.
+
+**Translate coding using method references into lambdas and vice versa.**
+
+Absolutely! Here's a guide on how to translate between method references and lambdas in Java:
+
+### Method References to Lambdas:
+
+1. **Static Method Reference**:
+  - Method Reference: `ClassName::staticMethodName`
+  - Equivalent Lambda: `(args) -> ClassName.staticMethodName(args)`
+
+2. **Instance Method Reference on Object**:
+  - Method Reference: `object::instanceMethodName`
+  - Equivalent Lambda: `(args) -> object.instanceMethodName(args)`
+
+3. **Instance Method Reference on Class Type**:
+  - Method Reference: `ClassName::instanceMethodName`
+  - Equivalent Lambda: `(obj, args) -> obj.instanceMethodName(args)`
+
+### Lambdas to Method References:
+
+Not all lambdas can be rewritten using method references. However, for simple cases where the lambda body just calls a method with the same parameters, you can usually rewrite it as a method reference.
+
+For example:
+- Lambda: `(args) -> System.out.println(args)`
+- Equivalent Method Reference: `System.out::println`
+
+### Example:
+
+Here's a translation example of converting method references to lambdas and vice versa:
+
+```java
+import java.util.Arrays;
+import java.util.List;
+
+public class MethodReferenceAndLambdaExample {
+    public static void main(String[] args) {
+        // Method reference to lambda
+        List<String> words = Arrays.asList("apple", "banana", "cherry");
+        words.forEach(System.out::println); // Method reference
+        words.forEach(word -> System.out.println(word)); // Equivalent lambda
+
+        // Lambda to method reference
+        words.forEach(word -> System.out.println(word)); // Lambda
+        words.forEach(System.out::println); // Equivalent method reference
+    }
+}
+```
+
+In this example:
+- The first part demonstrates translating a method reference to a lambda.
+- The second part demonstrates translating a lambda to a method reference.
+
+Both methods achieve the same result but showcase different syntax styles. It's essential to understand both to write concise and readable code in Java.
+
+**Use peek() to inspect the stream.**
+
+Certainly! Here's how you can use the `peek()` method to inspect elements as they flow through a stream:
+
+```java
+import java.util.stream.Stream;
+
+public class PeekExample {
+    public static void main(String[] args) {
+        // Example stream of integers
+        Stream<Integer> numbers = Stream.of(1, 2, 3, 4, 5);
+
+        // Use peek() to inspect elements before they pass to the next operation
+        numbers
+            .peek(num -> System.out.println("Inspecting element: " + num)) // Print each element
+            .map(num -> num * 2) // Perform some mapping operation
+            .forEach(System.out::println); // Print the mapped elements
+    }
+}
+```
+
+In this example:
+- We create a stream of integers using `Stream.of()`.
+- We use the `peek()` method to inspect each element as it passes through the stream pipeline. The lambda inside `peek()` prints each element before it undergoes any further processing.
+- After `peek()`, we perform a mapping operation using `map()` to double each element.
+- Finally, we use `forEach()` to print the mapped elements after the `peek()` operation.
+
+The `peek()` method allows us to observe the elements in the stream without modifying them. It's particularly useful for debugging and understanding how elements are processed in a stream pipeline.
+
+**Search a stream.**
+
+Certainly! Here's how you can search a stream using the mentioned methods:
+
+### Finding Elements:
+
+1. **findFirst()**:
+  - Returns the first element of the stream, wrapped in an Optional.
+  - Useful for streams where order matters.
+
+2. **findAny()**:
+  - Returns any element of the stream, wrapped in an Optional.
+  - Useful for parallel streams or when order doesn't matter.
+
+### Matching Elements:
+
+1. **anyMatch(Predicate)**:
+  - Returns true if any element of the stream matches the given predicate, false otherwise.
+  - Short-circuits and stops processing once a matching element is found.
+
+2. **allMatch(Predicate)**:
+  - Returns true if all elements of the stream match the given predicate, false otherwise.
+  - Stops processing and returns false as soon as any element doesn't match the predicate.
+
+3. **noneMatch(Predicate)**:
+  - Returns true if none of the elements of the stream match the given predicate, false otherwise.
+  - Short-circuits and stops processing once a matching element is found.
+
+### Caution:
+
+- **Infinite Streams**: Be cautious when using `anyMatch()`, `allMatch()`, and `noneMatch()` with infinite streams. They may hang if there's no match in an infinite stream with some data, as they need to evaluate the entire stream to determine the result.
+- **Terminal Operations**: These methods are terminal operations, meaning they trigger the execution of the stream pipeline.
+
+### Example:
+
+```java
+import java.util.Optional;
+import java.util.stream.Stream;
+
+public class StreamSearchExample {
+    public static void main(String[] args) {
+        // Example stream
+        Stream<Integer> numbers = Stream.of(1, 2, 3, 4, 5);
+
+        // Finding elements
+        Optional<Integer> firstElement = numbers.findFirst();
+        System.out.println("First element: " + firstElement.orElse(null));
+
+        // Matching elements
+        boolean anyMatch = Stream.of(1, 2, 3, 4, 5).anyMatch(num -> num == 3);
+        System.out.println("Any match: " + anyMatch);
+
+        boolean allMatch = Stream.of(1, 2, 3, 4, 5).allMatch(num -> num > 0);
+        System.out.println("All match: " + allMatch);
+
+        boolean noneMatch = Stream.of(1, 2, 3, 4, 5).noneMatch(num -> num == 6);
+        System.out.println("None match: " + noneMatch);
+    }
+}
+```
+
+In this example:
+- We use `findFirst()` to find the first element of the stream.
+- We use `anyMatch()`, `allMatch()`, and `noneMatch()` to check for matching conditions in the stream.
+- Each of these methods returns a boolean or an Optional containing the found element, depending on the method used.
+
+**Sort a stream.**
+
+Certainly! Here's how you can sort a stream using the `sorted()` method in Java:
+
+### Sorting a Stream:
+
+1. **Natural Sort Order**:
+  - Use the `sorted()` method without any parameters to sort the stream using the natural sort order.
+  - Elements are sorted according to their natural order, e.g., for numbers, it's in ascending order, and for strings, it's in lexicographical order.
+
+2. **Custom Sort Order**:
+  - Use the `sorted(Comparator)` method with a comparator as a parameter to specify a custom sort order.
+  - Elements are sorted according to the rules defined by the provided comparator.
+
+### Example:
+
+```java
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class StreamSortingExample {
+    public static void main(String[] args) {
+        // Example list of strings
+        List<String> words = Arrays.asList("banana", "apple", "orange", "grape", "cherry");
+
+        // Sorting using natural sort order
+        List<String> naturalSorted = words.stream()
+                .sorted() // Natural sort order
+                .collect(Collectors.toList());
+        System.out.println("Natural sort order: " + naturalSorted);
+
+        // Sorting using custom sort order (length)
+        List<String> lengthSorted = words.stream()
+                .sorted(Comparator.comparing(String::length)) // Custom sort order based on length
+                .collect(Collectors.toList());
+        System.out.println("Sorted by length: " + lengthSorted);
+    }
+}
+```
+
+In this example:
+- We have a list of strings (`words`) that we want to sort.
+- We use the `sorted()` method without parameters to sort the stream using the natural sort order, resulting in a list sorted alphabetically.
+- We use the `sorted(Comparator)` method with a comparator that compares the length of strings to sort the stream based on string length, resulting in a list sorted by length.
+
+Both methods return a sorted stream, which we then collect into a list using the `collect()` method.
