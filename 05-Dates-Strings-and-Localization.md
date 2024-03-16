@@ -642,36 +642,562 @@ In this example, we use various `NumberFormat` methods with both the default loc
 
 # Summary
 
-1. **Recognize invalid uses of dates and times**:
-- LocalDate does not contain time fields and LocalTime does not contain date fields. 
-- Watch for operations being performed on the wrong type. 
-- Also watch for adding or subtracting time and ignoring the result.
+Exactly! Here's a summary of the key classes for working with dates, times, and time zones in Java:
 
-2. **Differentiate between Period and Duration**:
-- Period is for day, month, and year. 
-- It can only be used with LocalDate, LocalDateTime, and ZonedDateTime. 
-- Duration is for hours, minutes, and seconds. 
-- It can only be used with LocalTime, LocalDateTime, and ZonedDateTime.
+1. **LocalDate**:
+   - Represents a date without a time zone.
+   - Created using methods like `LocalDate.now()` or `LocalDate.of()`.
 
-3. **Perform calculations with dates**:
-- Be able to perform calculations between times using UTC.
-- Whether the format is -05:00, GMT-5, or UTC-5, you calculate by subtracting the offset from the 
-time and then seeing how far the resulting times are.
-- Also be able to perform comparisons that include daylight savings time. 
-- In March, the United States springs ahead an hour, and in November, it falls back an hour
+2. **LocalTime**:
+   - Represents a time without a date or time zone.
+   - Created using methods like `LocalTime.now()` or `LocalTime.of()`.
 
-4. **Identify valid and invalid locale strings**:
-- Know that the language code is lowercase and mandatory. 
-- The country code is uppercase if present and follows the language code and an underscore.
-- Locale.Builder is an alternate way to create a Locale, and it allows calling the
-setters in either order.
+3. **LocalDateTime**:
+   - Represents a date and time without a time zone.
+   - Created using methods like `LocalDateTime.now()` or `LocalDateTime.of()`.
 
-5. **Determine which resource bundle Java will use to look up a key**:
-- Know the order that Java uses to search for a matching resource bundle.
-- Also recognize that the matching resource bundle hierarchy is searched once a matching resource bundle is found.
+4. **ZonedDateTime**:
+   - Represents a date, time, and time zone.
+   - Created from a LocalDateTime and a time zone ID using methods like `LocalDateTime.atZone()`.
 
-6. **Understand which Property value gets used as a default**:
-- When calling get(), null is returned if the key is not found. 
-- When calling getProperty(), there are two options. 
-- The single-parameter version still returns null if the key is not found.
-- The version that takes two parameters uses the second parameter as a return value if the key is not found.
+5. **Instant**:
+   - Represents a moment in time, typically in UTC.
+   - Created using methods like `Instant.now()` or `Instant.ofEpochSecond()`.
+
+### Example:
+
+```java
+import java.time.*;
+
+public class DateTimeExample {
+    public static void main(String[] args) {
+        // Creating LocalDate
+        LocalDate date = LocalDate.now();
+        System.out.println("LocalDate: " + date);
+
+        // Creating LocalTime
+        LocalTime time = LocalTime.of(12, 30);
+        System.out.println("LocalTime: " + time);
+
+        // Creating LocalDateTime
+        LocalDateTime dateTime = LocalDateTime.of(date, time);
+        System.out.println("LocalDateTime: " + dateTime);
+
+        // Creating ZonedDateTime
+        ZoneId zoneId = ZoneId.of("America/New_York");
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(dateTime, zoneId);
+        System.out.println("ZonedDateTime: " + zonedDateTime);
+
+        // Creating Instant
+        Instant instant = Instant.now();
+        System.out.println("Instant: " + instant);
+    }
+}
+```
+
+In this example:
+- We create instances of LocalDate, LocalTime, LocalDateTime, ZonedDateTime, and Instant using various factory methods provided by each class.
+- Each class represents a different aspect of date, time, or both, allowing for precise handling of various temporal concepts in Java.
+
+Exactly! Here's an overview of manipulating dates and times in Java using the `plus()` and `minus()` methods, as well as the `Period` and `Duration` classes:
+
+1. **Manipulating Dates and Times with `plus()` and `minus()` Methods**:
+   - The `plus()` and `minus()` methods are available on instances of `LocalDate`, `LocalTime`, `LocalDateTime`, and `ZonedDateTime`.
+   - They allow adding or subtracting values to date and time objects.
+   - For example:
+     ```java
+     LocalDate tomorrow = LocalDate.now().plusDays(1);
+     LocalTime twoHoursLater = LocalTime.now().plusHours(2);
+     ```
+
+2. **Period Class**:
+   - Represents a period of time defined in terms of years, months, and days.
+   - Used to add or subtract a period of time from `LocalDate`, `LocalDateTime`, or `ZonedDateTime`.
+   - For example:
+     ```java
+     LocalDate nextWeek = LocalDate.now().plus(Period.ofWeeks(1));
+     ```
+
+3. **Duration Class**:
+   - Represents a duration of time defined in terms of hours, minutes, and seconds.
+   - Used to add or subtract a duration of time from `LocalTime`, `LocalDateTime`, or `ZonedDateTime`.
+   - For example:
+     ```java
+     LocalTime twoHoursLater = LocalTime.now().plus(Duration.ofHours(2));
+     ```
+
+### Example:
+
+```java
+import java.time.*;
+
+public class DateTimeManipulationExample {
+    public static void main(String[] args) {
+        // Manipulating dates using plus() and minus() methods
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        System.out.println("Tomorrow: " + tomorrow);
+
+        // Manipulating times using plus() and minus() methods
+        LocalTime twoHoursLater = LocalTime.now().plusHours(2);
+        System.out.println("Two hours later: " + twoHoursLater);
+
+        // Using Period to add weeks to a date
+        LocalDate nextWeek = LocalDate.now().plus(Period.ofWeeks(1));
+        System.out.println("Next week: " + nextWeek);
+
+        // Using Duration to add hours to a time
+        LocalTime twoHoursFromNow = LocalTime.now().plus(Duration.ofHours(2));
+        System.out.println("Two hours from now: " + twoHoursFromNow);
+    }
+}
+```
+
+In this example:
+- We use the `plus()` and `minus()` methods to manipulate dates and times by adding or subtracting values.
+- We use the `Period` class to add a week to the current date.
+- We use the `Duration` class to add two hours to the current time.
+
+These classes and methods provide convenient ways to perform date and time arithmetic in Java.
+
+Absolutely, UTC (Coordinated Universal Time) represents the time zone offset from zero and does not observe daylight saving time (DST). Daylight saving time is observed in various regions, including the United States and many other countries, by advancing the clocks by one hour in the spring (to start DST) and moving them back by one hour in the fall (to end DST). Java automatically adjusts time and the UTC offset to account for daylight saving time changes in the respective time zones.
+
+When working with Java's date and time classes, such as `ZonedDateTime`, Java handles daylight saving time transitions internally based on the time zone information provided. This means that if you specify a time zone that observes daylight saving time, Java will automatically adjust the time and the UTC offset accordingly when converting between different time zones or performing date and time calculations.
+
+For example, if you have a `ZonedDateTime` object representing a time in a time zone that observes daylight saving time, and you perform arithmetic operations such as adding or subtracting durations, Java will correctly handle any transitions between standard time and daylight saving time, adjusting the time and the UTC offset as necessary.
+
+It's essential to use appropriate time zone information when working with dates and times to ensure accurate handling of daylight saving time transitions and other time zone-related adjustments. Java's date and time API provides comprehensive support for handling time zones and daylight saving time changes, making it easier to work with dates and times in various regions of the world.
+
+Absolutely! Let's break down the concept of creating a `Locale` and using `ResourceBundle` in Java:
+
+### Locale Class:
+
+- **Creating a Locale**:
+   - You can create a `Locale` object using the constructor `Locale(String language)` or `Locale(String language, String country)`.
+   - The language parameter is a two-letter lowercase code representing the language, and the country parameter is a two-letter uppercase code representing the country.
+   - Examples: `Locale english = new Locale("en")` for English and `Locale usEnglish = new Locale("en", "US")` for US English.
+
+### ResourceBundle:
+
+- **Specifying Key/Value Pairs**:
+   - `ResourceBundle` allows specifying key/value pairs in a property file (`.properties`) or in a Java class.
+   - Keys are strings that uniquely identify the values.
+   - Values can be any object.
+
+- **Searching for Resource Bundles**:
+   - Java searches for resource bundles in a hierarchy from the most specific to the most general to find a match.
+   - If no matches are found for the requested locale, Java switches to the default locale and then finally the default resource bundle.
+
+- **Java Class vs. Property File**:
+   - Java looks at the equivalent Java class before the property file for each locale.
+   - Once a matching resource bundle is found, Java only looks in the hierarchy of that resource bundle to find keys.
+
+### Example:
+
+```java
+import java.util.*;
+
+public class ResourceBundleExample {
+    public static void main(String[] args) {
+        // Creating a Locale
+        Locale usEnglish = new Locale("en", "US");
+
+        // Loading ResourceBundle
+        ResourceBundle bundle = ResourceBundle.getBundle("Messages", usEnglish);
+
+        // Accessing keys and values
+        String greeting = bundle.getString("greeting");
+        String farewell = bundle.getString("farewell");
+
+        System.out.println("Greeting: " + greeting);
+        System.out.println("Farewell: " + farewell);
+    }
+}
+```
+
+In this example:
+- We create a `Locale` object representing US English.
+- We load a resource bundle named "Messages" for the specified locale.
+- We access keys such as "greeting" and "farewell" from the resource bundle to retrieve their corresponding values.
+- Java searches for the appropriate resource bundle based on the locale and retrieves the values for the requested keys. If a matching resource bundle is not found, it falls back to the default locale and default resource bundle.
+
+Exactly! Here's an explanation of using `NumberFormat` and `DateTimeFormatter` in Java:
+
+### NumberFormat:
+
+- **Retrieving Formatter**:
+   - `NumberFormat` class provides static methods to retrieve instances of `NumberFormat` for various types of formatting, such as currency, percentage, and general numbers.
+   - Example: `NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();`
+
+### DateTimeFormatter:
+
+- **Outputting Dates and Times**:
+   - `DateTimeFormatter` is used to output dates and times in the desired format.
+   - Provides methods to format date-time objects into strings and parse strings into date-time objects.
+   - Supports patterns for formatting and parsing, such as "yyyy-MM-dd" for date-only format and "HH:mm:ss" for time-only format.
+   - Example: `DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");`
+
+### Immutability of Date and Time Classes:
+
+- **Immutable Classes**:
+   - All date and time classes in Java's date and time API are immutable.
+   - Operations on these classes return a new instance with the modified values rather than modifying the original instance.
+   - This ensures thread safety and prevents unintended modifications of date and time objects.
+   - Example: `LocalDate tomorrow = LocalDate.now().plusDays(1);`
+
+### Example:
+
+```java
+import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
+public class FormatExample {
+    public static void main(String[] args) {
+        // Number formatting
+        double amount = 1234.56;
+        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.US);
+        String formattedCurrency = currencyFormatter.format(amount);
+        System.out.println("Formatted Currency: " + formattedCurrency);
+
+        // Date formatting
+        LocalDate date = LocalDate.now();
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedDate = dateFormatter.format(date);
+        System.out.println("Formatted Date: " + formattedDate);
+    }
+}
+```
+
+In this example:
+- We use `NumberFormat` to format a currency amount.
+- We use `DateTimeFormatter` to format the current date.
+- Both formatters are retrieved using static methods (`getCurrencyInstance()` and `ofPattern()`) and are used to format the respective values into strings.
+- Since date and time classes are immutable, the return value of the formatting operations must be used to capture the formatted result.
+
+# Exam Essentials
+
+**Recognize invalid uses of dates and times.**
+
+Absolutely, it's crucial to be mindful of the valid uses of dates and times in Java to avoid unintended errors. Here are some common mistakes to watch out for:
+
+### Invalid Uses of Dates and Times:
+
+1. **Mixing Date and Time Types**:
+   - `LocalDate` does not contain time fields, and `LocalTime` does not contain date fields. Attempting operations that cross these boundaries will result in errors or unexpected behavior.
+   - Example: Trying to add a time duration to a date or perform date-specific operations on a `LocalTime` object.
+
+2. **Ignoring Results of Operations**:
+   - All date and time classes in Java's date and time API are immutable. Operations on these classes return new instances with the modified values rather than modifying the original instance. Ignoring the result of these operations will discard the changes.
+   - Example: `LocalDate.now().plusDays(1);` without capturing the result in a variable will not update the original date.
+
+3. **Incorrect Parsing and Formatting**:
+   - Incorrectly parsing or formatting date-time strings can lead to parsing errors or incorrect results.
+   - Always ensure that the pattern used for parsing matches the format of the input string, and vice versa for formatting.
+
+### Example:
+
+```java
+import java.time.*;
+
+public class InvalidDateTimeUsageExample {
+    public static void main(String[] args) {
+        // Invalid mixing of date and time types
+        LocalTime time = LocalTime.now();
+        LocalDate tomorrow = LocalDate.now().plusDays(1); // Incorrect: Mixing LocalDate and LocalTime
+        // LocalDate tomorrow = LocalDate.now().plusDays(1); // Correct: Using LocalDate for date-specific operations
+
+        // Ignoring result of operations
+        LocalTime ignoredTime = LocalTime.now().plusHours(1); // Incorrect: Ignoring result
+        System.out.println("Ignored Time: " + ignoredTime); // This will still print the original time
+
+        // Incorrect parsing and formatting
+        String invalidDateString = "2022-06-30T10:00:00"; // Incorrect format for LocalDate
+        // LocalDate parsedDate = LocalDate.parse(invalidDateString); // Parsing will fail
+        // String formattedTime = LocalTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")); // Incorrect format for LocalTime
+    }
+}
+```
+
+In this example:
+- There's an attempt to mix `LocalDate` and `LocalTime` objects incorrectly.
+- Ignoring the result of the `plusHours()` operation on `LocalTime` will not update the original time.
+- Incorrect parsing or formatting of date-time strings can lead to parsing errors or incorrect results.
+
+**Differentiate between Period and Duration.**
+
+Absolutely! Here's a clear differentiation between `Period` and `Duration` in Java's date and time API:
+
+### Period:
+
+- **Definition**:
+   - Represents a duration of time defined in terms of years, months, and days.
+   - Used to represent a period of time between two dates or to add/subtract a period of time to `LocalDate`, `LocalDateTime`, or `ZonedDateTime`.
+
+- **Units**:
+   - Represents years, months, and days.
+
+- **Usage**:
+   - Typically used for date-based calculations, such as calculating the difference between two dates or adding/subtracting years, months, or days to a date.
+   - Example: `Period.ofYears(1)` represents a period of one year.
+
+- **Usage Context**:
+   - Can only be used with date-related classes like `LocalDate`, `LocalDateTime`, and `ZonedDateTime`.
+
+### Duration:
+
+- **Definition**:
+   - Represents a duration of time defined in terms of hours, minutes, and seconds.
+   - Used to represent a duration of time between two times or to add/subtract a duration of time to `LocalTime`, `LocalDateTime`, or `ZonedDateTime`.
+
+- **Units**:
+   - Represents hours, minutes, and seconds.
+
+- **Usage**:
+   - Typically used for time-based calculations, such as calculating the difference between two times or adding/subtracting hours, minutes, or seconds to a time.
+   - Example: `Duration.ofHours(1)` represents a duration of one hour.
+
+- **Usage Context**:
+   - Can only be used with time-related classes like `LocalTime`, `LocalDateTime`, and `ZonedDateTime`.
+
+### Example:
+
+```java
+import java.time.*;
+
+public class PeriodAndDurationExample {
+    public static void main(String[] args) {
+        // Period for date-based calculations
+        LocalDate startDate = LocalDate.of(2022, 1, 1);
+        LocalDate endDate = LocalDate.of(2023, 1, 1);
+        Period period = Period.between(startDate, endDate);
+        System.out.println("Period between dates: " + period);
+
+        // Duration for time-based calculations
+        LocalTime startTime = LocalTime.of(10, 0);
+        LocalTime endTime = LocalTime.of(11, 0);
+        Duration duration = Duration.between(startTime, endTime);
+        System.out.println("Duration between times: " + duration);
+    }
+}
+```
+
+In this example:
+- We use `Period.between()` to calculate the period between two dates.
+- We use `Duration.between()` to calculate the duration between two times.
+- Period is used for date-based calculations, while Duration is used for time-based calculations.
+
+**Perform calculations with dates.**
+
+Performing calculations with dates and times, especially when dealing with time zones and daylight saving time (DST), requires careful consideration. Here's how you can perform calculations with dates and times, including comparisons that involve daylight saving time changes:
+
+### Calculations with Dates and Times:
+
+1. **Performing Calculations between Times using UTC**:
+   - When dealing with time zones expressed as offsets like `-05:00`, `GMT-5`, or `UTC-5`, you can calculate by subtracting the offset from the time.
+   - For example, to convert a local time to UTC, subtract the offset from the local time.
+   - Ensure to consider the sign of the offset when performing calculations.
+
+2. **Performing Comparisons with Daylight Saving Time**:
+   - During daylight saving time changes, the offset from UTC changes, affecting time comparisons.
+   - In regions observing DST, clocks are typically moved forward by one hour in spring (March) and moved backward by one hour in fall (November).
+   - When comparing times across these transitions, consider the actual local time and its associated offset to UTC.
+
+### Example:
+
+```java
+import java.time.*;
+
+public class DateAndTimeCalculationsExample {
+    public static void main(String[] args) {
+        // Calculate time difference between two time zones with different offsets
+        ZoneOffset offset1 = ZoneOffset.ofHours(-5); // Offset from UTC for time zone 1 (-05:00)
+        ZoneOffset offset2 = ZoneOffset.ofHours(-8); // Offset from UTC for time zone 2 (-08:00)
+        
+        LocalDateTime dateTime1 = LocalDateTime.of(2024, 3, 10, 12, 0); // Time in time zone 1
+        LocalDateTime dateTime2 = LocalDateTime.of(2024, 3, 10, 12, 0); // Time in time zone 2
+
+        // Calculate difference between two times
+        Duration timeDifference = Duration.between(dateTime1.toInstant(offset1), dateTime2.toInstant(offset2));
+        System.out.println("Time difference between time zone 1 and time zone 2: " + timeDifference);
+
+        // Perform comparisons across DST transitions
+        LocalDateTime springTime = LocalDateTime.of(2024, 3, 10, 1, 0); // 1:00 AM on the day DST starts (spring forward)
+        LocalDateTime fallTime = LocalDateTime.of(2024, 11, 3, 1, 0); // 1:00 AM on the day DST ends (fall back)
+        
+        System.out.println("Is springTime before fallTime? " + springTime.isBefore(fallTime)); // true
+        System.out.println("Is fallTime after springTime? " + fallTime.isAfter(springTime)); // true
+    }
+}
+```
+
+In this example:
+- We calculate the time difference between two time zones with different offsets from UTC.
+- We perform comparisons between times across DST transitions (spring forward and fall back) to demonstrate how to handle DST changes when comparing times.
+
+**Identify valid and invalid locale strings.**
+
+Absolutely! Here's a breakdown of valid and invalid locale strings and how to create a `Locale` using `Locale.Builder`:
+
+### Valid Locale Strings:
+
+- **Format**:
+   - Language code (mandatory, lowercase) followed by an optional country code (uppercase) separated by an underscore.
+
+- **Examples**:
+   - Valid: `"en"`, `"en_US"`, `"fr"`, `"fr_FR"`, `"de"`, `"de_DE"`.
+   - Language-only locales are valid, such as `"en"`, `"fr"`, `"de"`.
+   - Language-country locales are valid, such as `"en_US"`, `"fr_FR"`, `"de_DE"`.
+
+### Invalid Locale Strings:
+
+- **Examples**:
+   - Invalid: `"EN_us"`, `"en_us"`, `"EN_US"`, `"en_us123"`, `"en_123"`, `"us"`, `"FR_FR"`.
+
+### Creating Locale Using Locale.Builder:
+
+- **Locale.Builder**:
+   - An alternate way to create a `Locale` in Java.
+   - Allows calling the setters in any order.
+   - Provides flexibility in building locales without strict adherence to the language-country format.
+
+### Example:
+
+```java
+import java.util.Locale;
+
+public class LocaleExample {
+    public static void main(String[] args) {
+        // Valid locale strings
+        Locale validLocale1 = new Locale("en");
+        Locale validLocale2 = new Locale("en", "US");
+        
+        // Invalid locale strings
+        // Locale invalidLocale1 = new Locale("EN_us"); // Invalid: Language code should be lowercase
+        // Locale invalidLocale2 = new Locale("en_us"); // Invalid: Country code should be uppercase
+        // Locale invalidLocale3 = new Locale("en_us123"); // Invalid: Country code should not contain digits
+        // Locale invalidLocale4 = new Locale("en_123"); // Invalid: Country code should not contain digits
+        // Locale invalidLocale5 = new Locale("us"); // Invalid: Language code is mandatory
+        // Locale invalidLocale6 = new Locale("FR_FR"); // Invalid: Language code should be lowercase
+        
+        // Creating locale using Locale.Builder
+        Locale.Builder builder = new Locale.Builder();
+        builder.setLanguage("en").setRegion("US"); // Setters can be called in any order
+        Locale localeFromBuilder = builder.build();
+        System.out.println("Locale from builder: " + localeFromBuilder);
+    }
+}
+```
+
+In this example:
+- We create `Locale` objects using both valid and invalid locale strings.
+- We demonstrate how to use `Locale.Builder` to create a `Locale` object, allowing setters to be called in any order.
+
+**Determine which resource bundle Java will use to look up a key.**
+
+Absolutely! Java follows a specific order when searching for a matching resource bundle. Here's how Java determines which resource bundle to use to look up a key:
+
+### Resource Bundle Lookup Order:
+
+1. **Exact Locale Match**:
+   - Java first attempts to find an exact match for the requested locale. If a resource bundle exists for the requested locale, Java uses it.
+   - For example, if the requested locale is `"en_US"`, Java looks for a resource bundle with the same locale.
+
+2. **Language Match**:
+   - If an exact match for the requested locale is not found, Java tries to find a resource bundle with a match for the language (ignoring the country).
+   - For example, if the requested locale is `"en_US"` and an exact match is not found, Java looks for a resource bundle with the language `"en"`.
+
+3. **Default Locale**:
+   - If neither an exact match nor a language match is found, Java falls back to the default locale and attempts to find a resource bundle for it.
+   - The default locale is typically the JVM's default locale, which can be set using the `-Duser.language` and `-Duser.country` system properties.
+
+4. **Default Resource Bundle**:
+   - If no matches are found for any of the above steps, Java switches to the default resource bundle.
+   - The default resource bundle is often a general-purpose resource bundle that provides fallback values for keys that are not found in more specific bundles.
+
+### Matching Resource Bundle Hierarchy:
+
+- Once a matching resource bundle is found, Java only looks in the hierarchy of that resource bundle to find keys.
+- Java does not search through the hierarchy of other resource bundles if a matching one is already found.
+- This ensures that Java efficiently retrieves keys from the most specific resource bundle available without unnecessary searching.
+
+### Example:
+
+```java
+import java.util.*;
+
+public class ResourceBundleLookupExample {
+    public static void main(String[] args) {
+        // Requested locale
+        Locale requestedLocale = new Locale("en", "US");
+
+        // Loading ResourceBundle
+        ResourceBundle bundle = ResourceBundle.getBundle("Messages", requestedLocale);
+
+        // Accessing keys and values
+        String greeting = bundle.getString("greeting");
+        String farewell = bundle.getString("farewell");
+
+        System.out.println("Greeting: " + greeting);
+        System.out.println("Farewell: " + farewell);
+    }
+}
+```
+
+In this example:
+- We request a resource bundle named `"Messages"` for the locale `"en_US"`.
+- Java searches for an exact match for `"en_US"` first. If not found, it looks for a language match (`"en"`), then falls back to the default locale, and finally to the default resource bundle.
+- Once a matching resource bundle is found, Java only looks in the hierarchy of that bundle to find keys, providing efficient lookup.
+
+**Understand which Property value gets used as a default.**
+
+Absolutely, understanding how default values work in Java's properties is crucial. Here's how it works:
+
+### Default Values in Properties:
+
+- **Using `get()` Method**:
+   - When using the `get()` method to retrieve a property value from a `Properties` object, `null` is returned if the key is not found in the properties file.
+
+- **Using `getProperty()` Method**:
+   - There are two versions of the `getProperty()` method:
+      1. **Single-parameter version**:
+         - This version behaves similarly to `get()`. It returns `null` if the key is not found in the properties file.
+         - Syntax: `String getProperty(String key)`.
+      2. **Two-parameter version**:
+         - This version allows specifying a default value to return if the key is not found in the properties file.
+         - Syntax: `String getProperty(String key, String defaultValue)`.
+         - If the key is found, the corresponding value is returned. If the key is not found, the specified `defaultValue` is returned.
+
+### Example:
+
+```java
+import java.util.Properties;
+
+public class PropertiesExample {
+    public static void main(String[] args) {
+        // Creating a Properties object
+        Properties properties = new Properties();
+
+        // Adding properties
+        properties.setProperty("key1", "value1");
+        properties.setProperty("key2", "value2");
+
+        // Retrieving property values
+        String value1 = properties.getProperty("key1"); // Key found, returns "value1"
+        String value2 = properties.getProperty("key2", "defaultValue"); // Key found, returns "value2"
+        String value3 = properties.getProperty("key3"); // Key not found, returns null
+        String value4 = properties.getProperty("key4", "defaultFallbackValue"); // Key not found, returns "defaultFallbackValue"
+
+        // Displaying property values
+        System.out.println("Value1: " + value1);
+        System.out.println("Value2: " + value2);
+        System.out.println("Value3: " + value3);
+        System.out.println("Value4: " + value4);
+    }
+}
+```
+
+In this example:
+- We add properties `"key1"` and `"key2"` to a `Properties` object.
+- We retrieve values using both versions of the `getProperty()` method.
+- If a key is found, the corresponding value is returned; otherwise, `null` or the specified default value is returned, depending on the method used.
