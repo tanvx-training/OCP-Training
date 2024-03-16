@@ -1694,3 +1694,360 @@ In this example:
 - Next, we transform names to uppercase Optionals, flatten the stream of Optionals using `flatMap`, and provide a default value if the stream is empty using `orElse`.
 
 ### Collecting Results
+
+#### Collecting Using Basic Collectors
+
+#### Collecting into Maps
+
+Introducing collecting into maps while working with Java streams is a common requirement when you need to transform and organize data into a map structure. Java provides the `Collectors.toMap()` method for this purpose. Here's how you can use it:
+
+```java
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class MapCollectingExample {
+    public static void main(String[] args) {
+        // Sample list of objects
+        List<Person> people = Arrays.asList(
+                new Person("John", 25),
+                new Person("Alice", 30),
+                new Person("Bob", 35)
+        );
+
+        // Collecting names of people into a Map with name as key and age as value
+        Map<String, Integer> nameToAgeMap = people.stream()
+                .collect(Collectors.toMap(Person::getName, Person::getAge));
+
+        // Displaying the map
+        System.out.println("Name to Age Map: " + nameToAgeMap);
+    }
+}
+
+class Person {
+    private String name;
+    private int age;
+
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+}
+```
+
+In this example:
+
+1. We have a `Person` class with attributes `name` and `age`.
+2. We create a list of `Person` objects.
+3. We then use Java streams on this list, calling `collect()` with `Collectors.toMap()` to collect the elements of the stream into a map.
+4. In `toMap()`, we specify two functions: one for extracting keys (names) and another for extracting values (ages) from `Person` objects.
+
+Make sure that the keys you are extracting are unique, otherwise, you may encounter an `IllegalStateException` due to duplicate keys when collecting to a map.
+
+#### Collecting Using Grouping, Partitioning, and Mapping 
+
+**Grouping**
+
+Certainly! In Java streams, grouping is a technique that allows you to categorize elements of a stream based on certain criteria. It's a fundamental operation provided by the `Collectors` class, particularly through the `groupingBy` collector.
+
+Here's the primary signature of `groupingBy`:
+
+```java
+public static <T, K> Collector<T, ?, Map<K, List<T>>> groupingBy(Function<? super T, ? extends K> classifier)
+```
+
+This signature indicates that `groupingBy` takes a classification function (`Function<? super T, ? extends K> classifier`) which maps elements of type `T` to keys of type `K`. It then collects the elements into a `Map` where the keys are the result of applying the classification function and the values are lists containing the elements that share the same key.
+
+Here's a code example demonstrating the usage of grouping in Java streams:
+
+```java
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class GroupingExample {
+    public static void main(String[] args) {
+        List<String> words = Arrays.asList("apple", "banana", "apricot", "blueberry", "cherry", "blackberry");
+
+        // Group words by their first letter
+        Map<Character, List<String>> groupedWords = words.stream()
+                .collect(Collectors.groupingBy(word -> word.charAt(0)));
+
+        // Print the result
+        groupedWords.forEach((letter, wordList) -> {
+            System.out.println("Words starting with '" + letter + "':");
+            wordList.forEach(System.out::println);
+            System.out.println(); // Just for better readability
+        });
+    }
+}
+```
+
+Output:
+```
+Words starting with 'a':
+apple
+apricot
+
+Words starting with 'b':
+banana
+blueberry
+blackberry
+
+Words starting with 'c':
+cherry
+```
+
+In this example, we have a list of words, and we want to group them based on their first letter. We achieve this by calling `collect(Collectors.groupingBy(word -> word.charAt(0)))`. This groups the words by their first letter, resulting in a map where the keys are characters (first letters) and the values are lists of words starting with the corresponding letter.
+
+This illustrates how to use grouping in Java streams to categorize elements based on certain criteria.
+
+**Partitioning**
+
+Certainly! In Java streams, partitioning is a special case of grouping where the result is a map with only two possible keys: true and false. It's used to partition elements of a stream into two groups based on a predicate. The `Collectors.partitioningBy()` method is used for this purpose.
+
+Here's the primary signature of `partitioningBy`:
+
+```java
+public static <T> Collector<T, ?, Map<Boolean, List<T>>> partitioningBy(Predicate<? super T> predicate)
+```
+
+This signature indicates that `partitioningBy` takes a predicate (`Predicate<? super T> predicate`) which tests each element of the stream. It then collects the elements into a map where the keys are Boolean values (`true` or `false`) representing whether the element satisfies the predicate, and the values are lists containing the elements that pass (`true`) or fail (`false`) the predicate.
+
+Here's a code example demonstrating the usage of partitioning in Java streams:
+
+```java
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class PartitioningExample {
+    public static void main(String[] args) {
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+
+        // Partition numbers into even and odd
+        Map<Boolean, List<Integer>> evenOddPartition = numbers.stream()
+                .collect(Collectors.partitioningBy(n -> n % 2 == 0));
+
+        // Print the result
+        List<Integer> evenNumbers = evenOddPartition.get(true);
+        List<Integer> oddNumbers = evenOddPartition.get(false);
+
+        System.out.println("Even numbers: " + evenNumbers);
+        System.out.println("Odd numbers: " + oddNumbers);
+    }
+}
+```
+
+Output:
+```
+Even numbers: [2, 4, 6, 8, 10]
+Odd numbers: [1, 3, 5, 7, 9]
+```
+
+In this example, we have a list of numbers, and we want to partition them into two groups: even and odd. We achieve this by calling `collect(Collectors.partitioningBy(n -> n % 2 == 0))`. This partitions the numbers into two groups based on whether they are even (`true`) or odd (`false`).
+
+This illustrates how to use partitioning in Java streams to split elements into two groups based on a predicate.
+
+**Mapping**
+
+In Java streams, mapping is a powerful operation that allows you to transform elements of a stream using a mapping function. It's often used to convert elements from one type to another or to extract certain properties from objects in the stream. The `Collectors.mapping()` method is used for this purpose.
+
+Here's the primary signature of `mapping`:
+
+```java
+public static <T, U, A, R> Collector<T, ?, R> mapping(Function<? super T, ? extends U> mapper, Collector<? super U, A, R> downstream)
+```
+
+This signature indicates that `mapping` takes two parameters: a mapping function (`Function<? super T, ? extends U> mapper`) and a downstream collector (`Collector<? super U, A, R> downstream`). It applies the mapping function to each element of the stream, collects the mapped elements using the downstream collector, and returns the result.
+
+Here's a code example demonstrating the usage of mapping in Java streams:
+
+```java
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class MappingExample {
+    public static void main(String[] args) {
+        List<String> words = Arrays.asList("apple", "banana", "apricot", "blueberry", "cherry");
+
+        // Map words to their lengths
+        List<Integer> wordLengths = words.stream()
+                .collect(Collectors.mapping(String::length, Collectors.toList()));
+
+        // Print the result
+        System.out.println("Lengths of words: " + wordLengths);
+    }
+}
+```
+
+Output:
+```
+Lengths of words: [5, 6, 7, 9, 6]
+```
+
+In this example, we have a list of words, and we want to map each word to its length. We achieve this by calling `collect(Collectors.mapping(String::length, Collectors.toList()))`. This applies the mapping function `String::length` to each word in the stream, collecting the lengths into a list.
+
+This illustrates how to use mapping in Java streams to transform elements using a mapping function.
+
+# Summary
+
+### Lambdas in Java
+
+Lambdas in Java are anonymous functions that can be used to implement functional interfaces concisely. They can reference:
+- **Static variables**: Variables that belong to the class itself.
+- **Instance variables**: Variables that belong to an instance of a class.
+- **Effectively final parameters**: Parameters that are not explicitly declared final but are treated as final because they are not reassigned.
+- **Effectively final local variables**: Local variables declared within a method or lambda expression that are not explicitly declared final but are treated as final because they are not reassigned.
+
+### Functional Interfaces
+
+A functional interface is an interface that contains only one abstract method. In Java, lambdas can be used to implement functional interfaces. Here are some commonly used functional interfaces in Java:
+
+- **Supplier\<T>**: Represents a supplier of results. Method `T get()` returns a value of type T.
+- **Consumer\<T>**: Represents an operation that accepts a single input argument and returns no result. Method `void accept(T t)` is used.
+- **BiConsumer\<T, U>**: Represents an operation that accepts two input arguments and returns no result. Method `void accept(T t, U u)` is used.
+- **Predicate\<T>**: Represents a predicate (boolean-valued function) of one argument. Method `boolean test(T t)` returns a boolean value.
+- **BiPredicate\<T, U>**: Represents a predicate (boolean-valued function) of two arguments. Method `boolean test(T t, U u)` returns a boolean value.
+- **Function\<T, R>**: Represents a function that accepts one argument and produces a result. Method `R apply(T t)` is used.
+- **BiFunction\<T, U, R>**: Represents a function that accepts two arguments and produces a result. Method `R apply(T t, U u)` is used.
+- **UnaryOperator\<T>**: Represents an operation on a single operand that produces a result of the same type as its operand. Method `T apply(T t)` is used.
+- **BinaryOperator\<T>**: Represents an operation upon two operands of the same type, producing a result of the same type as the operands. Method `T apply(T t1, T t2)` is used.
+
+These interfaces enable functional programming constructs in Java, allowing concise and expressive code through lambda expressions.
+eel free to adjust the presentation according to your specific needs!
+
+### Optional in Java
+
+Optional is a container object that may or may not contain a non-null value. It provides methods to check and retrieve the value safely. Key features include:
+
+- **Presence Checking**: You can check if an Optional contains a value using methods like `ifPresent()` or `isPresent()`.
+- **Value Retrieval**: You can retrieve the value inside an Optional using methods like `get()` (be cautious as it may throw `NoSuchElementException` if the Optional is empty).
+- **Functional Interface Parameters**: Optional provides methods that take functional interfaces as parameters:
+  - `ifPresent(Consumer<T> consumer)`: Executes the consumer if a value is present.
+  - `orElseGet(Supplier<? extends T> supplier)`: Returns the value if present, otherwise returns the result of the supplier.
+  - `orElseThrow(Supplier<? extends X> exceptionSupplier)`: Returns the value if present, otherwise throws an exception produced by the supplier.
+
+### Optional Types for Primitives
+
+For primitive types, Java provides optional counterparts that avoid boxing and unboxing overhead. These include:
+- **DoubleSupplier**: Provides an optional double value. Method `double getDouble()` is used.
+- **IntSupplier**: Provides an optional int value. Method `int getInt()` is used.
+- **LongSupplier**: Provides an optional long value. Method `long getLong()` is used.
+
+These optional types for primitives allow safer handling of primitive values in situations where absence is a valid state.
+
+### Stream Pipeline Components
+
+A stream pipeline in Java consists of three main parts:
+
+1. **Source**: The source is required and it creates the data in the stream. It can be a collection, an array, an I/O channel, or even a generator function. Examples include:
+  - `Collection.stream()`
+  - `Stream.of(T...)`
+  - `Files.lines(Path)`
+
+2. **Intermediate Operations**: These are optional operations that transform the elements of the stream. They are not executed until a terminal operation is called. Examples include:
+  - `filter(Predicate)`
+  - `map(Function)`
+  - `flatMap(Function)`
+  - `sorted(Comparator)`
+
+3. **Terminal Operations**: These operations produce a result or side-effect and terminate the stream. They trigger the execution of intermediate operations. Examples include:
+  - `forEach(Consumer)`
+  - `count()`
+  - `collect(Collectors.toList())`
+  - `anyMatch(Predicate)`
+
+The source creates the data, intermediate operations transform it, and terminal operations produce a result or side-effect.
+
+### Primitive Streams in Java
+
+Java provides primitive streams specialized for double, int, and long data types. These include:
+
+- **DoubleStream**: A stream of double values.
+- **IntStream**: A stream of int values.
+- **LongStream**: A stream of long values.
+
+### Additional Methods
+
+In addition to the methods available in the Stream interface, primitive streams have some additional methods:
+
+- **range(int startInclusive, int endExclusive)**: Creates a sequential IntStream with elements from the start (inclusive) to the end (exclusive).
+- **rangeClosed(int startInclusive, int endInclusive)**: Creates a sequential IntStream with elements from the start (inclusive) to the end (inclusive).
+- **average()**: Computes the average of the elements.
+- **max()**: Finds the maximum element.
+- **min()**: Finds the minimum element.
+- **sum()**: Computes the sum of the elements.
+- **summaryStatistics()**: Computes various summary statistics (count, sum, min, average, max) in one call.
+
+### Functional Interfaces
+
+Java also provides functional interfaces specific to primitive streams, suitable for operations involving double, int, and long primitives. These include:
+
+- **DoubleSupplier**
+- **IntSupplier**
+- **LongSupplier**
+
+These interfaces allow for more efficient and specialized processing when working with primitive streams.
+
+### Collectors in Java Streams
+
+In Java streams, a Collector is used to transform the elements of a stream into a traditional collection, such as a List, Set, or Map. Collectors provide various methods to perform aggregation operations on the elements of a stream.
+
+### Grouping and Partitioning with Collectors
+
+- **Grouping**: The `groupingBy` collector allows you to group elements of a stream based on certain criteria, creating a map where keys are derived from the elements and values are lists of elements sharing the same key.
+
+- **Partitioning**: The `partitioningBy` collector is similar to grouping, but it always partitions the stream into two groups based on a predicate, resulting in a map with keys `true` and `false`.
+
+### Characteristics
+
+- **Keys in Partitioning**: Partitioning always results in a map with two keys (`true` and `false`), even if one of the partitions is empty.
+
+- **Complex Mapping**: Collectors can be used to create complex maps in a single line, allowing you to group fields or perform custom transformations easily.
+
+Absolutely, reviewing and understanding the tables in the chapter is essential for mastering Java streams. Here's a summary focusing on the key tables mentioned:
+
+### Memorization Guide:
+
+1. **Table 4.1**: This table likely covers the functional interfaces and their associated methods, including:
+
+  - Supplier<T>
+  - Consumer<T>
+  - BiConsumer<T, U>
+  - Predicate<T>
+  - BiPredicate<T, U>
+  - Function<T, R>
+  - BiFunction<T, U, R>
+  - UnaryOperator<T>
+  - BinaryOperator<T>
+
+   Understanding these interfaces and their method signatures is crucial for working effectively with Java streams.
+
+2. **Table 4.6 and Table 4.7**: These tables cover the primitive streams and their associated methods, such as:
+
+  - DoubleStream: Methods like `range()`, `rangeClosed()`, `average()`, `max()`, `min()`, `sum()`, `summaryStatistics()`.
+  - IntStream: Similar methods as DoubleStream but tailored for int values.
+  - LongStream: Similar methods as DoubleStream but tailored for long values.
+
+   Being familiar with these tables, especially the methods and their functionalities, is key.
+
+### Understanding Laziness:
+
+Remembering that streams are lazily evaluated is crucial. This means that intermediate operations are not executed until a terminal operation is called. Also, method references or lambdas passed to stream methods are not executed immediately but only when the terminal operation triggers the stream processing.
+
+### Conclusion:
+
+While memorizing the tables is important, understanding their contents and implications is equally essential. Additionally, grasping the concept of laziness in stream evaluation helps in writing efficient and concise code.
+
+By focusing on understanding and applying the concepts from these tables, you'll be well-equipped to work effectively with Java streams.
