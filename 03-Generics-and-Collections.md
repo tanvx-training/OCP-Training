@@ -1210,36 +1210,154 @@ public class QueueExample {
 
 ### Map
 
-- You use a map when you want to identify values by a key.
+Maps are advantageous when you need to associate keys with values, providing efficient lookup, insertion, and deletion operations based on the keys. Here's why and when you should use a Map:
+
+##### Advantages of Map:
+1. **Fast Lookup**: Maps provide fast lookup times, typically O(1) or O(log n) depending on the implementation, allowing you to retrieve values associated with keys quickly.
+2. **Key-Value Association**: Maps allow you to establish a relationship between keys and values, making it easy to store and retrieve data based on keys.
+3. **Efficient Updates**: Maps support efficient updates, enabling you to modify the value associated with a key or insert new key-value pairs with minimal overhead.
+4. **No Duplicate Keys**: Maps do not allow duplicate keys, ensuring each key uniquely identifies a value.
+5. **Versatile Use Cases**: Maps are versatile and can be used for various purposes, such as caching, indexing, counting occurrences, and implementing data structures like hash tables.
+
+##### When to Use a Map:
+- **Unique Key-Value Associations**: When you need to store unique associations between keys and values, such as storing user preferences, configuration settings, or database records.
+- **Fast Lookup Requirements**: When you require fast lookup operations based on keys, such as searching for elements by ID, indexing data, or implementing a dictionary.
+- **Grouping and Aggregation**: When you need to group or aggregate data based on common attributes or keys, such as grouping items by category or summarizing sales data by region.
+- **Efficient Data Retrieval**: When you need to efficiently retrieve, update, or delete data based on keys without traversing the entire collection, such as implementing a cache or managing session data in web applications.
+
+##### Example Use Cases:
+1. **Storing User Information**: Storing user profiles where each user ID (key) is associated with user details (value).
+2. **Caching Data**: Caching frequently accessed data where keys represent query parameters, and values represent query results.
+3. **Indexing Documents**: Indexing documents in a search engine where keys represent terms, and values represent document IDs or occurrences.
+4. **Counting Occurrences**: Counting occurrences of elements in a collection where keys represent elements, and values represent counts.
+5. **Implementing Databases**: Implementing in-memory databases or key-value stores where keys represent primary keys, and values represent records.
+
+In summary, use a Map when you need to establish a relationship between keys and values, require efficient lookup operations, and want to leverage key-value associations for various data manipulation tasks. Maps provide a versatile and efficient way to manage and access data based on keys in Java applications.
 
 #### Comparing Map Implementations
 
-|                   | HashMap                                                                            | TreeMap                                                                                                    |
-|-------------------|------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| Data Structure    | Uses a hash table to store key-value pairs.                                        | Uses a Red-Black tree to store key-value pairs.                                                            |
-| Main Benefit      | Offers constant-time performance for basic operations, such as get() and put().    | Maintains keys in sorted order, allowing efficient operations for range views and nearest neighbor search. |
-| Order of Elements | Does not maintain any order of its keys.                                           | Maintains keys in sorted (ascending) order.                                                                |
-| Performance       | Generally faster for basic operations (get, put, containsKey).                     | Slower for basic operations due to the overhead of maintaining the tree structure.                         |
-| Usage             | Suitable for general-purpose use, especially when order is not important.          | Suitable when keys need to be maintained in sorted order or when range queries are needed.                 |
+When comparing HashMap and TreeMap for implementing the Map interface in Java, several factors come into play, including performance, ordering, memory usage, and suitability for specific use cases:
+
+##### HashMap:
+- **Internal Implementation**: Implemented as a hash table using an array of buckets with linked lists of entries for collision resolution.
+- **Performance**:
+  - **Insertion/Deletion/Search**: O(1) average-case time complexity for insertion, deletion, and search operations, assuming a good hash function and load factor.
+  - **Ordering**: Elements are not ordered. Iteration order is not guaranteed and may change over time.
+- **Memory Usage**: Generally consumes less memory than TreeMap due to simpler internal structure.
+- **Suitability**:
+  - Suitable for scenarios where fast insertion, deletion, and lookup operations are required, and the order of elements is not important.
+  - Ideal when memory efficiency and performance for basic map operations are critical.
+
+##### TreeMap:
+- **Internal Implementation**: Implemented as a Red-Black tree, a balanced binary search tree.
+- **Performance**:
+  - **Insertion/Deletion/Search**: O(log n) time complexity for insertion, deletion, and search operations, where n is the number of elements in the map.
+  - **Ordering**: Elements are ordered based on their natural ordering or a custom Comparator provided during TreeMap initialization. Iteration order follows the natural order of keys.
+- **Memory Usage**: Generally consumes more memory than HashMap due to the overhead of maintaining the tree structure.
+- **Suitability**:
+  - Suitable for scenarios where elements need to be maintained in sorted order based on keys and efficient search operations are required.
+  - Ideal when you need a sorted map with guaranteed ordering and support for range queries or operations.
+
+##### Choosing Between HashMap and TreeMap:
+- **Performance Consideration**: HashMap typically offers better performance for most operations due to its constant-time complexity for common operations. However, TreeMap provides guaranteed ordering of elements, which can be beneficial for certain use cases.
+- **Memory Consideration**: TreeMap generally consumes more memory than HashMap due to the additional overhead of maintaining the tree structure.
+- **Ordered Requirement**: If you need elements to be stored in sorted order and efficient search operations, TreeMap is the preferred choice. Otherwise, HashMap may be more suitable for its faster performance and lower memory usage.
+
+##### Example Usage:
+```java
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
+public class MapComparisonExample {
+    public static void main(String[] args) {
+        // HashMap example
+        Map<Integer, String> hashMap = new HashMap<>();
+        hashMap.put(3, "Three");
+        hashMap.put(1, "One");
+        hashMap.put(2, "Two");
+
+        // TreeMap example
+        Map<Integer, String> treeMap = new TreeMap<>();
+        treeMap.put(3, "Three");
+        treeMap.put(1, "One");
+        treeMap.put(2, "Two");
+
+        System.out.println("HashMap: " + hashMap); // Order may vary
+        System.out.println("TreeMap: " + treeMap); // Elements are sorted by keys
+    }
+}
+```
+
+In this example, we create maps using both HashMap and TreeMap implementations. HashMap does not guarantee the ordering of elements, while TreeMap stores elements in sorted order based on their natural ordering. Depending on your specific requirements regarding ordering, performance, and memory usage, you can choose the appropriate implementation.
 
 #### Working with Map Methods
 
-| Method                          | Description                                                                          | Example                                                                                    |
-|---------------------------------|--------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
-| void clear()                    | Removes all keys and values from the map.                                            | map.clear();                                                                               |
-| boolean isEmpty()               | Returns whether the map is empty.                                                    | boolean empty = map.isEmpty();                                                             |
-| int size()                      | Returns the number of entries (key/value pairs) in the map.                          | int mapSize = map.size();                                                                  |
-| V get(Object key)               | Returns the value mapped by key or null if none is mapped.                           | Integer value = map.get("key");                                                            |
-| V put(K key, V value)           | Adds or replaces key/value pair. Returns previous value or null.                     | Integer oldValue = map.put("key", value);                                                  |
-| V remove(Object key)            | Removes and returns value mapped to key. Returns null if none.                       | Integer removedValue = map.remove("key");                                                  |
-| boolean containsKey(Object key) | Returns whether key is in map.                                                       | boolean containsKey = map.containsKey("key");                                              |
-| boolean containsValue(Object)   | Returns whether value is in map.                                                     | boolean containsValue = map.containsValue(value);                                          |
-| Set<K> keySet()                 | Returns set of all keys.                                                             | Set<K> keys = map.keySet();                                                                |
-| Collection<V> values()          | Returns Collection of all values.                                                    | Collection<V> allValues = map.values();                                                    |
+Here's an overview of common methods for working with maps in Java, along with their descriptions and examples:
+
+##### Working with Map Methods:
+
+| Method                            | Description                                                              | Example                                             |
+|-----------------------------------|--------------------------------------------------------------------------|-----------------------------------------------------|
+| `void clear()`                    | Removes all keys and values from the map.                                | `map.clear();`                                      |
+| `boolean isEmpty()`               | Returns whether the map is empty.                                        | `boolean empty = map.isEmpty();`                    |
+| `int size()`                      | Returns the number of entries (key/value pairs) in the map.              | `int mapSize = map.size();`                         |
+| `V get(Object key)`               | Returns the value mapped by the specified key, or null if none is found. | `Integer value = map.get("key");`                  |
+| `V put(K key, V value)`           | Associates the specified value with the specified key in the map.        | `Integer oldValue = map.put("key", value);`        |
+| `V remove(Object key)`            | Removes the mapping for the specified key from the map, if present.      | `Integer removedValue = map.remove("key");`        |
+| `boolean containsKey(Object key)` | Returns true if the map contains a mapping for the specified key.        | `boolean containsKey = map.containsKey("key");`    |
+| `boolean containsValue(Object)`   | Returns true if the map contains one or more mappings to the specified value. | `boolean containsValue = map.containsValue(value);` |
+| `Set<K> keySet()`                 | Returns a set view of the keys contained in the map.                     | `Set<K> keys = map.keySet();`                       |
+| `Collection<V> values()`          | Returns a collection view of the values contained in the map.            | `Collection<V> allValues = map.values();`           |
+
+##### Example Usage:
+```java
+import java.util.HashMap;
+import java.util.Map;
+
+public class MapExample {
+    public static void main(String[] args) {
+        // Creating a HashMap
+        Map<String, Integer> map = new HashMap<>();
+
+        // Adding key-value pairs
+        map.put("one", 1);
+        map.put("two", 2);
+        map.put("three", 3);
+
+        // Removing a key-value pair
+        Integer removedValue = map.remove("two");
+
+        // Checking if a key exists
+        boolean containsKey = map.containsKey("one");
+
+        // Checking if a value exists
+        boolean containsValue = map.containsValue(3);
+
+        // Getting the size of the map
+        int mapSize = map.size();
+
+        // Clearing the map
+        map.clear();
+        
+        // Checking if the map is empty
+        boolean empty = map.isEmpty();
+    }
+}
+```
+
+In this example, we create a HashMap and perform various operations using the provided methods:
+- Adding key-value pairs using `put()`.
+- Removing a key-value pair using `remove()`.
+- Checking if a key exists using `containsKey()`.
+- Checking if a value exists using `containsValue()`.
+- Getting the size of the map using `size()`.
+- Clearing the map using `clear()`.
+- Checking if the map is empty using `isEmpty()`.
 
 ### Comparing Collection Types
 
-*Java Collections Framework types*
+##### Java Collections Framework types
 
 | Type     | Can contain duplicate elements? | Elements ordered?                | Has keys and values? | Must add/remove in specific order?    |
 |----------|---------------------------------|----------------------------------|----------------------|---------------------------------------|
@@ -1249,7 +1367,7 @@ public class QueueExample {
 | Set      | No                              | No                               | No                   | No                                    |
 
 
-*Collection attributes*
+##### Collection attributes
 
 1. Interface: List
 
@@ -1288,7 +1406,7 @@ public class QueueExample {
   + TreeSet — no null elements
   + ArrayDeque — no null elements
 
-*Choosing the right collection type*
+##### Choosing the right collection type
 
 | Which class do you choose when you want ____________                                                                                                                                 | Answer (single best type) | Reason                                                                                                                                                                                                                                                                        |
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -1301,157 +1419,447 @@ public class QueueExample {
 
 ### Comparator vs. Comparable
 
-- Java provides an interface called Comparable. If your class implements Comparable , it can be used 
-in these data structures that require comparison. 
-- There is also a class called Comparator , which is used to specify that you want to use a different
-order than the object itself provides
+In Java, you can sort objects that you create by implementing the Comparable interface. This interface allows objects to define their natural ordering, enabling them to be used in data structures like lists, sets, and arrays that require comparison. Additionally, Java provides a class called Comparator, which allows you to specify a custom order for objects if you want to sort them differently than their natural order.
 
-**Comparable**
+#### Comparable
 
-```java
-public interface Comparable<T> {
+The Comparable interface in Java allows objects to define their natural ordering, enabling them to be sorted based on their inherent properties. Here's a comprehensive overview of Comparable:
 
-  public int compareTo(T o);
-}
-```
+###### Purpose:
+- **Defining Natural Ordering**: Comparable provides a way for objects to define their natural ordering, which is based on certain properties or attributes of the objects.
 
-*There are three rules to know:*
-- The number zero is returned when the current object is equal to the argument to compareTo().
-- A number less than zero is returned when the current object is smaller than the argument to 
-compareTo().
-- A number greater than zero is returned when the current object is larger than the argument to 
-compareTo().
+###### Usage:
+- **Interface Implementation**: Classes that need to define their natural ordering implement the Comparable interface.
 
-```java
-public class Animal implements java.util.Comparable<Animal> {
-    private int id;
+###### Method:
+- **compareTo()**: The key method defined in Comparable. It compares the current object with another object of the same type and returns an integer value:
+  - Negative value: Indicates that the current object is less than the other object.
+  - Zero: Indicates that the current object is equal to the other object.
+  - Positive value: Indicates that the current object is greater than the other object.
+- Example:
+  ```java
+  public class MyClass implements Comparable<MyClass> {
+      private int value;
 
-    public int compareTo(Animal a) {
-        return id - a.id;
-    }
+      // Constructor, getters, setters
 
-    public static void main(String[] args) {
-        Animal a1 = new Animal();
-        Animal a2 = new Animal();
-        
-        a1.id = 5;
-        a2.id = 7;
-        
-        System.out.println(a1.compareTo(a2)); // -2
-        System.out.println(a1.compareTo(a1)); // 0
-        System.out.println(a2.compareTo(a1)); // 2
-    }
-}
-```
+      @Override
+      public int compareTo(MyClass other) {
+          return Integer.compare(this.value, other.value);
+      }
+  }
+  ```
 
-*Remember that id – a.id sorts in ascending order and a.id – id sorts in descending order*
+###### Usage:
+- **Sorting**: Objects implementing Comparable can be sorted using methods like `Collections.sort()` or `Arrays.sort()`.
+- **Binary Search**: Classes implementing Comparable can also be used with methods like `Collections.binarySearch()` for binary search operations.
 
-**Comparator**
+###### Considerations:
+- **Consistent with equals()**: The natural ordering defined by compareTo() should be consistent with the equals() method to ensure consistent behavior across collections and algorithms.
 
-Sometimes you want to sort an object that did not implement Comparable, or you want to sort objects
-in different ways at different times.
+###### Benefits:
+- **Simplicity**: Provides a straightforward way to define the natural ordering of objects.
+- **Integration**: Objects implementing Comparable seamlessly integrate with existing Java APIs for sorting and searching.
 
-```java
-public interface Comparator<T> {
+###### Example Use Cases:
+- Sorting lists of custom objects based on a specific property (e.g., sorting a list of Person objects based on age).
+- Storing objects in sorted collections like TreeSet to maintain a sorted order based on their natural ordering.
 
-  int compare(T o1, T o2);
-}
-```
+###### Tips:
+- Implementing Comparable enables more efficient sorting and searching of objects in Java.
+- Ensure that the compareTo() method adheres to the natural ordering semantics to avoid unexpected behavior.
 
-**Comparison of Comparable and Comparator**
+In summary, the Comparable interface in Java allows objects to define their natural ordering, making them sortable and searchable using standard Java APIs. By implementing Comparable, classes can seamlessly integrate with sorting and searching algorithms, providing greater flexibility and efficiency in Java applications.
 
-| Difference                                   | Comparable          | Comparator          |
-|----------------------------------------------|---------------------|---------------------|
-| Package name                                 | java.lang           | java.util           |
-| Interface must be implemented by class       | Yes                 | No                  |
-| Method name in interface                     | compareTo           | compare             |
-| Number of parameters                         | 1                   | 2                   |
-| Common to declare using a lambda             | No                  | Yes                 |
+#### Comparator
+
+The Comparator interface in Java provides a way to define custom ordering for objects, allowing for sorting based on criteria other than the natural ordering of objects. Here's an in-depth presentation of Comparator:
+
+###### Purpose:
+- **Custom Ordering**: Comparator allows objects to be sorted based on criteria specified by the Comparator rather than the natural ordering of the objects.
+
+###### Usage:
+- **Separate Class or Lambda Expression**: You can implement Comparator as a separate class or use lambda expressions for more concise code.
+
+###### Method:
+- **compare()**: The primary method defined in Comparator. It compares two objects and returns an integer value:
+  - Negative value: Indicates that the first object is less than the second object.
+  - Zero: Indicates that the first object is equal to the second object.
+  - Positive value: Indicates that the first object is greater than the second object.
+- Example:
+  ```java
+  public class MyComparator implements Comparator<MyClass> {
+      @Override
+      public int compare(MyClass obj1, MyClass obj2) {
+          // Custom comparison logic
+      }
+  }
+  ```
+
+###### Usage:
+- **Sorting**: Comparator instances can be passed to methods like `Collections.sort()` or `Arrays.sort()` to sort objects based on custom criteria.
+- **Custom Ordering**: Allows for flexible sorting based on any property or criteria defined by the Comparator.
+
+###### Benefits:
+- **Flexibility**: Provides flexibility in defining custom sorting criteria for objects.
+- **Reusability**: Comparator implementations can be reused across different sorting scenarios.
+- **Separation of Concerns**: Allows for separation of sorting logic from the objects being sorted.
+
+###### Example Use Cases:
+- Sorting a list of custom objects based on multiple criteria (e.g., sorting a list of Person objects by age and then by name).
+- Defining custom sorting for built-in Java classes that do not implement Comparable (e.g., sorting String objects based on length rather than lexicographic order).
+
+###### Tips:
+- Ensure consistency in comparison logic to avoid unexpected behavior during sorting.
+- Use lambda expressions for simple comparison logic to reduce boilerplate code.
+
+In summary, the Comparator interface in Java provides a powerful mechanism for defining custom ordering for objects, allowing for flexible sorting based on specific criteria. By implementing Comparator, developers gain greater control over sorting behavior, enabling efficient and customized sorting in Java applications.
+
+#### Comparison of Comparable and Comparator
+
+Comparing Comparable and Comparator in Java provides insight into their respective roles in sorting objects and allows for a better understanding of when to use each interface. Here's a comprehensive comparison:
+
+###### Comparable Interface:
+- **Purpose**: Defines natural ordering for objects within the class itself.
+- **Usage**: Implemented by the class whose objects need to be sorted.
+- **Method**: Define the `compareTo()` method within the class to compare the current object with another object of the same type.
+- **Sorting**: Objects implementing Comparable can be sorted using methods like `Collections.sort()` or `Arrays.sort()`.
+- **Example**: Sorting a list of objects based on their inherent properties like age or name.
+- **Benefits**:
+  - Simplicity: Provides a straightforward way to define natural ordering.
+  - Integration: Seamlessly integrates with Java APIs for sorting and searching.
+
+###### Comparator Interface:
+- **Purpose**: Defines custom ordering for objects separate from their natural ordering.
+- **Usage**: Implemented as a separate class or using lambda expressions to specify custom sorting criteria.
+- **Method**: Implement the `compare()` method to compare two objects based on custom criteria.
+- **Sorting**: Comparator instances can be passed to sorting methods like `Collections.sort()` to sort objects based on custom criteria.
+- **Example**: Sorting a list of objects based on properties different from their inherent properties, such as sorting a list of Person objects by their salary.
+- **Benefits**:
+  - Flexibility: Allows for custom sorting based on any property or criteria defined by the Comparator.
+  - Reusability: Comparator implementations can be reused across different sorting scenarios.
+
+###### When to Use Each:
+- **Comparable**:
+  - Use when objects have a natural ordering that should be consistent across collections and algorithms.
+  - Suitable when the sorting criteria are inherent to the objects themselves.
+- **Comparator**:
+  - Use when you need to sort objects based on different criteria or when objects do not implement Comparable.
+  - Ideal for scenarios where the sorting criteria are external to the objects being sorted or need to be dynamically defined.
+
+###### Considerations:
+- **Consistency**: Comparable's `compareTo()` should be consistent with the equals() method, while Comparator's `compare()` method can define any custom comparison logic.
+- **Integration**: Comparable integrates with existing Java APIs and collections, while Comparator provides more flexibility in defining sorting criteria.
+
+###### Example Use Cases:
+- Sorting a list of Person objects by age (Comparable).
+- Sorting a list of Employee objects by salary (Comparator).
+
+###### Tips:
+- Understand the distinction between natural ordering and custom ordering when deciding between Comparable and Comparator.
+- Choose the appropriate interface based on the sorting requirements and the nature of the objects being sorted.
+
+In summary, Comparable and Comparator offer distinct approaches to sorting objects in Java, providing flexibility and control over the sorting process. By understanding their differences and use cases, developers can effectively implement sorting logic tailored to their specific requirements.
 
 ### Searching and Sorting
 
-Just like searching and sorting, you can tell collections that require sorting that you wish
-to use a specific Comparator, for example:
+Searching and sorting in Java with Comparable and Comparator interfaces offer powerful mechanisms to efficiently organize and retrieve data. Here's a detailed presentation on how to perform searching and sorting using these interfaces:
 
-```java
-Set<Rabbit> rabbit=new TreeSet<>(new Comparator<Rabbit>(){
-  public int compare(Rabbit r1,Rabbit r2){
-        return r1.id=r2.id;
-  }
-});
-rabbit.add(new Rabbit());
-```
+###### Searching and Sorting with Comparable:
+- **Sorting**: Objects implementing Comparable can be sorted using methods like `Collections.sort()` or `Arrays.sort()`.
+  - Example:
+    ```java
+    List<MyClass> list = new ArrayList<>();
+    list.add(new MyClass(3));
+    list.add(new MyClass(1));
+    list.add(new MyClass(2));
+    Collections.sort(list); // Sort using Comparable
+    ```
+- **Binary Search**: Once sorted, you can use methods like `Collections.binarySearch()` to perform binary search operations.
+  - Example:
+    ```java
+    int index = Collections.binarySearch(list, new MyClass(2)); // Binary search using Comparable
+    ```
+
+###### Searching and Sorting with Comparator:
+- **Sorting**: Comparator instances can be passed to sorting methods like `Collections.sort()` to sort objects based on custom criteria.
+  - Example:
+    ```java
+    List<MyClass> list = new ArrayList<>();
+    list.add(new MyClass(3));
+    list.add(new MyClass(1));
+    list.add(new MyClass(2));
+    Collections.sort(list, new MyComparator()); // Sort using Comparator
+    ```
+- **Binary Search**: When using Comparator for sorting, you need to specify the same Comparator instance for binary search.
+  - Example:
+    ```java
+    int index = Collections.binarySearch(list, new MyClass(2), new MyComparator()); // Binary search using Comparator
+    ```
+
+###### Best Practices:
+- **Consistency**: Ensure that the comparison logic is consistent between sorting and searching operations.
+- **Efficiency**: Use binary search for sorted lists to achieve O(log n) time complexity.
+- **Comparator Reusability**: Reuse Comparator instances for consistent sorting behavior across multiple operations.
+
+###### Example Use Cases:
+- Sorting a list of Employee objects by salary using Comparator.
+- Searching for a specific object in a sorted list of Person objects based on age using Comparable.
+
+###### Tips:
+- Understand the difference between natural ordering (Comparable) and custom ordering (Comparator) when choosing the appropriate interface.
+- Use Comparable for classes where the sorting criteria are inherent to the objects themselves.
+- Use Comparator for defining custom sorting criteria external to the objects being sorted or for dynamic sorting requirements.
+
+By leveraging Comparable and Comparator interfaces, Java developers can efficiently search and sort collections of objects based on their natural or custom ordering criteria, offering flexibility and performance in data manipulation operations.
 
 ### Additions in Java 8
 
-**Using Method References**
+#### Using Method References
 
-There are four formats for method references:
-- Static methods
-- Instance methods on a particular instance
-- Instance methods on an instance to be determined at runtime
-- Constructors
+Method references provide a concise way to refer to methods or constructors using a special syntax. Let's explore how method references work and how they can be used effectively in Java:
 
-**Removing Conditionally**
+###### What are Method References?
+Method references allow you to treat methods as first-class citizens, enabling you to pass them around as arguments to functions or assign them to variables. They provide a compact and readable alternative to lambda expressions when you're simply invoking an existing method.
+
+###### Syntax:
+There are different types of method references, each corresponding to a different method signature. The general syntax for method references is:
+
+```
+ContainingClass::methodName
+```
+
+###### Types of Method References:
+1. **Reference to a Static Method**:
+   ```
+   ContainingClass::staticMethodName
+   ```
+
+2. **Reference to an Instance Method of a Particular Object**:
+   ```
+   object::instanceMethodName
+   ```
+
+3. **Reference to an Instance Method of an Arbitrary Object of a Particular Type**:
+   ```
+   ContainingClass::instanceMethodName
+   ```
+
+4. **Reference to a Constructor**:
+   ```
+   ClassName::new
+   ```
+
+###### Example Usages:
+1. **Reference to a Static Method**:
+   ```java
+   // Using lambda expression
+   Function<String, Integer> parseInt = s -> Integer.parseInt(s);
+
+   // Using method reference
+   Function<String, Integer> parseInt = Integer::parseInt;
+   ```
+
+2. **Reference to an Instance Method of a Particular Object**:
+   ```java
+   // Using lambda expression
+   Consumer<String> printUpperCase = s -> System.out.println(s.toUpperCase());
+
+   // Using method reference
+   Consumer<String> printUpperCase = System.out::println;
+   ```
+
+3. **Reference to an Instance Method of an Arbitrary Object of a Particular Type**:
+   ```java
+   // Using lambda expression
+   Comparator<String> comparator = (s1, s2) -> s1.compareToIgnoreCase(s2);
+
+   // Using method reference
+   Comparator<String> comparator = String::compareToIgnoreCase;
+   ```
+
+4. **Reference to a Constructor**:
+   ```java
+   // Using lambda expression
+   Supplier<List<String>> listSupplier = () -> new ArrayList<>();
+
+   // Using method reference
+   Supplier<List<String>> listSupplier = ArrayList::new;
+   ```
+
+###### When to Use Method References:
+- Use method references when you're simply delegating to an existing method without adding additional logic.
+- They can improve readability and conciseness, especially for simple method invocations.
+
+###### Tips:
+- Understand the different types of method references and their corresponding syntax.
+- Practice using method references to become familiar with their usage and advantages.
+- Use them judiciously, especially in situations where they enhance code readability and maintainability.
+
+By leveraging method references, Java developers can write cleaner and more expressive code, enhancing the readability and maintainability of their applications. They offer a powerful tool for simplifying method invocations and promoting a functional programming style in Java.
+
+#### Removing Conditionally
+
+Removing elements from a collection based on certain conditions is a common task in Java programming. Let's explore various approaches, including the use of lambda expressions and the removeIf() method introduced in Java 8:
+
+###### Traditional Approach:
+In pre-Java 8 versions, you can iterate over the collection and remove elements that meet the specified condition using an Iterator:
 
 ```java
-boolean removeIf(Predicate<? super E> filter)
-```
+List<Integer> numbers = new ArrayList<>();
+numbers.add(1);
+numbers.add(2);
+numbers.add(3);
 
-Java 8 introduces a new method called removeIf. Before this, we had the ability to remove
-a specified object from a collection or a specified index from a list. Now we can specify
-what should be deleted using a block of code.
-
-```java
-List<String> list = new ArrayList<>();
-list.add("Magician");
-list.add("Assistant");
-System.out.println(list); // [Magician, Assistant]
-list.removeIf(s -> s.startsWith("A"));
-System.out.println(list);
-```
-
-**Updating All Elements**
-
-```
-void replaceAll(UnaryOperator<E> o)
-```
-
-- Another new method introduced on Lists is replaceAll. Java 8 lets you pass a lambda
-expression and have it applied to each element in the list. The result replaces the current
-value of that element.
-- It uses a UnaryOperator, which takes one parameter and returns a value of the same
-type.
-
-```java
-List<Integer> list = Arrays.asList(1, 2, 3);
-list.replaceAll(x -> x*2);
-System.out.println(list); // [2, 4, 6]
-```
-
-**Looping through a Collection**
-
-This time, we’ve used a Consumer, which takes a single parameter and doesn’t return
-anything
-
-```java
-    default void forEach(Consumer<? super T> action) {
-        Objects.requireNonNull(action);
-        for (T t : this) {
-            action.accept(t);
-        }
+Iterator<Integer> iterator = numbers.iterator();
+while (iterator.hasNext()) {
+    Integer number = iterator.next();
+    if (number % 2 == 0) {
+        iterator.remove(); // Remove even numbers
     }
+}
 ```
 
-**Using New Java 8 Map APIs**
+###### Using Lambda Expressions (Java 8+):
+With Java 8, lambda expressions provide a more concise and expressive way to remove elements conditionally using the removeIf() method:
 
-*merge()*
+```java
+List<Integer> numbers = new ArrayList<>();
+numbers.add(1);
+numbers.add(2);
+numbers.add(3);
 
-- The merge() method allows adding logic to the problem of what to choose.
-- The merge() method also has logic for what happens if nulls or missing keys are involved. In this 
-case, it doesn’t call the BiFunction at all, and it simply uses the new value.
-- The final thing to know about merge() is what happens when the mapping function is called and 
-returns null. The key is removed from the map when this happens.
+numbers.removeIf(number -> number % 2 == 0); // Remove even numbers
+```
+
+###### When to Use Each Approach:
+- **Traditional Approach**: Use when working with versions of Java prior to Java 8 or when you need to perform complex removal logic that is not easily expressed with a lambda.
+- **Lambda Expressions and removeIf()**: Use in Java 8 or later for simpler and more concise removal of elements based on straightforward conditions.
+
+###### Tips:
+- Prefer the removeIf() method with lambda expressions when working with Java 8 or later, as it provides cleaner and more readable code.
+- Be cautious when modifying a collection while iterating over it to avoid ConcurrentModificationException.
+
+By utilizing these techniques, you can efficiently remove elements from collections based on various conditions, improving code clarity and maintainability in your Java applications.
+
+#### Updating All Elements
+
+Updating all elements in a collection with a specific transformation is a common operation in Java programming. Let's explore how to achieve this using various approaches, including traditional loops and functional programming features introduced in Java 8:
+
+###### Traditional Approach:
+In pre-Java 8 versions, you can iterate over the collection and update each element individually:
+
+```java
+List<Integer> numbers = new ArrayList<>();
+numbers.add(1);
+numbers.add(2);
+numbers.add(3);
+
+for (int i = 0; i < numbers.size(); i++) {
+    numbers.set(i, numbers.get(i) * 2); // Double each element
+}
+```
+
+###### Using Stream API and Lambda Expressions (Java 8+):
+With Java 8, you can utilize the Stream API along with lambda expressions to apply a transformation to all elements in the collection:
+
+```java
+List<Integer> numbers = new ArrayList<>();
+numbers.add(1);
+numbers.add(2);
+numbers.add(3);
+
+numbers.replaceAll(number -> number * 2); // Double each element
+```
+
+###### When to Use Each Approach:
+- **Traditional Approach**: Suitable for versions of Java prior to Java 8 or when working with complex update logic that is not easily expressed with lambda expressions.
+- **Stream API and Lambda Expressions**: Preferred in Java 8 or later for simpler and more concise transformation of all elements in a collection.
+
+###### Tips:
+- Prefer the use of lambda expressions and functional programming features introduced in Java 8 when applicable, as they provide cleaner and more readable code.
+- Be cautious when modifying a collection while iterating over it to avoid ConcurrentModificationException.
+
+By leveraging these techniques, you can efficiently update all elements in a collection with a specific transformation, enhancing code clarity and maintainability in your Java applications.
+
+#### Looping through a Collection
+
+Looping through a collection is a fundamental operation in Java programming, allowing you to iterate over the elements and perform various tasks. Let's explore different approaches for looping through collections:
+
+###### Traditional Approach with Enhanced for-loop:
+Using the enhanced for-loop (also known as the "for-each" loop) introduced in Java 5, you can iterate through each element of the collection:
+
+```java
+List<String> fruits = Arrays.asList("Apple", "Banana", "Orange");
+
+for (String fruit : fruits) {
+    System.out.println(fruit);
+}
+```
+
+###### Using Iterator:
+You can use an Iterator to manually iterate over the collection's elements and perform operations:
+
+```java
+List<String> fruits = Arrays.asList("Apple", "Banana", "Orange");
+Iterator<String> iterator = fruits.iterator();
+
+while (iterator.hasNext()) {
+    String fruit = iterator.next();
+    System.out.println(fruit);
+}
+```
+
+###### Using Stream API (Java 8+):
+With Java 8, you can use the Stream API to process collections in a functional style:
+
+```java
+List<String> fruits = Arrays.asList("Apple", "Banana", "Orange");
+
+fruits.stream().forEach(fruit -> System.out.println(fruit));
+```
+
+###### When to Use Each Approach:
+- **Enhanced for-loop**: Use when you want a simple and concise way to iterate over all elements of a collection without explicit indexing.
+- **Iterator**: Use when you need more control over the iteration process, such as removing elements during iteration or iterating over multiple collections simultaneously.
+- **Stream API**: Use when working with Java 8 or later and when you want to leverage functional programming features like mapping, filtering, and reducing.
+
+###### Tips:
+- Choose the appropriate looping approach based on the requirements of your task and the version of Java you are using.
+- Be cautious when modifying a collection while iterating over it to avoid ConcurrentModificationException.
+
+By leveraging these looping techniques, you can effectively traverse collections and perform tasks on their elements in Java applications, improving code readability and maintainability.
+
+#### Using New Java 8 Map APIs 
+
+###### merge()
+
+In Java 8, the Map interface introduced several new methods to simplify common tasks when working with maps. One of these methods is `merge()`, which provides a convenient way to update the value associated with a specified key in the map. Let's explore how to use the `merge()` method:
+
+1. Syntax:
+```java
+V merge(K key, V value, BiFunction<? super V, ? super V, ? extends V> remappingFunction)
+```
+
+2. Parameters:
+- `key`: The key whose associated value is to be merged.
+- `value`: The value to be merged with the existing value for the specified key.
+- `remappingFunction`: A function to compute the new value by combining the existing value and the new value, if the key is present.
+
+3. Behavior:
+- If the specified key is not present in the map, the `merge()` method adds the key-value pair to the map.
+- If the specified key is present and the remapping function returns a non-null value, the existing value associated with the key is replaced with the new value.
+- If the specified key is present and the remapping function returns null, the key is removed from the map.
+
+4. Use Cases:
+- Updating values in a map based on certain conditions or computations.
+- Handling scenarios where you need to add or modify values in a map based on specific rules.
+
+5. Tips:
+- Ensure that the remapping function provided to `merge()` returns a non-null value if you want to update the existing value.
+- Use lambda expressions or method references to define the remapping function concisely.
+
+By using the `merge()` method, you can easily update values in a map without the need for additional checks or conditional logic, simplifying your code and making it more expressive.
 
 ```java
 import java.util.HashMap;
@@ -1485,10 +1893,19 @@ public class MergeExample {
 }
 ```
 
-*computeIfPresent() and computeIfAbsent()*
+###### computeIfPresent() and computeIfAbsent()
+In Java 8, the `Map` interface introduced two powerful methods: `computeIfPresent()` and `computeIfAbsent()`. These methods provide a convenient way to compute new values for existing keys or add values for absent keys based on specific conditions. Let's explore how to use them:
 
-- In a nutshell, computeIfPresent() calls the BiFunction if the requested key is found.
+1. `computeIfPresent()` Method:
+This method computes a new value for the specified key if the key is present in the map, using the provided mapping function.
 
+2. Syntax:
+```java
+V computeIfPresent(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction)
+```
+
+3. Example:
+```java
 ```java
 Map<String, Integer> counts = new HashMap<>();
 counts.put("Jenny", 1);
@@ -1499,6 +1916,17 @@ System.out.println(counts); // {Jenny=2}
 System.out.println(jenny); // 2
 System.out.println(sam); // null
 ```
+```
+
+4. `computeIfAbsent()` Method:
+This method computes a new value for the specified key if the key is not already associated with a value or is mapped to null, using the provided mapping function.
+
+5. Syntax:
+```java
+V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction)
+```
+
+6. Example:
 
 - For computeIfAbsent(), the functional interface runs only when the key isn’t present or is null:
 
@@ -1513,66 +1941,695 @@ Integer tom = counts.computeIfAbsent("Tom", mapper); // 1
 System.out.println(counts); // {Tom=1, Jenny=15, Sam=1}
 ```
 
-*The basics of the merge and compute methods*
+7. Use Cases:
+- **`computeIfPresent()`**:
+  - Updating values in a map based on specific conditions when the key is present.
+  - Applying transformations to existing values.
 
-| Scenario                     | merge                               | computeIfAbsent                    | computeIfPresent                   |
-|------------------------------|-------------------------------------|------------------------------------|------------------------------------|
-| Key already in map           | Result of function                 | No action                         | Result of function                 |
-| Key not already in map       | Result of function               | Add new value to map                | No action                          |
-| Functional Interface used   | BiFunction (Takes existing value and new value. Returns new value.) | Function (Takes key and returns new value.) | BiFunction (Takes key and existing value. Returns new value.) |
+- **`computeIfAbsent()`**:
+  - Adding default values for keys that are not already present in the map.
+  - Computing new values for absent keys based on specific criteria.
 
+8. Tips:
+- Ensure that the mapping functions provided to `computeIfPresent()` and `computeIfAbsent()` are pure functions, i.e., they do not have side effects.
+- Use lambda expressions or method references to define mapping functions concisely.
 
-*Merge and compute methods when nulls are involved*
+By leveraging `computeIfPresent()` and `computeIfAbsent()` methods, you can efficiently compute new values for existing keys or add values for absent keys based on specific conditions, enhancing the flexibility and usability of your Java applications.
 
-| Key has               | Mapping functions returns | merge                               | computeIfAbsent                                       | computeIfPresent                    |
-|-----------------------|---------------------------|-------------------------------------|-------------------------------------------------------|-------------------------------------|
-| null value in map     | null                      | Remove key from map.                | Do not change map.                                    | Do not change map.                  |
-| null value in map     | Not null                  | Set key to mapping function result. | Add key to map with mapping function result as value. | Do not change map.                  |
-| Non-null value in map | null                      | Remove key from map.                | Do not change map.                                    | Remove key from map.                |
-| Non-null value in map | Not null                  | Set key to mapping function result. | Do not change map.                                    | Set key to mapping function result. |
-| Key not in map        | null                      | Add key to map.                     | Do not change map.                                    | Do not change map.                  |
-| Key not in map        | Not null                  | Add key to map.                     | Add key to map with mapping function result as value. | Do not change map.                  |
+**The basics of the merge and compute methods**
 
-**Summary**
+Here's a comparison of the scenarios and behaviors of `merge()`, `computeIfAbsent()`, and `computeIfPresent()` methods in Java, along with the functional interfaces they use:
 
-*Pick the correct type of collection from a description*:
+| Scenario                    | `merge`                                                                  | `computeIfAbsent`                                  | `computeIfPresent`                                              |
+|-----------------------------|--------------------------------------------------------------------------|----------------------------------------------------|-----------------------------------------------------------------|
+| Key already in map          | Result of function is applied to existing value.                         | No action.                                         | Result of function is applied to existing value.                |
+| Key not already in map      | Result of function is added to the map.                                  | Add new value to map.                              | No action.                                                      |
+| Functional Interface used   | `BiFunction` (Takes existing value and new value. Returns new value.)    | `Function` (Takes key and returns new value.)      | `BiFunction` (Takes key and existing value. Returns new value.) | 
 
-- A List allows duplicates and orders the elements. 
-- A Set does not allow duplicates. 
-- A Queue orders its elements to allow retrievals from one or both ends. 
-- A Map maps keys to value. 
-- Be familiar with the differences of implementations of these interfaces.
+These methods provide powerful ways to update maps based on specific conditions, adding flexibility and convenience to map manipulation in Java programming.
 
-*Identify valid and invalid uses of generics*:
+**Merge and compute methods when nulls are involved**
 
-- `<T>` represents a type parameter. 
-- Any name can be used, but a single uppercase letter is the convention. 
-- `<?>` is an unbounded wildcard.
-- `<? extends X>` is an upper-bounded wildcard and applies to both classes and interfaces. 
-- `<? super X>` is a lower-bounded wildcard.
+Here's a comparison of the behaviors of `merge()`, `computeIfAbsent()`, and `computeIfPresent()` methods in various scenarios when dealing with null values in the map and the mapping functions:
 
-*Recognize the difference between compiler warnings and errors when dealing with legacy code*:
+| Key has               | Mapping function returns | `merge`                                            | `computeIfAbsent`                                     | `computeIfPresent`                  |
+|-----------------------|---------------------------|----------------------------------------------------|-------------------------------------------------------|-------------------------------------|
+| null value in map     | null                      | Remove key from map.                               | Do not change map.                                    | Do not change map.                  |
+| null value in map     | Not null                  | Set key to mapping function result.                | Add key to map with mapping function result as value. | Do not change map.                  |
+| Non-null value in map | null                      | Remove key from map.                               | Do not change map.                                    | Remove key from map.                |
+| Non-null value in map | Not null                  | Set key to mapping function result.                | Do not change map.                                    | Set key to mapping function result. |
+| Key not in map        | null                      | Add key to map.                                    | Do not change map.                                    | Do not change map.                  |
+| Key not in map        | Not null                  | Add key to map.                                    | Add key to map with mapping function result as value. | Do not change map.                  |
 
-- A compiler warning occurs when using non-generic types, and a ClassCastException might occur at 
-runtime. 
-- A compiler error occurs when trying to unbox from a legacy collection.
+These methods provide flexible ways to handle null values and apply mapping functions to update maps according to specific conditions, enhancing the versatility of map manipulation in Java programming.
 
-*Differentiate between Comparable and Comparator:*
+# Summary
 
-- Classes that implement Comparable are said to have a natural ordering and implement the compareTo()
-method. 
-- A class is allowed to have only one natural ordering. 
-- A Comparator takes two objects in the compare() method. 
-- Different Comparators can have different sort orders. 
-- A Comparator is often implemented using a lambda such as (a, b) -> a.num – b.num.
+Generics in Java provide a way to create classes, interfaces, and methods that operate on a type parameter rather than a specific data type. This allows you to write reusable and type-safe code. Here's how to define a generic class in Java:
 
-*Understand the behavior and usage of the sort and binary search methods:*
+### Syntax:
+To create a generic class, you add a type parameter in angle brackets `<T>` after the class name. You can use any name for the type parameter, but single uppercase letters like `T`, `E`, `K`, and `V` are common conventions.
 
-- The Collections and Arrays classes provide overloaded sort() and binarySearch() methods.
-- They take an optional Comparator parameter. 
-- The list or array must be sorted before it is searched using the same definition of order for both.
+```java
+public class ClassName<T> {
+    // Class members and methods
+}
+```
 
-*Map method references to the “long form” lambda:*
+### Example:
+Let's create a simple generic class called `Box` that holds an object of type `T`:
 
-- Be able to convert method references into regular lambda expressions and vice versa. 
-- For example, System.out::print and x -> System.out.print(x) are equivalent.
+```java
+public class Box<T> {
+    private T item;
+
+    public void setItem(T item) {
+        this.item = item;
+    }
+
+    public T getItem() {
+        return item;
+    }
+}
+```
+
+### Usage:
+You can instantiate a generic class by specifying the type argument in angle brackets when creating an object:
+
+```java
+Box<Integer> integerBox = new Box<>();
+integerBox.setItem(10);
+System.out.println(integerBox.getItem()); // Output: 10
+
+Box<String> stringBox = new Box<>();
+stringBox.setItem("Hello");
+System.out.println(stringBox.getItem()); // Output: Hello
+```
+
+### Benefits of Generics:
+1. **Type Safety**: Generics provide compile-time type checking, ensuring type safety and preventing runtime errors.
+2. **Code Reusability**: Generic classes and methods can be used with different data types, promoting code reusability.
+3. **Reduced Code Duplication**: Generics eliminate the need for writing multiple versions of the same code for different data types.
+
+### Tips:
+- Choose meaningful names for type parameters to improve code readability.
+- Use generics when writing classes, interfaces, or methods that need to operate on different data types in a type-safe manner.
+
+By utilizing generics, you can write more flexible and reusable code that is less error-prone and easier to maintain in Java applications.
+
+The diamond operator (`<>`) in Java is a shorthand notation introduced in Java 7 that allows you to specify generic types without explicitly providing the type arguments. It infers the type arguments from the context, making code more concise and readable. Here's how it works:
+
+### Usage:
+When creating an instance of a generic class, you can use the diamond operator (`<>`) to let the compiler infer the type arguments based on the context:
+
+```java
+List<String> names = new ArrayList<>(); // Diamond operator used to infer type argument String
+Map<String, Integer> scores = new HashMap<>(); // Diamond operator used to infer type arguments String and Integer
+```
+
+### Benefits:
+1. **Conciseness**: The diamond operator reduces verbosity by allowing you to omit redundant type arguments, resulting in cleaner and more readable code.
+2. **Type Safety**: Despite omitting explicit type arguments, the compiler ensures type safety by inferring the correct types based on the context.
+
+### Example:
+Consider the following code snippet without and with the diamond operator:
+
+```java
+// Without diamond operator
+List<String> names = new ArrayList<String>();
+
+// With diamond operator
+List<String> names = new ArrayList<>();
+```
+
+Both versions are equivalent, but the latter is more concise and preferred in modern Java programming.
+
+### Limitations:
+- The diamond operator can only be used when the compiler can infer the type arguments from the context. It cannot be used with anonymous inner classes or when the type inference is ambiguous.
+
+### Best Practices:
+- Use the diamond operator (`<>`) whenever possible to improve code readability and reduce redundancy.
+- Be mindful of backward compatibility when using the diamond operator, especially when working with codebases that need to support older Java versions.
+
+By using the diamond operator, you can write more concise and expressive code while maintaining type safety in Java applications.
+
+Generics in Java allow you to specify wildcards, which are used to represent unknown types in generic classes, methods, or interfaces. Wildcards provide flexibility when dealing with generic types. Let's explore the commonly used wildcards:
+
+### Unbounded Wildcard (`<?>`):
+- The unbounded wildcard (`<?>`) represents any type.
+- It is useful when you want to work with a collection of unknown type.
+- It allows you to read from a collection but does not allow adding or removing elements.
+
+### Upper Bounded Wildcard (`<? extends Object>`):
+- The upper bounded wildcard (`<? extends Object>`) represents any type that is Object or extends it.
+- It is useful when you want to accept a collection of any subtype of a specific type.
+- It allows you to read from a collection but does not allow adding or removing elements.
+
+### Upper Bounded Wildcard with Interface (`<? extends MyInterface>`):
+- The upper bounded wildcard with an interface (`<? extends MyInterface>`) represents any type that implements the specified interface `MyInterface`.
+- It is useful when you want to accept a collection of any subtype of a specific interface.
+- Similar to the upper bounded wildcard, it allows you to read from a collection but does not allow adding or removing elements.
+
+### Lower Bounded Wildcard (`<? super Number>`):
+- The lower bounded wildcard (`<? super Number>`) represents any type that is `Number` or a superclass of `Number`.
+- It is useful when you want to accept a collection of a specific type or its supertypes.
+- It allows you to add elements to a collection but does not allow reading elements in a type-safe manner.
+
+### Compiler Error with Unbounded or Upper-Bounded Wildcard:
+- A compiler error occurs if you try to add or remove elements from a collection with an unbounded or upper-bounded wildcard.
+- This is because the compiler cannot guarantee the type safety of adding or removing elements due to the unknown type.
+
+### Example:
+```java
+List<?> unboundedList = new ArrayList<>(); // Unbounded wildcard
+List<? extends Number> upperBoundedList = new ArrayList<>(); // Upper bounded wildcard
+
+// Compiler error: Cannot add elements to a collection with an unbounded or upper-bounded wildcard
+unboundedList.add(10); // Error
+upperBoundedList.add(10); // Error
+```
+
+### Best Practices:
+- Use wildcards to make your code more flexible and reusable.
+- Be cautious when using wildcards, especially when adding or removing elements from collections, to ensure type safety.
+
+By understanding and using wildcards effectively, you can write more versatile and type-safe generic code in Java.
+
+When you work with code that doesn't use generics, also known as legacy code or raw types, Java issues compiler warnings to alert you about potential issues. These warnings indicate that the code might not be type-safe and could lead to runtime errors. Here's a breakdown of the concepts involved:
+
+### Compiler Warnings for Legacy Code:
+- When you use raw types or ignore type safety by not using generics, Java compiler issues warnings to notify you about potential issues.
+- These warnings serve as a reminder to update the code to use generics for better type safety and readability.
+- Ignoring these warnings might lead to runtime errors such as `ClassCastException` when incompatible types are encountered at runtime.
+
+### Difference Between Compiler Warning and Compiler Error:
+- Compiler warning: Indicates potential issues in the code but still allows the compilation process to proceed, producing a class file.
+- Compiler error: Indicates syntax or semantic errors that prevent the compilation process from completing successfully, resulting in the absence of a class file.
+
+### Unboxing and Generics:
+- Unboxing, the process of converting wrapper class objects to their primitive types, can lead to compiler errors when generics are not used.
+- Without generics, the compiler cannot infer the correct types, leading to potential issues during unboxing operations.
+
+### Example:
+```java
+// Legacy code without generics
+List list = new ArrayList(); // Raw type
+list.add("Hello"); // Compiler warning: unchecked call to add(E)
+String value = (String) list.get(0); // Compiler warning: unchecked cast
+
+// Unboxing without generics
+List<Integer> intList = new ArrayList<>();
+intList.add(10);
+int intValue = intList.get(0); // Compiler error: incompatible types
+```
+
+### Best Practices:
+- Always use generics to ensure type safety and prevent potential runtime errors.
+- Pay attention to compiler warnings and address them by updating legacy code to use generics wherever possible.
+- Avoid ignoring compiler warnings, as they often indicate issues that can lead to runtime errors.
+
+By addressing compiler warnings and embracing generics, you can write safer and more robust Java code that is less prone to runtime errors and easier to maintain.
+
+In Java, each primitive type has a corresponding wrapper class, which allows you to treat primitive types as objects. This conversion between primitive types and their corresponding wrapper classes can happen automatically when needed, thanks to a feature called autoboxing and unboxing. Let's delve into these concepts:
+
+### Autoboxing:
+- Autoboxing is the automatic conversion of primitive types to their corresponding wrapper classes.
+- When you assign a primitive value to an object of its corresponding wrapper class or pass a primitive value to a method that expects an object of the wrapper class, autoboxing automatically converts the primitive value to the wrapper class object.
+
+### Example of Autoboxing:
+```java
+int primitiveInt = 10;
+Integer wrapperInteger = primitiveInt; // Autoboxing
+```
+
+### Unboxing:
+- Unboxing is the automatic conversion of wrapper class objects to their corresponding primitive types.
+- When you assign a wrapper class object to a primitive variable or pass a wrapper class object to a method that expects a primitive type, unboxing automatically extracts the primitive value from the wrapper class object.
+
+### Example of Unboxing:
+```java
+Integer wrapperInteger = 20;
+int primitiveInt = wrapperInteger; // Unboxing
+```
+
+### Automatic Conversion Selection:
+- When performing method calls, Java will prioritize methods with exact primitive type signatures over methods with wrapper type signatures.
+- For example, if a method has both `remove(int n)` and `remove(Object o)` signatures, and you call it with an `int` argument, Java will choose the method with the `int` parameter rather than autoboxing to call the method with the `Object` parameter.
+
+### Example:
+```java
+List<Integer> list = new ArrayList<>();
+list.add(10); // Autoboxing to Integer
+list.remove(10); // remove(int n) is called, not remove(Object o)
+```
+
+### Benefits:
+- Autoboxing and unboxing make code more readable and concise by allowing you to mix primitive types and their corresponding wrapper classes seamlessly.
+- They reduce the need for manual conversions between primitive types and their wrapper classes, improving code readability and maintainability.
+
+### Considerations:
+- While autoboxing and unboxing are convenient, they can introduce performance overhead in certain situations, such as frequent conversions in performance-critical code.
+
+By understanding autoboxing and unboxing, you can leverage them effectively to write cleaner and more expressive Java code.
+
+The Java Collections Framework provides a rich set of data structures to store and manipulate collections of objects efficiently. Here's an overview of the main types of data structures along with their corresponding interfaces and implementations:
+
+### List:
+- An ordered collection of elements that allows duplicate entries.
+- Subinterfaces: `List`
+- Implementations: `ArrayList`, `LinkedList`, `Vector`, `Stack`
+
+### Set:
+- A collection that does not allow duplicate elements.
+- Subinterface: `Set`
+- Implementations: `HashSet`, `TreeSet`
+
+### Queue:
+- A collection that orders elements for processing, typically following the FIFO (First-In, First-Out) order.
+- Subinterface: `Queue`
+- Implementations: `LinkedList`, `ArrayDeque`
+
+### Map:
+- A collection that maps unique keys to values.
+- Interface: `Map`
+- Implementations: `HashMap`, `TreeMap`, `Hashtable`
+
+### Notable Implementations:
+- **ArrayList**: A standard resizable list implemented using an array.
+- **LinkedList**: A list that allows easy addition and removal from the beginning or end.
+- **HashSet**: Uses the `hashCode()` method to find unordered elements. Does not allow duplicates.
+- **TreeSet**: A sorted and navigable set. Does not allow null values.
+- **HashMap**: Uses `hashCode()` to find keys. Does not guarantee the order of keys.
+- **TreeMap**: A sorted map implementation. Does not allow null keys.
+- **ArrayDeque**: A double-ended queue that supports FIFO and LIFO operations. Does not allow null values.
+- **Hashtable**: An older version of HashMap that does not allow null keys or values. Thread-safe but less efficient than HashMap.
+
+### Interfaces and Inheritance:
+- The `Collection` interface is the parent interface of `List`, `Set`, and `Queue`, but not `Map`.
+- The `Map` interface stands alone and does not extend `Collection`.
+
+### Thread Safety:
+- `Vector` and `Hashtable` are older thread-safe versions of `ArrayList` and `HashMap`, respectively. However, they are less efficient due to their synchronized nature.
+
+Understanding these data structures and their implementations is essential for efficient data manipulation and algorithm design in Java. Each data structure has its advantages and use cases, so it's crucial to choose the appropriate one based on the requirements of your application.
+
+In Java, the `Comparable` and `Comparator` interfaces are used to define custom ordering for objects. Here's a breakdown of each interface and how they are used:
+
+### Comparable Interface:
+- The `Comparable` interface is used to define the natural ordering of objects.
+- It declares a single method: `compareTo(Object o)`.
+- The `compareTo` method returns:
+  - A negative number if the object is smaller than the argument.
+  - Zero if the two objects are equal.
+  - A positive number otherwise.
+- The `compareTo` method is declared in the class of the object being compared.
+- Implementing the `Comparable` interface allows objects to be compared and sorted using the `Collections.sort()` method.
+
+### Example of Comparable:
+```java
+public class MyClass implements Comparable<MyClass> {
+    private int value;
+
+    // Constructor, getters, setters
+
+    @Override
+    public int compareTo(MyClass other) {
+        return Integer.compare(this.value, other.value);
+    }
+}
+```
+
+### Comparator Interface:
+- The `Comparator` interface is used to define custom ordering of objects that don't implement the `Comparable` interface or to provide alternative sorting criteria.
+- It declares a single method: `compare(Object o1, Object o2)`.
+- The `compare` method returns:
+  - A negative number if the first argument is smaller than the second.
+  - Zero if the two objects are equal.
+  - A positive number otherwise.
+- The `compare` method can be implemented in any class and takes two parameters.
+- `Comparator` can be implemented using anonymous inner classes, lambda expressions, or method references.
+
+### Example of Comparator with Lambda:
+```java
+List<MyClass> list = new ArrayList<>();
+// Populate list
+
+Collections.sort(list, (o1, o2) -> Integer.compare(o1.getValue(), o2.getValue()));
+```
+
+### Key Differences:
+- `Comparable` is implemented by the class of the objects being compared, while `Comparator` can be implemented in any class.
+- `Comparable` defines the natural ordering of objects, while `Comparator` allows for custom ordering.
+- `Comparable` is often used for objects that have a natural ordering, while `Comparator` is used for more flexible and customized sorting.
+
+### Best Practices:
+- Use `Comparable` for natural ordering when objects have an inherent ordering.
+- Use `Comparator` for custom ordering or when sorting objects that don't implement `Comparable`.
+- Prefer lambda expressions or method references when implementing `Comparator` for concise and readable code.
+
+Understanding and utilizing `Comparable` and `Comparator` interfaces allow for flexible and customizable sorting of objects in Java applications.
+
+In Java, both the `Arrays` and `Collections` classes provide methods for sorting and searching collections of objects. These methods ensure consistency in sorting and searching by accepting an optional `Comparator` parameter. Additionally, the `Collection` interface offers several methods that take lambda expressions for flexible and concise manipulation of collections. Let's explore these concepts:
+
+### Sorting and Searching:
+- The `Arrays` class provides a `sort()` method for sorting arrays of objects.
+- The `Collections` class provides a `sort()` method for sorting collections of objects.
+- Both methods accept an optional `Comparator` parameter to define custom sorting order.
+- The `Collections` class also provides a `binarySearch()` method for searching sorted collections.
+
+### Example of Sorting with Comparator:
+```java
+List<String> names = new ArrayList<>();
+// Populate list
+
+Collections.sort(names, (s1, s2) -> s1.compareTo(s2)); // Sort alphabetically
+```
+
+### Example of Binary Search:
+```java
+List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
+int index = Collections.binarySearch(numbers, 5); // Search for 5
+```
+
+### Consistency in Sort Order:
+- It's important to use the same sorting order for both sorting and searching operations to ensure consistent results.
+- By providing the same `Comparator` to both the sorting and searching methods, the order is well-defined and consistent.
+
+### Lambda Expressions in Collection Methods:
+- The `Collection` interface offers methods that take lambda expressions for convenient manipulation of collections.
+- Methods such as `removeIf()`, `forEach()`, and `merge()` allow you to perform operations on elements of a collection using lambda expressions.
+
+### Example of Using Lambda Expressions:
+```java
+List<Integer> numbers = new ArrayList<>();
+// Populate list
+
+// Remove all even numbers using lambda expression
+numbers.removeIf(n -> n % 2 == 0);
+
+// Perform an operation on each element using lambda expression
+numbers.forEach(System.out::println);
+```
+
+### Benefits:
+- Utilizing `Comparator` parameters ensures consistency in sorting and searching operations.
+- Lambda expressions in collection methods offer concise and readable ways to manipulate collections.
+
+### Best Practices:
+- Use custom `Comparator` implementations when sorting collections with specific requirements.
+- Leverage lambda expressions in collection methods for streamlined manipulation of collections.
+
+By understanding and utilizing the sorting and searching methods provided by the `Arrays` and `Collections` classes, along with the flexibility of lambda expressions in collection methods, you can efficiently manipulate and manage collections in Java.
+
+In Java, a method reference is a concise syntax for writing lambda expressions that refer to methods. Method references provide a compact and readable way to pass methods as arguments to functional interfaces. There are four types of method references:
+
+### 1. Static Method Reference:
+- Refers to a static method of a class.
+- Syntax: `ClassName::staticMethodName`.
+
+### Example:
+```java
+// Lambda expression
+Function<String, Integer> toInt = s -> Integer.parseInt(s);
+
+// Method reference
+Function<String, Integer> toIntRef = Integer::parseInt;
+```
+
+### 2. Instance Method Reference to a Specific Instance:
+- Refers to an instance method of a specific object.
+- Syntax: `objectReference::instanceMethodName`.
+
+### Example:
+```java
+String str = "Hello";
+
+// Lambda expression
+Function<Integer, Character> charAt = i -> str.charAt(i);
+
+// Method reference
+Function<Integer, Character> charAtRef = str::charAt;
+```
+
+### 3. Instance Method Reference with the Instance Supplied at Runtime:
+- Refers to an instance method where the instance is provided at runtime.
+- Syntax: `ClassName::instanceMethodName`.
+
+### Example:
+```java
+List<String> names = Arrays.asList("Alice", "Bob", "Charlie");
+
+// Lambda expression
+Consumer<String> printUpperCase = s -> System.out.println(s.toUpperCase());
+
+// Method reference
+Consumer<String> printUpperCaseRef = System.out::println;
+```
+
+### 4. Constructor Reference:
+- Refers to a constructor of a class.
+- Syntax: `ClassName::new`.
+
+### Example:
+```java
+// Lambda expression
+Supplier<String> newString = () -> new String();
+
+// Constructor reference
+Supplier<String> newStringRef = String::new;
+```
+
+### Benefits of Method References:
+- Enhanced readability: Method references provide a concise and clear syntax, especially for simple lambda expressions.
+- Code reuse: Method references allow you to reuse existing methods without rewriting them as lambda expressions.
+- Improved maintainability: By using method references, code becomes more maintainable and less prone to errors.
+
+### Best Practices:
+- Use method references when possible, especially for simple lambda expressions that directly map to method calls.
+- Choose the appropriate type of method reference based on the context and requirements of your code.
+
+By understanding and utilizing method references, you can write cleaner and more expressive code in Java.
+
+# Exam Essentials
+
+**Pick the correct type of collection from a description**
+
+Based on the descriptions provided:
+
+1. A collection that allows duplicates and maintains the order of elements: **List**
+2. A collection that does not allow duplicates: **Set**
+3. A collection that orders its elements to allow retrievals from one or both ends: **Queue**
+4. A collection that maps keys to values: **Map**
+
+Here's a brief explanation of each:
+
+- **List**: Allows duplicates and maintains the order of elements. Examples of implementations include `ArrayList`, `LinkedList`, and `Vector`.
+- **Set**: Does not allow duplicates and does not guarantee the order of elements. Examples of implementations include `HashSet` and `TreeSet`.
+- **Queue**: Orders its elements to allow retrievals from one or both ends. Examples of implementations include `LinkedList` and `ArrayDeque`.
+- **Map**: Maps keys to values, where each key is unique. Examples of implementations include `HashMap`, `TreeMap`, and `Hashtable`.
+
+Understanding these differences is essential for selecting the appropriate collection type based on the specific requirements of your application.
+
+**Identify valid and invalid uses of generics**
+
+Understanding the correct and incorrect uses of generics is essential for writing type-safe and flexible code in Java. Here are examples of valid and invalid uses of generics, along with explanations:
+
+### Valid Uses of Generics:
+
+1. **Declaring a Generic Class or Interface**:
+  - Valid: `class MyClass<T> { }`
+  - Explanation: Declaring a generic class or interface with a type parameter `<T>` allows it to work with any type.
+
+2. **Using Generics in Methods**:
+  - Valid: `public <T> void myMethod(T param) { }`
+  - Explanation: Using generics in methods allows for type flexibility and type safety within the method's scope.
+
+3. **Creating Generic Collections**:
+  - Valid: `List<T> myList = new ArrayList<>();`
+  - Explanation: Generics are commonly used with collections to enforce type safety and allow for generic algorithms.
+
+4. **Wildcard Types**:
+  - Valid: `List<? extends Number> list = new ArrayList<Integer>();`
+  - Explanation: Wildcard types allow for greater flexibility in handling unknown types, such as upper-bounded wildcards (`<? extends X>`) or lower-bounded wildcards (`<? super X>`).
+
+### Invalid Uses of Generics:
+
+1. **Using Raw Types**:
+  - Invalid: `List myList = new ArrayList();`
+  - Explanation: Using raw types bypasses type safety checks and should be avoided in favor of parameterized types.
+
+2. **Using Generics with Primitives**:
+  - Invalid: `List<int> myList = new ArrayList<>();`
+  - Explanation: Generics do not work with primitive types; instead, use their corresponding wrapper classes (e.g., `Integer`, `Double`, `Boolean`).
+
+3. **Creating Instances of Type Parameters**:
+  - Invalid: `T myInstance = new T();`
+  - Explanation: Type parameters cannot be instantiated directly because their type is not known at compile time.
+
+4. **Using Static Members with Generics**:
+  - Invalid: `private static T myStaticField;`
+  - Explanation: Static members cannot directly reference type parameters because they are shared among all instances of the class.
+
+Understanding these valid and invalid uses of generics helps ensure that your code is type-safe and follows best practices in Java programming.
+
+**Recognize the difference between compiler warnings and errors when dealing with legacy code**
+
+When dealing with legacy code in Java, it's important to understand the distinction between compiler warnings and errors, as they indicate different levels of issues in your code:
+
+### Compiler Warnings:
+- **Occurrence**: Compiler warnings occur when using non-generic types, such as raw types, in your code.
+- **Example**: Using a raw type like `ArrayList` without specifying its generic type parameter (`ArrayList myList = new ArrayList();`).
+- **Consequences**: Compiler warnings indicate potential issues with type safety. While the code compiles, it may lead to unexpected behavior or `ClassCastException` at runtime due to type mismatch.
+- **Recommendation**: Address compiler warnings by using generics (`ArrayList<String> myList = new ArrayList<>();`) to ensure type safety and avoid runtime errors.
+
+### Compiler Errors:
+- **Occurrence**: Compiler errors occur when attempting to unbox values from a legacy collection, such as trying to unbox from a raw `ArrayList`.
+- **Example**: Attempting to unbox an `Integer` from a raw `ArrayList`: `int value = (int) myList.get(0);`.
+- **Consequences**: Compiler errors prevent the code from compiling because unboxing from a raw collection is not type-safe and can lead to runtime errors.
+- **Recommendation**: Resolve compiler errors by using generics and properly specifying the type of collections to ensure type safety and prevent potential `ClassCastException` at runtime.
+
+Understanding the difference between compiler warnings and errors helps developers identify and address potential issues in legacy code effectively. By addressing compiler warnings and errors, developers can ensure type safety and prevent unexpected runtime errors.
+
+**Differentiate between Comparable and Comparator**
+
+In Java, `Comparable` and `Comparator` are interfaces used for sorting objects, but they serve different purposes and are implemented differently:
+
+### Comparable Interface:
+- **Purpose**: Classes that implement `Comparable` define a natural ordering for their objects.
+- **Method**: Classes implementing `Comparable` provide a `compareTo()` method, which compares the current object with another object.
+- **Usage**: Objects implementing `Comparable` are said to have a natural ordering and can be sorted using methods like `Collections.sort()` or `Arrays.sort()`.
+- **Limitation**: A class can have only one natural ordering defined by `Comparable`.
+
+### Example:
+```java
+public class Person implements Comparable<Person> {
+    private int age;
+    // Other fields and methods
+
+    @Override
+    public int compareTo(Person other) {
+        return Integer.compare(this.age, other.age);
+    }
+}
+```
+
+### Comparator Interface:
+- **Purpose**: `Comparator` provides a way to define multiple sorting criteria or to sort objects of classes that don't implement `Comparable`.
+- **Method**: Implementations of `Comparator` provide a `compare()` method, which takes two objects and returns a negative integer, zero, or a positive integer.
+- **Usage**: Different `Comparator` implementations can provide different sorting orders for the same class.
+- **Implementation**: `Comparator` can be implemented using lambda expressions or anonymous classes.
+
+### Example:
+```java
+List<Person> people = new ArrayList<>();
+// Sort by age ascending
+Collections.sort(people, (a, b) -> a.getAge() - b.getAge());
+// Sort by name descending
+Collections.sort(people, (a, b) -> b.getName().compareTo(a.getName()));
+```
+
+### Key Differences:
+- **Purpose**: `Comparable` defines a natural ordering within the class, while `Comparator` allows for multiple sorting criteria and is applied externally.
+- **Method Signature**: `Comparable` has `compareTo()` method, taking one parameter, while `Comparator` has `compare()` method, taking two parameters.
+- **Number of Orders**: A class can have only one natural ordering via `Comparable`, but multiple `Comparator` implementations can define different sort orders.
+
+Understanding the difference between `Comparable` and `Comparator` helps in designing and implementing sorting logic in Java applications, providing flexibility and consistency in sorting objects.
+
+**Understand the behavior and usage of the sort and binary search methods**
+
+In Java, the `Collections` and `Arrays` classes provide methods for sorting and searching collections and arrays, respectively. Understanding the behavior and usage of the `sort()` and `binarySearch()` methods is crucial for efficiently managing and retrieving data. Here's an overview:
+
+### `sort()` Method:
+- **Behavior**: The `sort()` method is used to sort elements of a collection or array in ascending order. It rearranges the elements according to their natural ordering (if they implement `Comparable`) or based on a custom sorting criteria provided by a `Comparator`.
+- **Usage**:
+  - For Collections: `Collections.sort(List<T> list)` or `Collections.sort(List<T> list, Comparator<? super T> comparator)`.
+  - For Arrays: `Arrays.sort(T[] array)` or `Arrays.sort(T[] array, Comparator<? super T> comparator)`.
+- **Optional Comparator Parameter**: The overloaded versions of the `sort()` method allow you to specify a custom sorting order using a `Comparator`.
+
+### `binarySearch()` Method:
+- **Behavior**: The `binarySearch()` method is used to search for a specified element in a sorted collection or array. It employs the binary search algorithm, which requires the collection or array to be sorted beforehand.
+- **Usage**:
+  - For Collections: `Collections.binarySearch(List<? extends Comparable<? super T>> list, T key)` or `Collections.binarySearch(List<? extends T> list, T key, Comparator<? super T> comparator)`.
+  - For Arrays: `Arrays.binarySearch(T[] array, T key)` or `Arrays.binarySearch(T[] array, int fromIndex, int toIndex, T key)` or `Arrays.binarySearch(T[] array, T key, Comparator<? super T> comparator)`.
+- **Precondition**: The collection or array must be sorted in ascending order according to the same ordering criteria used for the search.
+
+### Usage Guidelines:
+- Ensure the collection or array is sorted before performing a binary search using the `sort()` method.
+- Use the appropriate overload of `sort()` based on whether you need to use the natural ordering or a custom sorting criteria.
+- When using `binarySearch()`, ensure that the collection or array is sorted in the same order as the search criteria.
+- Provide a `Comparator` if the natural ordering of elements does not match the order required for sorting or searching.
+
+Understanding the behavior and usage of `sort()` and `binarySearch()` methods allows for efficient manipulation and retrieval of data in Java collections and arrays. Always ensure that the elements are sorted correctly before performing searches to achieve accurate results.
+
+**Map method references to the “long form” lambda**
+
+Method references provide a concise way to refer to methods or constructors. They can be thought of as shorthand for lambda expressions. Understanding how to map method references to their corresponding lambda expressions, and vice versa, is essential for writing clean and readable code in Java. Here's how method references are mapped to the "long form" lambda expressions and vice versa:
+
+### Mapping Method References to Lambda Expressions:
+
+1. **Static Method Reference**:
+  - Method Reference: `Class::staticMethod`
+  - Equivalent Lambda Expression: `(args) -> Class.staticMethod(args)`
+
+   Example:
+   ```java
+   // Method Reference
+   Function<Integer, String> methodRef = String::valueOf;
+
+   // Equivalent Lambda Expression
+   Function<Integer, String> lambdaExp = (num) -> String.valueOf(num);
+   ```
+
+2. **Instance Method Reference of an Object**:
+  - Method Reference: `object::instanceMethod`
+  - Equivalent Lambda Expression: `(args) -> object.instanceMethod(args)`
+
+   Example:
+   ```java
+   // Method Reference
+   Consumer<String> methodRef = System.out::println;
+
+   // Equivalent Lambda Expression
+   Consumer<String> lambdaExp = (str) -> System.out.println(str);
+   ```
+
+3. **Instance Method Reference of a Class Type**:
+  - Method Reference: `Class::instanceMethod`
+  - Equivalent Lambda Expression: `(obj, args) -> obj.instanceMethod(args)`
+
+   Example:
+   ```java
+   // Method Reference
+   Comparator<String> methodRef = String::compareToIgnoreCase;
+
+   // Equivalent Lambda Expression
+   Comparator<String> lambdaExp = (str1, str2) -> str1.compareToIgnoreCase(str2);
+   ```
+
+4. **Constructor Reference**:
+  - Method Reference: `Class::new`
+  - Equivalent Lambda Expression: `(args) -> new Class(args)`
+
+   Example:
+   ```java
+   // Method Reference
+   Supplier<List<String>> methodRef = ArrayList::new;
+
+   // Equivalent Lambda Expression
+   Supplier<List<String>> lambdaExp = () -> new ArrayList<>();
+   ```
+
+### Mapping Lambda Expressions to Method References:
+
+Lambda expressions can be mapped to method references when they directly call a method without any additional logic.
+
+Example:
+```java
+// Lambda Expression
+Consumer<String> lambdaExp = (str) -> System.out.println(str);
+
+// Equivalent Method Reference
+Consumer<String> methodRef = System.out::println;
+```
+
+Understanding how to map between method references and lambda expressions provides flexibility in writing expressive and concise code in Java. Both constructs offer different levels of abstraction and can be used interchangeably depending on readability and context.
