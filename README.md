@@ -13,6 +13,8 @@
 
 - `default boolean remove(Object key, Object value)`: This removes the entry for the specified key only if it is currently mapped to the specified value.
 
+- Remember that HashMap supports adding null key as well as null values but ConcurrentHashMap does not. Inserting null key or null in a ConcurrentHashMap will throw a NullPointerException. Some candidates have reported getting a question on this aspect of ConcurrentHashMap.
+- 
 #### Chapter 4: Functional Programming
 
 - Function interface has following default method which returns a function that always returns its input argument.
@@ -20,12 +22,33 @@
 
 #### Chapter 5: Dates, Strings and Localization
 
+- A resource bundle file could be a properties file or a class file.
+
+- The abstract class ResourceBundle has two subclasses: PropertyResourceBundle and ListResourceBundle.
+
+- A PropertyResourceBundle is backed by a properties file. A properties file is a plain-text file that contains translatable text. Properties files are not part of the Java source code, and they can contain values for String objects only. If you need to store other types of objects, use a ListResourceBundle instead.
+
+- The ListResourceBundle class manages resources with a convenient list. Each ListResourceBundle is backed by a class file. You can store any locale-specific object in a ListResourceBundle. To add support for an additional Locale, you create another source file and compile it into a class file.
+
+- The ResourceBundle class is flexible. If you first put your locale-specific String objects in a PropertyResourceBundle and then later decided to use ListResourceBundle instead, there is no impact on your code. For example, the following call to getBundle will retrieve a ResourceBundle for the appropriate Locale, whether ButtonLabel is backed up by a class or by a properties file:
+
+>ResourceBundle introLabels = ResourceBundle.getBundle("ButtonLabel", currentLocale);
 #### Chapter 6: Exceptions and Assertions
 
-You cannot include classes that are related by inheritance in the same multi-catch block.
+- You cannot include classes that are related by inheritance in the same multi-catch block.
+
+- When an assert statement has two expressions, the second expression must return a value.
+
+- The main difference between AutoCloseable and Closeable is that AutoCloseable has Exception in the signature and Closeable has only IOException in the signature.
+
+- Assertions can be enabled or disabled for specific packages or classes. To specify a class, use the class name. To specify a package, use the package name followed by "..." (three dots):
+```
+java -ea:<class> myPackage.MyProgram
+java -da:<package>... myPackage.MyProgram
+```
 
 #### Chapter 7: Concurrency
-The exam needs you to understand and differentiate among Deadlock, Starvation, and Livelock. The following are brief descriptions taken from Oracle Java Tutorial:
+- The exam needs you to understand and differentiate among Deadlock, Starvation, and Livelock. The following are brief descriptions taken from Oracle Java Tutorial:
 
 1. Deadlock describes a situation where two or more threads are blocked forever, waiting for each other. For example, two threads T1 and T2 need a File and a Printer. T1 acquires the lock for the file and is about to acquire the lock for the Printer but before it could acquire the lock, T2 acquires the lock for the Printer and tries to acquire the lock for the file (which is already held by T1). So now, both the threads keep waiting for ever for each other to release their locks and neither will be able to proceed.
 
@@ -45,11 +68,14 @@ Note: Most of the concrete classes that implement Executor, actually implement j
 
 #### Chapter 10: JDBC 
 
-ResultSetMetaData gives you the information about the result of executing a query. You can retrieve this object by calling getMetaData() on ResultSet.
-ResultSetMetaData contains several methods that tell you about the ResultSet. Some important methods are:
+- ResultSetMetaData gives you the information about the result of executing a query. You can retrieve this object by calling getMetaData() on ResultSet.
+
+- ResultSetMetaData contains several methods that tell you about the ResultSet. Some important methods are:
 getColumnCount(), getColumnName(int col), getColumnLabel(int col), and getColumnType(int col). Remember that the column index starts from 1
 
-When creating connection URL for mysql we can follow format: 
+- When creating connection URL for mysql we can follow format: 
 ```
 jdbc:mysql://[host][:port]/[database][?property1][=value1]...
 ```
+
+- We can use both Class.forName() and DriverManager.registerDriver() method for registering the JDBC driver.
