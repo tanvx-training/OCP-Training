@@ -1,81 +1,48 @@
-## OCP Java 8 - Tips & Tricks
+# java8-ocp-study-notes
+A repository to keep track of the study guide on the OCP Java 8 book
 
-#### Chapter 1: Advanced Class Design
+![javaBook](img/javaBook.png)
 
-- Define static content inside non static inner class which is illegal.
-- Can’t override Object class methods using default method.
-- Enum implements Comparable via the natural order of the enum (the order in which the values are declared)
+The book I am going to cover here is the second part of the guide for Java 8 certification. The first guide covers OCA exam (which I already passed) and this guide covers OCP exam (1Z0-809 exam).
 
+# Official Oracle documentation
+https://docs.oracle.com/javase/tutorial/essential/concurrency/index.html
 
-#### Chapter 2: Design Patterns and Principles
+# Other Resources
+Another guide for preparing Java 8 Programmer II exam
+http://ocpj8.javastudyguide.com/
 
-#### Chapter 3: Generics and Collections
+# OCA guide
+My experience after reading the OCA study guide is positive and has encourage me to continue with the second part of the certification. It covers 100% of what you need to know to nail the exam but most importantly helps grasping the content in an effective way.  
 
-- `default boolean remove(Object key, Object value)`: This removes the entry for the specified key only if it is currently mapped to the specified value.
+# This notes
+This notes are taken in order to help me learn all the topics covered in the book and to keep them somewhere safe and with a nice formating. There might be code snippets and solutions to arbitrary questions. Please bear in mind the notes are mainly for miself and that there will be typos.   
 
-- Remember that HashMap supports adding null key as well as null values but ConcurrentHashMap does not. Inserting null key or null in a ConcurrentHashMap will throw a NullPointerException. Some candidates have reported getting a question on this aspect of ConcurrentHashMap.
-- 
-#### Chapter 4: Functional Programming
+# Content
+Chapter 1 - Advanded Class Design
 
-- Function interface has following default method which returns a function that always returns its input argument.
-`static Function identity()`
+Chapter 2 - Design Pattern and Principles
 
-#### Chapter 5: Dates, Strings and Localization
+Chapter 3 - Generics and Collections
 
-- A resource bundle file could be a properties file or a class file.
+Chapter 4 - Functional Programming
 
-- The abstract class ResourceBundle has two subclasses: PropertyResourceBundle and ListResourceBundle.
+Chapter 5 - Dates, Strings, and Localization
 
-- A PropertyResourceBundle is backed by a properties file. A properties file is a plain-text file that contains translatable text. Properties files are not part of the Java source code, and they can contain values for String objects only. If you need to store other types of objects, use a ListResourceBundle instead.
+Chapter 6 - Exceptions and Assertions
 
-- The ListResourceBundle class manages resources with a convenient list. Each ListResourceBundle is backed by a class file. You can store any locale-specific object in a ListResourceBundle. To add support for an additional Locale, you create another source file and compile it into a class file.
+Chapter 7 - Concurrency
 
-- The ResourceBundle class is flexible. If you first put your locale-specific String objects in a PropertyResourceBundle and then later decided to use ListResourceBundle instead, there is no impact on your code. For example, the following call to getBundle will retrieve a ResourceBundle for the appropriate Locale, whether ButtonLabel is backed up by a class or by a properties file:
+Chapter 8 - IO
 
->ResourceBundle introLabels = ResourceBundle.getBundle("ButtonLabel", currentLocale);
-#### Chapter 6: Exceptions and Assertions
+Chapter 9 - NIO.2
 
-- You cannot include classes that are related by inheritance in the same multi-catch block.
+Chapter 10 - JDBC
 
-- When an assert statement has two expressions, the second expression must return a value.
+# Review Questions
 
-- The main difference between AutoCloseable and Closeable is that AutoCloseable has Exception in the signature and Closeable has only IOException in the signature.
+At the end of each chapter I am going to take the test and publish the results. You may notice that the attached pictures show some colour coding:
+- Green if I answerd correctly
+- Red if I answered wrong
+- Pink if I found the question interesting, tricky, worth to refer back.
 
-- Assertions can be enabled or disabled for specific packages or classes. To specify a class, use the class name. To specify a package, use the package name followed by "..." (three dots):
-```
-java -ea:<class> myPackage.MyProgram
-java -da:<package>... myPackage.MyProgram
-```
-
-#### Chapter 7: Concurrency
-- The exam needs you to understand and differentiate among Deadlock, Starvation, and Livelock. The following are brief descriptions taken from Oracle Java Tutorial:
-
-1. Deadlock describes a situation where two or more threads are blocked forever, waiting for each other. For example, two threads T1 and T2 need a File and a Printer. T1 acquires the lock for the file and is about to acquire the lock for the Printer but before it could acquire the lock, T2 acquires the lock for the Printer and tries to acquire the lock for the file (which is already held by T1). So now, both the threads keep waiting for ever for each other to release their locks and neither will be able to proceed.
-
-2. Starvation describes a situation where a thread is unable to gain regular access to shared resources and is unable to make progress. This happens when shared resources are made unavailable for long periods by "greedy" threads. For example, suppose an object provides a synchronized method that often takes a long time to return. If one thread invokes this method frequently, other threads that also need frequent synchronized access to the same object will often be blocked.
-
-3. Livelock: A thread often acts in response to the action of another thread. If the other thread's action is also a response to the action of another thread, then livelock may result. As with deadlock, livelocked threads are unable to make further progress. However, the threads are not blocked — they are simply too busy responding to each other to resume work. For example, after acquiring the File lock, T1 tries to acquire the Printer lock. Finding the Printer lock to be already taken, it releases the lock for the File and notifies T2. At the same time, T2 tries to acquire the File lock and seeing that it is already taken it releases Printer lock and notifies T1. This process can go on and on, both the threads releasing and acquiring the locks in tandem but none of them getting both the locks at the same time. So neither of the threads is blocked but neither of the threads is able to do any real work. All they are doing is notifying each other.
-
-Note: Most of the concrete classes that implement Executor, actually implement java.util.concurrent.ExecutorService interface. ExecutorService extends Executor.
-
-
-#### Chapter 8: IO
-
-- Java SE 8 has new features for reading files, following is such a method that can be used to read file.
-`public static List readAllLines(Path path) throws IOException`
-- 
-#### Chapter 9: NIO.2
-
-#### Chapter 10: JDBC 
-
-- ResultSetMetaData gives you the information about the result of executing a query. You can retrieve this object by calling getMetaData() on ResultSet.
-
-- ResultSetMetaData contains several methods that tell you about the ResultSet. Some important methods are:
-getColumnCount(), getColumnName(int col), getColumnLabel(int col), and getColumnType(int col). Remember that the column index starts from 1
-
-- When creating connection URL for mysql we can follow format: 
-```
-jdbc:mysql://[host][:port]/[database][?property1][=value1]...
-```
-
-- We can use both Class.forName() and DriverManager.registerDriver() method for registering the JDBC driver.
