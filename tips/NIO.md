@@ -175,9 +175,28 @@ public Path normalize()
 - Đường dẫn kết quả hoặc đường dẫn hiện tại nếu nó không chứa các phần tử tên dư thừa; một đường dẫn rỗng được trả về nếu đường dẫn này có thành phần gốc và tất cả các phần tử tên đều dư thừa.
 
 
-| Path gốc      | Path parameter | `relativize()`                      | `resolve()`                              |
-|---------------|----------------|-------------------------------------|------------------------------------------|
-| Absolute      | Absolute       | Tính khoảng cách tương đối          | Path parameter                           |
-| Absolute      | Relative       | Tính khoảng cách tương đối          | Kết hợp Path gốc và Path parameter       |
-| Relative      | Absolute       | Ném `IllegalArgumentException`      | Path parameter                           |
-| Relative      | Relative       | Tính khoảng cách tương đối          | Kết hợp Path gốc và Path parameter       |
+Dưới đây là bảng Markdown bao gồm giải thích chi tiết cho mỗi kết quả:
+
+```markdown
+| Path gốc      | Path parameter | `relativize()`                                   | `resolve()`                                              |
+|---------------|----------------|--------------------------------------------------|---------------------------------------------------------|
+| Absolute      | Absolute       | Tính khoảng cách tương đối. Nếu khác gốc, ném `IllegalArgumentException`. | Path parameter thay thế Path gốc.                         |
+| Absolute      | Relative       | Ném `IllegalArgumentException`.                 | Kết hợp Path gốc và Path parameter để tạo Path tuyệt đối mới. |
+| Relative      | Absolute       | Ném `IllegalArgumentException`.                 | Path parameter thay thế Path gốc.                         |
+| Relative      | Relative       | Tính khoảng cách tương đối. Nếu khác gốc, ném `IllegalArgumentException`. | Kết hợp Path gốc và Path parameter để tạo Path tương đối mới.  |
+```
+
+### Giải thích chi tiết:
+1. **`relativize()`**:
+  - **Absolute Path gốc và Absolute Path parameter**: Tính khoảng cách tương đối giữa hai đường dẫn tuyệt đối. Nếu chúng không cùng gốc, ném `IllegalArgumentException`.
+  - **Absolute Path gốc và Relative Path parameter**: Ném `IllegalArgumentException` vì không thể tính khoảng cách tương đối giữa đường dẫn tuyệt đối và đường dẫn tương đối.
+  - **Relative Path gốc và Absolute Path parameter**: Ném `IllegalArgumentException` vì không thể tính khoảng cách tương đối giữa đường dẫn tương đối và đường dẫn tuyệt đối.
+  - **Relative Path gốc và Relative Path parameter**: Tính khoảng cách tương đối giữa hai đường dẫn tương đối. Nếu chúng không cùng gốc, ném `IllegalArgumentException`.
+
+2. **`resolve()`**:
+  - **Absolute Path gốc và Absolute Path parameter**: Path parameter sẽ thay thế Path gốc.
+  - **Absolute Path gốc và Relative Path parameter**: Kết hợp Path gốc với Path parameter để tạo ra một đường dẫn tuyệt đối mới.
+  - **Relative Path gốc và Absolute Path parameter**: Path parameter sẽ thay thế Path gốc.
+  - **Relative Path gốc và Relative Path parameter**: Kết hợp Path gốc với Path parameter để tạo ra một đường dẫn tương đối mới.
+
+Bảng này cung cấp không chỉ kết quả của từng method mà còn giải thích chi tiết về các trường hợp cụ thể.
