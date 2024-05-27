@@ -173,3 +173,11 @@ public Path normalize()
 **Trả về**:
 
 - Đường dẫn kết quả hoặc đường dẫn hiện tại nếu nó không chứa các phần tử tên dư thừa; một đường dẫn rỗng được trả về nếu đường dẫn này có thành phần gốc và tất cả các phần tử tên đều dư thừa.
+
+
+| Path gốc      | Path parameter | `relativize()`                      | `resolve()`                              |
+|---------------|----------------|-------------------------------------|------------------------------------------|
+| Absolute      | Absolute       | Tính khoảng cách tương đối          | Path parameter                           |
+| Absolute      | Relative       | Tính khoảng cách tương đối          | Kết hợp Path gốc và Path parameter       |
+| Relative      | Absolute       | Ném `IllegalArgumentException`      | Path parameter                           |
+| Relative      | Relative       | Tính khoảng cách tương đối          | Kết hợp Path gốc và Path parameter       |
